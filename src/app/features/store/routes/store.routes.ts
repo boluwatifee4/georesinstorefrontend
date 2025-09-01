@@ -1,7 +1,10 @@
 import { Routes } from '@angular/router';
 
-// Placeholder for /store child routes. Add resource routes under children when ready.
 export const STORE_ROUTES: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('../pages/store-home.component').then(m => m.StoreHomeComponent),
+  },
   // { path: 'categories', loadChildren: () => import('./childrenroutes/categories/categories.routes').then(m => m.CATEGORY_ROUTES) },
   // { path: 'products', loadChildren: () => import('./childrenroutes/products/products.routes').then(m => m.PRODUCT_ROUTES) },
   // { path: 'cart', loadChildren: () => import('./childrenroutes/cart/cart.routes').then(m => m.CART_ROUTES) },

@@ -114,3 +114,31 @@ export interface AppConfig {
   whatsappLink: string | null;
   checkoutNote: string | null;
 }
+
+// Request DTOs
+export interface OrderCreateRequest {
+  cartId: string;
+  locationLabel?: string;
+}
+
+export interface DeclarePaymentRequest {
+  cartId: string;
+  buyerName: string;
+  phone?: string;
+  email?: string;
+  whatsapp?: string;
+  locationLabel?: string;
+}
+
+export interface AddCartItemRequest {
+  variantId: number;
+  qty: number;
+}
+
+export interface UpdateCartItemRequest {
+  qty: number;
+}
+
+export interface DeliveryQuoteRequest {
+  locationLabel: string;
+}

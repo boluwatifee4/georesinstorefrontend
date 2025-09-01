@@ -30,7 +30,7 @@ export class CartStore {
   readonly itemCount = computed(() => this._state().items.length);
   readonly loading = computed(() => this._state().loading);
   readonly error = computed(() => this._state().error);
-  
+
   // Computed totals
   readonly subtotal = computed(() => {
     return this._state().items.reduce((sum, item) => {
@@ -157,7 +157,7 @@ export class CartStore {
   private updateItemInState(updatedItem: CartItem) {
     this._state.update(state => ({
       ...state,
-      items: state.items.map(item => 
+      items: state.items.map(item =>
         item.id === updatedItem.id ? updatedItem : item
       )
     }));

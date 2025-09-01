@@ -81,14 +81,14 @@ export class ApiHttpService {
     return `${baseUrl}/${cleanEndpoint}`;
   }
 
-  private buildHttpOptions(options?: ApiRequestOptions): { 
-    params?: HttpParams; 
-    headers?: Record<string, string>; 
+  private buildHttpOptions(options?: ApiRequestOptions): {
+    params?: HttpParams;
+    headers?: Record<string, string>;
     context?: HttpContext;
   } {
-    const httpOptions: { 
-      params?: HttpParams; 
-      headers?: Record<string, string>; 
+    const httpOptions: {
+      params?: HttpParams;
+      headers?: Record<string, string>;
       context?: HttpContext;
     } = {};
 

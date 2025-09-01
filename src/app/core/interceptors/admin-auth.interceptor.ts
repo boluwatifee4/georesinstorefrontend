@@ -7,7 +7,7 @@ import { ADMIN_API_KEY } from '../../config/tokens/api.tokens';
  */
 export const adminAuthInterceptor: HttpInterceptorFn = (req, next) => {
   const adminApiKey = inject(ADMIN_API_KEY);
-  
+
   // Only add auth header for admin endpoints
   if (req.url.includes('/admin') && adminApiKey) {
     const authReq = req.clone({
@@ -17,6 +17,6 @@ export const adminAuthInterceptor: HttpInterceptorFn = (req, next) => {
     });
     return next(authReq);
   }
-  
+
   return next(req);
 };
