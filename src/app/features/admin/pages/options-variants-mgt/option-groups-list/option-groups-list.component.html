@@ -1,0 +1,161 @@
+<!-- Option Groups Management Header -->
+<div class="mb-4 sm:mb-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Option Groups</h1>
+      <p class="mt-1 text-sm text-gray-600">Manage product variation types like Size, Color, Material</p>
+    </div>
+    <button
+      (click)="onCreateOptionGroup()"
+      class="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto"
+    >
+      <ng-icon name="lucidePlus" class="text-lg"></ng-icon>
+      <span>Add Option Group</span>
+    </button>
+  </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="mb-4 sm:mb-6">
+  <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+    <div class="flex-1 relative">
+      <ng-icon name="lucideSearch" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></ng-icon>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search option groups..."
+        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+      >
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading()" class="flex items-center justify-center py-12">
+  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+  <span class="ml-3 text-gray-600">Loading option groups...</span>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error() && !loading()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+  <div class="flex items-center">
+    <ng-icon name="lucideTriangleAlert" class="text-red-600 text-lg mr-2"></ng-icon>
+    <p class="text-red-800">{{ error() }}</p>
+  </div>
+</div>
+
+<!-- Empty State -->
+<div *ngIf="!loading() && filteredOptionGroups && filteredOptionGroups.length === 0 && !error()" class="text-center py-12">
+  <ng-icon name="lucideSquare" class="mx-auto text-6xl text-gray-300 mb-4"></ng-icon>
+  <h3 class="text-lg font-medium text-gray-900 mb-2">No option groups found</h3>
+  <p class="text-gray-600 mb-6">
+    {{ searchQuery ? 'No option groups match your search.' : 'Get started by creating your first option group.' }}
+  </p>
+  <button
+    *ngIf="!searchQuery"
+    (click)="onCreateOptionGroup()"
+    class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors duration-200"
+  >
+    <ng-icon name="lucidePlus" class="text-lg"></ng-icon>
+    <span>Add Option Group</span>
+  </button>
+</div>
+
+<!-- Option Groups List/Grid -->
+<div *ngIf="!loading() && filteredOptionGroups && filteredOptionGroups.length > 0" class="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 sm:gap-4">
+  <div *ngFor="let optionGroup of filteredOptionGroups"
+       class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+
+    <!-- Option Group Header -->
+    <div class="flex items-start justify-between mb-3">
+      <div class="flex-1 min-w-0">
+        <h3 class="text-lg font-semibold text-gray-900 truncate">{{ optionGroup.name }}</h3>
+        <p class="text-sm text-gray-500 mt-1">
+          Option Group • ID: {{ optionGroup.id }}
+        </p>
+      </div>
+
+      <!-- Actions Dropdown -->
+      <div class="relative ml-3">
+        <button
+          class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          [attr.aria-label]="'Actions for ' + optionGroup.name"
+        >
+          <ng-icon name="lucideEllipsisVertical" class="text-lg"></ng-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Option Group Info -->
+    <div class="mb-4">
+      <p class="text-sm text-gray-600">
+        Created: {{ optionGroup.createdAt | date:'short' }}
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap gap-2">
+      <button
+        (click)="onViewOptionGroup(optionGroup)"
+        class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors duration-200"
+      >
+        <ng-icon name="lucideEye" class="text-base"></ng-icon>
+        <span>View</span>
+      </button>
+
+      <button
+        (click)="onEditOptionGroup(optionGroup)"
+        class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors duration-200"
+      >
+        <ng-icon name="lucidePencil" class="text-base"></ng-icon>
+        <span>Edit</span>
+      </button>
+
+      <button
+        (click)="onDeleteOptionGroup(optionGroup)"
+        class="inline-flex items-center justify-center gap-1.5 px-2 py-2 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-md transition-colors duration-200"
+      >
+        <ng-icon name="lucideTrash2" class="text-base"></ng-icon>
+        <span class="sr-only">Delete {{ optionGroup.name }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteModal"
+     class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="p-6">
+      <div class="flex items-center mb-4">
+        <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+          <ng-icon name="lucideTriangleAlert" class="text-red-600 text-lg"></ng-icon>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-lg font-medium text-gray-900">Delete Option Group</h3>
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-600 mb-6">
+        Are you sure you want to delete <strong>"{{ optionGroupToDelete?.name }}"</strong>?
+        This action cannot be undone and will remove all associated options.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
+        <button
+          (click)="closeDeleteModal()"
+          class="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="confirmDelete()"
+          class="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200"
+        >
+          Delete Option Group
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+/* Admin Sidebar - Using Tailwind with theme variables */
+
+/* Custom scrollbar for sidebar navigation */
+nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+nav::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+nav::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* Smooth transitions for expand/collapse */
+.sidebar-transition {
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+/* Active route styling enhancement */
+[routerLinkActive] {
+  position: relative;
+}
+
+[routerLinkActive]::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: var(--color-brand-600);
+  border-radius: 2px;
+}
+
+/* Tooltip for collapsed state */
+.tooltip {
+  @apply absolute left-full ml-2 px-2 py-1 bg-surface border border-border rounded text-sm text-text whitespace-nowrap opacity-0 pointer-events-none transition-opacity z-50;
+}
+
+.tooltip.show {
+  @apply opacity-100;
+}
+
+/* Icon rotation animation */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Hover effects */
+.nav-item:hover .tooltip {
+  opacity: 1;
+  transition-delay: 0.5s;
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+a:focus-visible {
+  @apply ring-2 ring-brand-600 ring-offset-2 ring-offset-surface outline-none;
+}

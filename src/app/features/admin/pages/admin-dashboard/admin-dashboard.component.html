@@ -1,0 +1,234 @@
+<!-- Dashboard Content -->
+<main class="bg-gray-50 dark:bg-gray-900 ">
+  <div class="container-grs py-6">
+    <!-- Page Title -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        Dashboard Overview
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-2">
+        Welcome back! Here's what's happening with your store.
+      </p>
+    </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <!-- Total Orders -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                  <ng-icon name="lucideShoppingCart" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                </div>
+              </div>
+              <div class="ml-4 flex-1">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Orders</p>
+                    <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+                      {{ displayStats().totalOrders }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Products -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                  <ng-icon name="lucidePackage" class="w-4 h-4 text-green-600 dark:text-green-400" />
+                </div>
+              </div>
+              <div class="ml-4 flex-1">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Products</p>
+                    <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+                      {{ displayStats().totalProducts }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Customers -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                  <ng-icon name="lucideUsers" class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                </div>
+              </div>
+              <div class="ml-4 flex-1">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Customers</p>
+                    <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+                      {{ displayStats().totalCustomers }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Revenue -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg flex items-center justify-center">
+                  <ng-icon name="lucideTrendingUp" class="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                </div>
+              </div>
+              <div class="ml-4 flex-1">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
+                    <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+                      ${{ displayStats().totalRevenue | number:'1.2-2' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Orders</h3>
+              <a
+                routerLink="/admin/orders"
+                class="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+              >
+                View all
+              </a>
+            </div>
+          </div>
+
+          <div class="p-6">
+            @if (isLoading()) {
+              <div class="space-y-4">
+                @for (item of [1,2,3]; track item) {
+                  <div class="animate-pulse">
+                    <div class="flex items-center space-x-4">
+                      <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                      <div class="flex-1">
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                      </div>
+                      <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              @if (displayRecentOrders().length === 0) {
+                <div class="text-center py-8">
+                  <ng-icon name="lucideShoppingCart" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p class="text-gray-500 dark:text-gray-400">No recent orders found</p>
+                </div>
+              } @else {
+                <div class="space-y-4">
+                  @for (order of displayRecentOrders(); track order.id) {
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                      <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                          <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                            <span class="text-sm font-medium text-purple-600 dark:text-purple-400">
+                              {{ order.orderCode.slice(-2) }}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">
+                            {{ order.orderCode }}
+                          </p>
+                          <p class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ order.customerName }} • {{ order.createdAt | date:'short' }}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="flex items-center space-x-4">
+                        <span [class]="getStatusColor(order.status)" class="px-2 py-1 text-xs font-medium rounded-full">
+                          {{ order.status.replace('_', ' ') }}
+                        </span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                          ${{ order.total | number:'1.2-2' }}
+                        </span>
+                        <button
+                          class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          [routerLink]="['/admin/orders', order.id]"
+                        >
+                          <ng-icon name="lucideEye" class="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          <a
+            routerLink="/admin/products/new"
+            class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-900/40 transition-colors">
+                  <ng-icon name="lucidePackage" class="w-4 h-4 text-green-600 dark:text-green-400" />
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Add New Product</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Create a new product listing</p>
+              </div>
+            </div>
+          </a>
+
+          <a
+            routerLink="/admin/orders"
+            class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-900/40 transition-colors">
+                  <ng-icon name="lucideShoppingCart" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Manage Orders</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Review and process orders</p>
+              </div>
+            </div>
+          </a>
+
+          <a
+            routerLink="/admin/categories"
+            class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-900/40 transition-colors">
+                  <ng-icon name="lucideCalendar" class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Manage Categories</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Organize your products</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </main>

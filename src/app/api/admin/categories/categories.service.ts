@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiHttpService } from '../../../core/http/api-http.service';
 import { Category } from '../../../types/api.types';
-import { CreateCategoryDto, UpdateCategoryDto } from '../../dtos/api.dtos';
+import { CreateCategoryDto, UpdateCategoryDto, AdminListResponse } from '../../dtos/api.dtos';
 
 @Injectable({ providedIn: 'root' })
 export class AdminCategoriesService {
@@ -18,8 +18,8 @@ export class AdminCategoriesService {
   /**
    * GET /admin/categories - List all categories (admin view)
    */
-  getCategories(): Observable<Category[]> {
-    return this.apiHttp.adminGet<Category[]>('admin/categories');
+  getCategories(): Observable<AdminListResponse<Category>> {
+    return this.apiHttp.adminGet<AdminListResponse<Category>>('admin/categories');
   }
 
   /**

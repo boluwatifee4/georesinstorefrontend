@@ -1,0 +1,125 @@
+/* src/styles/theme.css */
+
+:root {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Typography scale (tweak as you like) */
+html {
+  font-size: 16px;
+}
+body {
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  color: var(--color-text); /* from your Palette B tokens */
+  background: var(--color-bg);
+}
+
+/* Headings */
+.h1 {
+  font-size: clamp(2rem, 2.6vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.h2 {
+  font-size: clamp(1.5rem, 1.8vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+.h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Body */
+.text {
+  font-size: 1rem;
+  font-weight: 400;
+}
+.muted {
+  color: var(--color-text-muted);
+}
+
+/* Prices & numbers align nicely */
+.price,
+.sku,
+.qty {
+  font-variant-numeric: tabular-nums lining-nums;
+  /* fallback if needed: font-feature-settings: "tnum" 1, "lnum" 1; */
+}
+
+/* Emphasis that matches your brand */
+.emphasis {
+  font-weight: 700;
+  color: var(--color-primary-600);
+}
+
+/* === Light theme tokens (create utilities) === */
+@theme {
+  /* Brand (Palette B – Amethyst) */
+  --color-brand-600: #6e44ff;
+  --color-brand-700: #5b36e6;
+  --color-brand-900: #3b0764;
+  --color-accent: #e879f9;
+
+  /* Surfaces & text */
+  --color-surface: #ffffff;
+  --color-bg: #f8f5ff;
+  --color-text: #0b1220;
+  --color-muted: #4b5563;
+  --color-border: #e5e7eb;
+
+  /* Feedback */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+
+  /* Fonts (so you can do class: font-sans) */
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial;
+}
+
+/* Improve native widgets + scrollbars for theme */
+:root {
+  color-scheme: light;
+}
+
+/* === Dark theme overrides (runtime variable swaps) === */
+.dark {
+  color-scheme: dark;
+
+  --color-bg: #0f0a18;
+  --color-surface: #171123;
+  --color-text: #eae6f6;
+  --color-muted: #b1a7ca;
+  --color-border: #2a1f3d;
+
+  /* Keep brand recognizable but slightly lifted for contrast */
+  --color-brand-600: #7c5bff;
+  --color-brand-700: #6b48f0;
+
+  /* Accent pop tuned for dark */
+  --color-accent: #f0a0ff;
+
+  /* Feedback tweak (still readable on dark) */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+}
+
+/* Optional helpers that use your tokens directly */
+@layer components {
+  .card {
+    @apply bg-surface text-text border border-border rounded-2xl;
+  }
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .muted {
+    color: var(--color-muted);
+  }
+}

@@ -1,0 +1,204 @@
+<!-- Form Header -->
+<div class="mb-6 sm:mb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+    <div class="flex items-center gap-4">
+      <button
+        (click)="onCancel()"
+        class="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200"
+        [attr.aria-label]="'Back to product variants'"
+      >
+        <ng-icon name="lucideArrowLeft" class="text-xl"></ng-icon>
+      </button>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
+          {{ isEditMode() ? 'Edit Product Variant' : 'Create Product Variant' }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+          {{ isEditMode() ? 'Update variant details and inventory' : 'Create a new product variant with specific options' }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="isLoading() && isEditMode()" class="flex items-center justify-center py-12">
+  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+  <span class="ml-3 text-gray-600">Loading variant...</span>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error() && !isLoading()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+  <div class="flex items-center">
+    <ng-icon name="lucideTriangleAlert" class="text-red-600 text-lg mr-2"></ng-icon>
+    <p class="text-red-800">{{ error() }}</p>
+  </div>
+</div>
+
+<!-- Main Form Content -->
+<div *ngIf="!isLoading() || !isEditMode()" class="space-y-6">
+
+  <!-- Variant Details Card -->
+  <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Variant Details</h2>
+
+    <form [formGroup]="variantForm" (ngSubmit)="onSave()" class="space-y-4">
+
+      <!-- Product ID Field -->
+      <div>
+        <label for="productId" class="block text-sm font-medium text-gray-700 mb-2">
+          Product ID *
+        </label>
+        <input
+          id="productId"
+          type="number"
+          formControlName="productId"
+          min="1"
+          placeholder="1"
+          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+          [class.border-red-300]="getFieldError('productId')"
+          [class.focus:ring-red-500]="getFieldError('productId')"
+          [class.focus:border-red-500]="getFieldError('productId')"
+        >
+        <div *ngIf="getFieldError('productId')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('productId') }}
+        </div>
+        <p class="mt-1 text-xs text-gray-500">ID of the parent product this variant belongs to</p>
+      </div>
+
+      <!-- SKU Field -->
+      <div>
+        <label for="sku" class="block text-sm font-medium text-gray-700 mb-2">
+          SKU (Stock Keeping Unit) *
+        </label>
+        <input
+          id="sku"
+          type="text"
+          formControlName="sku"
+          placeholder="e.g., TSHIRT-RED-M, JEANS-BLUE-32"
+          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+          [class.border-red-300]="getFieldError('sku')"
+          [class.focus:ring-red-500]="getFieldError('sku')"
+          [class.focus:border-red-500]="getFieldError('sku')"
+        >
+        <div *ngIf="getFieldError('sku')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('sku') }}
+        </div>
+        <p class="mt-1 text-xs text-gray-500">Unique identifier for this specific variant</p>
+      </div>
+
+      <!-- Price Field -->
+      <div>
+        <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
+          Price *
+        </label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <span class="text-gray-500 sm:text-sm">$</span>
+          </div>
+          <input
+            id="price"
+            type="text"
+            formControlName="price"
+            placeholder="29.99"
+            class="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+            [class.border-red-300]="getFieldError('price')"
+            [class.focus:ring-red-500]="getFieldError('price')"
+            [class.focus:border-red-500]="getFieldError('price')"
+          >
+        </div>
+        <div *ngIf="getFieldError('price')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('price') }}
+        </div>
+        <p class="mt-1 text-xs text-gray-500">Enter the price as a decimal number (e.g., 29.99)</p>
+      </div>
+
+      <!-- Inventory Field -->
+      <div>
+        <label for="inventory" class="block text-sm font-medium text-gray-700 mb-2">
+          Inventory Quantity *
+        </label>
+        <input
+          id="inventory"
+          type="number"
+          formControlName="inventory"
+          min="0"
+          placeholder="0"
+          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+          [class.border-red-300]="getFieldError('inventory')"
+          [class.focus:ring-red-500]="getFieldError('inventory')"
+          [class.focus:border-red-500]="getFieldError('inventory')"
+        >
+        <div *ngIf="getFieldError('inventory')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('inventory') }}
+        </div>
+        <p class="mt-1 text-xs text-gray-500">Number of units available in stock</p>
+      </div>
+
+      <!-- Image URL Field (Optional) -->
+      <div>
+        <label for="imageUrl" class="block text-sm font-medium text-gray-700 mb-2">
+          Image URL <span class="text-gray-400">(Optional)</span>
+        </label>
+        <input
+          id="imageUrl"
+          type="url"
+          formControlName="imageUrl"
+          placeholder="https://example.com/variant-image.jpg"
+          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+          [class.border-red-300]="getFieldError('imageUrl')"
+          [class.focus:ring-red-500]="getFieldError('imageUrl')"
+          [class.focus:border-red-500]="getFieldError('imageUrl')"
+        >
+        <div *ngIf="getFieldError('imageUrl')" class="mt-1 text-sm text-red-600">
+          {{ getFieldError('imageUrl') }}
+        </div>
+        <p class="mt-1 text-xs text-gray-500">URL to an image specific to this variant</p>
+      </div>
+
+      <!-- Active Status Toggle -->
+      <div class="flex items-center">
+        <input
+          id="isActive"
+          type="checkbox"
+          formControlName="isActive"
+          class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+        >
+        <label for="isActive" class="ml-3 block text-sm font-medium text-gray-700">
+          Active
+        </label>
+      </div>
+      <p class="ml-7 text-xs text-gray-500">Inactive variants won't be available for purchase</p>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 sm:justify-end pt-6">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="variantForm.invalid || isLoading()"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
+        >
+          <ng-icon *ngIf="isLoading()" name="lucideLoader" class="text-lg animate-spin"></ng-icon>
+          <ng-icon *ngIf="!isLoading()" name="lucideSave" class="text-lg"></ng-icon>
+          <span>{{ isEditMode() ? 'Update' : 'Create' }} Variant</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Additional Info Card (only in edit mode) -->
+  <div *ngIf="isEditMode() && currentVariant()" class="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
+    <h3 class="text-sm font-semibold text-blue-900 mb-2">Current Variant Information</h3>
+    <div class="text-sm text-blue-800 space-y-1">
+      <p><strong>Variant ID:</strong> {{ currentVariant()?.id }}</p>
+      <p><strong>Parent Product:</strong> Product #{{ currentVariant()?.productId }}</p>
+      <p><strong>Current Status:</strong> {{ currentVariant()?.isActive ? 'Active' : 'Inactive' }}</p>
+    </div>
+  </div>
+</div>

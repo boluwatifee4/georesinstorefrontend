@@ -1,2 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+
+/* Make dark mode class-based instead of media-query (optional but recommended) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Your design tokens + overrides */
+@import "./styles/theme.css";

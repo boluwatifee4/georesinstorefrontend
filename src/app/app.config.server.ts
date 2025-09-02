@@ -6,9 +6,9 @@ import { ADMIN_API_BASE_URL, ADMIN_API_KEY, BASE_API_URL } from './config/tokens
 const serverConfig: ApplicationConfig = {
   providers: [
     provideServerRendering(),
-    { provide: BASE_API_URL, useValue: process.env['PUBLIC_API_URL'] ?? '/api' },
-    { provide: ADMIN_API_BASE_URL, useValue: process.env['ADMIN_API_URL'] ?? (process.env['PUBLIC_API_URL'] ?? '/api') },
-    { provide: ADMIN_API_KEY, useValue: process.env['ADMIN_API_KEY'] ?? '' },
+    { provide: BASE_API_URL, useValue: process.env['PUBLIC_API_URL'] ?? 'https://georesinstore-api.onrender.com' },
+    { provide: ADMIN_API_BASE_URL, useValue: process.env['ADMIN_API_URL'] ?? (process.env['PUBLIC_API_URL'] ?? 'https://georesinstore-api.onrender.com') },
+    { provide: ADMIN_API_KEY, useValue: process.env['ADMIN_API_KEY'] ?? 'changeme-dev-key' },
   ]
 };
 

@@ -1,0 +1,145 @@
+<!-- Mobile Sidebar Overlay -->
+<div
+  class="fixed inset-0 bg-black/50 z-30 lg:hidden transition-opacity duration-300"
+  [class.opacity-100]="isMobileOpen()"
+  [class.opacity-0]="!isMobileOpen()"
+  [class.pointer-events-none]="!isMobileOpen()"
+  (click)="closeMobileSidebar()"
+></div>
+
+<!-- Sidebar -->
+<aside
+  class="fixed lg:static inset-y-0 left-0 z-40 bg-surface border-r border-border transition-all duration-300 flex flex-col"
+  [class.w-64]="!isCollapsed()"
+  [class.w-16]="isCollapsed() && !isMobileOpen()"
+  [class.w-64]="isMobileOpen()"
+  [class.translate-x-0]="isMobileOpen() || !isMobile()"
+  [class.-translate-x-full]="!isMobileOpen() && isMobile()"
+>
+  <!-- Sidebar Header -->
+  <div class="h-16 flex items-center justify-center border-b border-border">
+    @if (!isCollapsed()) {
+      <div class="flex items-center space-x-3 px-4">
+        <img
+          src="/logo.png"
+          alt="GeoResin Logo"
+          class="w-12 h-12 object-contain"
+        >
+        <div>
+          <h2 class="font-bold text-text text-sm">GeoResin</h2>
+        </div>
+      </div>
+    } @else {
+      <img
+        src="/logo.png"
+        alt="GeoResin Logo"
+        class="w-10 h-10 object-contain"
+      >
+    }
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto py-4">
+    <ul class="space-y-1 px-3">
+      @for (item of visibleItems(); track item.id) {
+        <li>
+          <!-- Item with children (expandable) -->
+          @if (item.children && item.children.length > 0) {
+            <!-- Group Header -->
+            <button
+              class="w-full flex items-center justify-between p-3 rounded-lg text-sm font-medium transition-colors hover:bg-border/20 group"
+              [class.bg-brand-50]="hasActiveChild(item)"
+              [class.text-brand-600]="hasActiveChild(item)"
+              [class.text-muted]="!hasActiveChild(item)"
+              (click)="toggleGroup(item.id)"
+            >
+              <div class="flex items-center space-x-3">
+                <ng-icon
+                  [name]="item.icon"
+                  size="18"
+                  [class.text-brand-600]="hasActiveChild(item)"
+                  [class.text-muted]="!hasActiveChild(item)"
+                ></ng-icon>
+                @if (!isCollapsed()) {
+                  <span>{{ item.label }}</span>
+                }
+              </div>
+
+              @if (!isCollapsed()) {
+                <ng-icon
+                  [name]="item.isExpanded ? 'lucideChevronDown' : 'lucideChevronRight'"
+                  size="16"
+                  class="transition-transform"
+                ></ng-icon>
+              }
+            </button>
+
+            <!-- Children (when expanded) -->
+            @if (item.isExpanded && !isCollapsed()) {
+              <ul class="mt-1 ml-6 space-y-1">
+                @for (child of item.children; track child.id) {
+                  <li>
+                    <a
+                      [routerLink]="child.route || ''"
+                      routerLinkActive="bg-brand-50 text-brand-600 border-l-2 border-brand-600"
+                      class="flex items-center space-x-3 p-2 pl-3 rounded-lg text-sm transition-colors hover:bg-border/20 text-muted hover:text-text"
+                    >
+                      <ng-icon [name]="child.icon" size="16"></ng-icon>
+                      <span>{{ child.label }}</span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          } @else {
+            <!-- Simple item (direct link) -->
+            <a
+              [routerLink]="item.route || ''"
+              routerLinkActive="bg-brand-50 text-brand-600 border-l-2 border-brand-600"
+              class="flex items-center p-3 rounded-lg text-sm font-medium transition-colors hover:bg-border/20 text-muted hover:text-text group relative"
+              [title]="isCollapsed() ? item.label : ''"
+            >
+              <div class="flex items-center space-x-3 flex-1">
+                <ng-icon [name]="item.icon" size="18"></ng-icon>
+                @if (!isCollapsed()) {
+                  <span>{{ item.label }}</span>
+                }
+              </div>
+
+              <!-- Badge for notifications/counts -->
+              @if (item.badge && item.badge > 0) {
+                @if (!isCollapsed()) {
+                  <span class="bg-accent text-white text-xs px-2 py-1 rounded-full">
+                    {{ item.badge }}
+                  </span>
+                } @else {
+                  <span class="absolute -top-1 -right-1 bg-accent text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {{ item.badge > 99 ? '99+' : item.badge }}
+                  </span>
+                }
+              }
+            </a>
+          }
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- Sidebar Footer / Toggle -->
+  <div class="p-3 border-t border-border">
+    <button
+      class="w-full flex items-center justify-center p-3 rounded-lg text-sm font-medium transition-colors hover:bg-border/20 text-muted hover:text-text"
+      (click)="toggleSidebar()"
+      [title]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+    >
+      @if (isCollapsed()) {
+        <ng-icon name="lucideChevronRight" size="18"></ng-icon>
+      } @else {
+        <div class="flex items-center space-x-3">
+          <ng-icon name="lucideChevronRight" size="18" class="rotate-180"></ng-icon>
+          <span>Collapse</span>
+        </div>
+      }
+    </button>
+  </div>
+</aside>

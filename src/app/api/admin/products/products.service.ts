@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiHttpService } from '../../../core/http/api-http.service';
 import { Product, ProductMedia } from '../../../types/api.types';
+import { AdminListResponse } from '../../dtos/api.dtos';
 
 export interface CreateProductRequest {
   title: string;
@@ -30,13 +31,6 @@ export interface AddMediaRequest {
   isPrimary?: boolean;
 }
 
-export interface AdminProductListResponse {
-  products: Product[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
 @Injectable({ providedIn: 'root' })
 export class AdminProductsService {
   private readonly apiHttp = inject(ApiHttpService);
@@ -51,8 +45,8 @@ export class AdminProductsService {
   /**
    * Get all products (admin view)
    */
-  getProducts(filters?: any): Observable<AdminProductListResponse> {
-    return this.apiHttp.adminGet<AdminProductListResponse>('/admin/products', {
+  getProducts(filters?: any): Observable<AdminListResponse<Product>> {
+    return this.apiHttp.adminGet<AdminListResponse<Product>>('/admin/products', {
       params: filters
     });
   }

@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiHttpService } from '../../../core/http/api-http.service';
 import { OptionGroup, Option } from '../../../types/api.types';
+import { AdminListResponse } from '../../dtos/api.dtos';
 
 export interface CreateOptionGroupRequest {
   name: string;
@@ -30,8 +31,8 @@ export class AdminOptionGroupsService {
   /**
    * Get all option groups
    */
-  getOptionGroups(): Observable<OptionGroup[]> {
-    return this.apiHttp.adminGet<OptionGroup[]>('/admin/option-groups');
+  getOptionGroups(): Observable<AdminListResponse<OptionGroup>> {
+    return this.apiHttp.adminGet<AdminListResponse<OptionGroup>>('/admin/option-groups');
   }
 
   /**
@@ -51,8 +52,8 @@ export class AdminOptionGroupsService {
   /**
    * Get options for group
    */
-  getOptions(groupId: number): Observable<Option[]> {
-    return this.apiHttp.adminGet<Option[]>(`/admin/option-groups/${groupId}/options`);
+  getOptions(groupId: number): Observable<AdminListResponse<Option>> {
+    return this.apiHttp.adminGet<AdminListResponse<Option>>(`/admin/option-groups/${groupId}/options`);
   }
 
   /**
@@ -60,6 +61,13 @@ export class AdminOptionGroupsService {
    */
   deleteOption(optionId: number): Observable<void> {
     return this.apiHttp.adminDelete<void>(`/admin/options/${optionId}`);
+  }
+
+  /**
+   * Delete option group
+   */
+  deleteOptionGroup(id: number): Observable<void> {
+    return this.apiHttp.adminDelete<void>(`/admin/option-groups/${id}`);
   }
 
   /**

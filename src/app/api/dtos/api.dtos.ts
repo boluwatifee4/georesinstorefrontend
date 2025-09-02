@@ -1,9 +1,16 @@
 // DTOs for API requests/responses
 
+// Generic Admin List Response
+export interface AdminListResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+}
+
 // Category DTOs
 export interface CreateCategoryDto {
   name: string;
-  slug: string;
   active?: boolean;
 }
 

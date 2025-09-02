@@ -46,7 +46,7 @@ export class AdminProductsStore {
       })
     ).subscribe(response => {
       if (response) {
-        this.setProducts(response.products);
+        this.setProducts(response.data);
         this.setPagination({
           total: response.total,
           page: response.page,

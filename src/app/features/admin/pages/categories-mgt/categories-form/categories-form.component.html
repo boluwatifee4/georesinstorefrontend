@@ -1,0 +1,133 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="p-4 sm:p-6">
+    <!-- Header -->
+    <div class="flex items-center space-x-4 mb-6">
+      <button
+        class="p-2 rounded-lg text-muted hover:text-text hover:bg-surface transition-colors"
+        (click)="onCancel()"
+        title="Back to categories"
+      >
+        <ng-icon name="lucideArrowLeft" size="20"></ng-icon>
+      </button>
+
+      <div class="flex-1">
+        <h1 class="text-xl sm:text-2xl font-bold text-text">
+          {{ isEditing ? 'Edit Category' : 'Create Category' }}
+        </h1>
+        <p class="text-sm text-muted">
+          {{ isEditing ? 'Update category information' : 'Add a new product category' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-2xl">
+      <!-- Error Message -->
+      @if (error()) {
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+          <div class="flex items-start space-x-3">
+            <ng-icon name="lucideX" size="18" class="text-red-600 mt-0.5 flex-shrink-0"></ng-icon>
+            <div class="flex-1">
+              <p class="text-red-800 dark:text-red-200 text-sm font-medium">Error</p>
+              <p class="text-red-700 dark:text-red-300 text-sm mt-1">{{ error() }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Form Card -->
+      <div class="bg-surface border border-border rounded-lg shadow-sm">
+        <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+
+          <!-- Category Name -->
+          <div class="space-y-2">
+            <label for="name" class="block text-sm font-medium text-text">
+              Category Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              placeholder="Enter category name"
+              class="w-full px-3 py-2.5 border border-border rounded-lg bg-surface text-text placeholder-muted focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              [class.border-red-300]="getFieldError('name')"
+              [class.focus:ring-red-500]="getFieldError('name')"
+            >
+            @if (getFieldError('name')) {
+              <p class="text-red-600 text-sm mt-1">{{ getFieldError('name') }}</p>
+            }
+          </div>
+
+          <!-- Category Slug -->
+          <div class="space-y-2">
+            <label for="slug" class="block text-sm font-medium text-text">
+              URL Slug <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="slug"
+              type="text"
+              formControlName="slug"
+              placeholder="category-slug"
+              class="w-full px-3 py-2.5 border border-border rounded-lg bg-surface text-text placeholder-muted focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+              [class.border-red-300]="getFieldError('slug')"
+              [class.focus:ring-red-500]="getFieldError('slug')"
+            >
+            <p class="text-xs text-muted mt-1">
+              Used in URLs. Only lowercase letters, numbers, and hyphens allowed.
+            </p>
+            @if (getFieldError('slug')) {
+              <p class="text-red-600 text-sm mt-1">{{ getFieldError('slug') }}</p>
+            }
+          </div>
+
+          <!-- Active Status -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-text">Status</label>
+            <div class="flex items-center">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="active"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 dark:peer-focus:ring-purple-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                <span class="ml-3 text-sm text-text">
+                  {{ categoryForm.get('active')?.value ? 'Active' : 'Inactive' }}
+                </span>
+              </label>
+            </div>
+            <p class="text-xs text-muted">
+              {{ categoryForm.get('active')?.value ? 'Category is visible and available for use' : 'Category is hidden and not available for use' }}
+            </p>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border">
+            <button
+              type="button"
+              (click)="onCancel()"
+              class="flex-1 sm:flex-initial px-6 py-2.5 text-text bg-surface border border-border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              [disabled]="categoryForm.invalid || isSubmitting"
+              class="flex-1 sm:flex-initial px-6 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2"
+            >
+              @if (isSubmitting) {
+                <ng-icon name="lucideLoader" size="16" class="animate-spin"></ng-icon>
+                <span>{{ isEditing ? 'Updating...' : 'Creating...' }}</span>
+              } @else {
+                <ng-icon name="lucideSave" size="16"></ng-icon>
+                <span>{{ isEditing ? 'Update Category' : 'Create Category' }}</span>
+              }
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

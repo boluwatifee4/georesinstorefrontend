@@ -1,0 +1,75 @@
+/* Admin Header - Using Tailwind with theme variables */
+
+/* Custom button styles that work with our theme */
+.btn-ghost {
+  @apply px-3 py-2 rounded-lg transition-colors hover:bg-border/20 active:bg-border/30;
+}
+
+/* Smooth transitions for dropdowns */
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.2s ease-out;
+}
+
+.dropdown-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-exit-active {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all 0.15s ease-in;
+}
+
+/* Custom scrollbar for notifications */
+.notifications-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notifications-scroll::-webkit-scrollbar-track {
+  background: var(--color-border);
+}
+
+.notifications-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 2px;
+}
+
+.notifications-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text);
+}
+
+/* Animation for notification badge */
+@keyframes pulse-notification {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.notification-badge {
+  animation: pulse-notification 2s infinite;
+}
+
+/* Ensure proper z-index layering */
+.admin-header {
+  z-index: 1000;
+}
+
+.dropdown-menu {
+  z-index: 1010;
+}
+
+.overlay {
+  z-index: 1005;
+}

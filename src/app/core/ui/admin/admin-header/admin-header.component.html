@@ -1,0 +1,219 @@
+<header class="bg-surface border-b border-border shadow-sm z-50">
+  <div class="px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 sm:h-16">
+
+    <!-- Mobile Menu Button + Logo -->
+    <div class="flex items-center space-x-3">
+      <!-- Mobile Sidebar Toggle -->
+      <button
+        class="lg:hidden p-2 -ml-2 rounded-lg text-muted hover:text-text hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        (click)="toggleSidebar()"
+        title="Toggle menu"
+      >
+        <ng-icon [name]="isSidebarOpen() ? 'lucideX' : 'lucideMenu'" size="20"></ng-icon>
+      </button>
+
+      <!-- Logo with actual GC branding -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Your actual GC Logo -->
+        <img
+          src="/logo.png"
+          alt="GeoResin Logo"
+          class="w-8 h-8 sm:w-14 sm:h-14 object-contain"
+        >
+        <div class="hidden sm:block">
+          <h1 class="text-base sm:text-lg font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">
+            GeoResin
+          </h1>
+          <span class="text-xs text-muted font-medium">Admin Panel</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Section - Mobile Optimized -->
+    <div class="flex items-center space-x-1 sm:space-x-2">
+
+      <!-- Notifications Button -->
+      <div class="relative">
+        <button
+          class="p-2 rounded-lg text-muted hover:text-text hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
+          (click)="toggleNotifications()"
+          title="Notifications"
+        >
+          <ng-icon name="lucideBell" size="18" class="sm:w-5 sm:h-5"></ng-icon>
+          @if (unreadCount > 0) {
+            <span class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-medium">
+              {{ unreadCount > 9 ? '9+' : unreadCount }}
+            </span>
+          }
+        </button>
+
+        <!-- Mobile-First Notifications Dropdown -->
+        @if (showNotifications()) {
+          <div class="fixed inset-x-0 top-14 sm:top-16 sm:absolute sm:right-0 sm:inset-x-auto sm:w-80 sm:mt-2 bg-surface border-t sm:border border-border sm:rounded-xl shadow-lg z-50 max-h-[70vh] sm:max-h-96 overflow-hidden">
+            <div class="p-4 border-b border-border bg-surface/95 backdrop-blur-sm">
+              <div class="flex items-center justify-between">
+                <h3 class="font-medium text-text">Notifications</h3>
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm text-muted">{{ unreadCount }} unread</span>
+                  <button
+                    class="sm:hidden p-1 text-muted hover:text-text"
+                    (click)="toggleNotifications()"
+                  >
+                    <ng-icon name="lucideX" size="16"></ng-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="overflow-y-auto max-h-[calc(70vh-4rem)] sm:max-h-80">
+              @if (notifications().length === 0) {
+                <div class="p-6 text-center">
+                  <ng-icon name="lucideBell" size="24" class="text-muted mx-auto mb-2"></ng-icon>
+                  <p class="text-sm text-muted">No notifications</p>
+                </div>
+              } @else {
+                @for (notification of notifications(); track notification.id) {
+                  <div
+                    class="p-4 border-b border-border last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+                    (click)="markNotificationRead(notification.id)"
+                  >
+                    <div class="flex items-start space-x-3">
+                      @if (notification.unread) {
+                        <div class="w-2 h-2 bg-purple-600 rounded-full mt-2 flex-shrink-0"></div>
+                      } @else {
+                        <div class="w-2 h-2 mt-2 flex-shrink-0"></div>
+                      }
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-text truncate">{{ notification.title }}</p>
+                        <p class="text-sm text-muted line-clamp-2">{{ notification.message }}</p>
+                        <p class="text-xs text-muted mt-1">{{ notification.time }}</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Theme Toggle -->
+      <div class="relative">
+        <button
+          class="p-2 rounded-lg text-muted hover:text-text hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          (click)="toggleThemeMenu()"
+          title="Theme"
+        >
+          @switch (currentTheme()) {
+            @case ('light') {
+              <ng-icon name="lucideSun" size="18" class="sm:w-5 sm:h-5"></ng-icon>
+            }
+            @case ('dark') {
+              <ng-icon name="lucideMoon" size="18" class="sm:w-5 sm:h-5"></ng-icon>
+            }
+            @default {
+              <ng-icon name="lucideMonitor" size="18" class="sm:w-5 sm:h-5"></ng-icon>
+            }
+          }
+        </button>
+
+        <!-- Theme Menu Dropdown -->
+        @if (isThemeMenuOpen()) {
+          <div class="absolute right-0 mt-2 w-48 bg-surface border border-border rounded-xl shadow-lg z-50">
+            <div class="py-2">
+              @for (option of themeOptions; track option.value) {
+                <button
+                  class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center space-x-3"
+                  [class.bg-gray-50]="currentTheme() === option.value"
+                  [class.dark:bg-gray-800]="currentTheme() === option.value"
+                  (click)="selectTheme(option.value)"
+                >
+                  <ng-icon [name]="option.icon" size="16"></ng-icon>
+                  <span class="text-text">{{ option.label }}</span>
+                  @if (currentTheme() === option.value) {
+                    <ng-icon name="lucideCheck" size="14" class="ml-auto text-purple-600"></ng-icon>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- User Menu -->
+      <div class="relative">
+        <button
+          class="flex items-center space-x-2 sm:space-x-3 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          (click)="toggleUserMenu()"
+        >
+          <!-- User Avatar matching the GC logo style -->
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-700 border border-purple-500 flex items-center justify-center">
+            <ng-icon name="lucideUser" size="14" class="text-white sm:w-4 sm:h-4"></ng-icon>
+          </div>
+          <div class="hidden sm:block text-left">
+            <div class="text-sm font-medium text-text">Admin</div>
+            <div class="text-xs text-muted">administrator</div>
+          </div>
+          <ng-icon name="lucideChevronDown" size="14" class="hidden sm:block text-muted transform transition-transform" [class.rotate-180]="isUserMenuOpen()"></ng-icon>
+        </button>
+
+        <!-- User Menu Dropdown -->
+        @if (isUserMenuOpen()) {
+          <div class="absolute right-0 mt-2 w-56 sm:w-64 bg-surface border border-border rounded-xl shadow-lg z-50">
+            <!-- User Info -->
+            <div class="p-4 border-b border-border">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-purple-700 border-2 border-purple-500 flex items-center justify-center">
+                  <ng-icon name="lucideUser" size="18" class="text-white"></ng-icon>
+                </div>
+                <div>
+                  <div class="font-medium text-text">Administrator</div>
+                  <div class="text-sm text-muted">admin&#64;georesin.com</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Menu Items -->
+            <div class="py-2">
+              <a
+                routerLink="/admin/profile"
+                class="flex items-center space-x-3 px-4 py-2 text-sm text-text hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                (click)="closeMenus()"
+              >
+                <ng-icon name="lucideUser" size="16"></ng-icon>
+                <span>Profile Settings</span>
+              </a>
+
+              <a
+                routerLink="/admin/config"
+                class="flex items-center space-x-3 px-4 py-2 text-sm text-text hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                (click)="closeMenus()"
+              >
+                <ng-icon name="lucideSettings" size="16"></ng-icon>
+                <span>App Settings</span>
+              </a>
+
+              <hr class="my-2 border-border">
+
+              <button
+                class="w-full flex items-center space-x-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                (click)="logout()"
+              >
+                <ng-icon name="lucideLogOut" size="16"></ng-icon>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Overlay -->
+  @if (showNotifications() || isUserMenuOpen() || isThemeMenuOpen()) {
+    <div
+      class="fixed inset-0 bg-black/20 z-40 lg:hidden"
+      (click)="closeMenus()"
+    ></div>
+  }
+</header>
