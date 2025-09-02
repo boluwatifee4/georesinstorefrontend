@@ -76,6 +76,7 @@ export class AdminOptionGroupsStore {
     ).subscribe(optionGroup => {
       if (optionGroup) {
         this.setCurrentOptionGroup(optionGroup);
+        // console.log('Loaded option group:', optionGroup);
       }
       this.setLoading(false);
     });
@@ -90,7 +91,12 @@ export class AdminOptionGroupsStore {
       })
     ).subscribe(response => {
       if (response) {
-        this.setCurrentOptions(response.data);
+        if (Array.isArray(response.data)) {
+          this.setCurrentOptions(response.data);
+        } else {
+          const res = response as any
+          this.setCurrentOptions(res || []);
+        }
       }
       this.setLoading(false);
     });

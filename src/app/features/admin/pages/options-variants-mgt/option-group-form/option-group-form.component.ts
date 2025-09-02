@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
@@ -63,6 +63,16 @@ export class OptionGroupFormComponent implements OnInit {
     this.optionForm = this.fb.group({
       value: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]]
     });
+
+    // Effect to watch for currentOptionGroup changes and update form
+    effect(() => {
+      const optionGroup = this.currentOptionGroup();
+      if (optionGroup && this.isEditMode()) {
+        this.optionGroupForm.patchValue({
+          name: optionGroup.name
+        });
+      }
+    });
   }
 
   ngOnInit() {
@@ -78,18 +88,8 @@ export class OptionGroupFormComponent implements OnInit {
 
   loadOptionGroup(id: number) {
     this.optionGroupsStore.loadOptionGroup(id);
-
-    // Use effect to watch for changes in currentOptionGroup
-    // Note: In a real app, you might want to use effect() from @angular/core
-    // For now, we'll check the current value after loading
-    setTimeout(() => {
-      const optionGroup = this.currentOptionGroup();
-      if (optionGroup) {
-        this.optionGroupForm.patchValue({
-          name: optionGroup.name
-        });
-      }
-    }, 100);
+    // The effect in the constructor will automatically update the form
+    // when currentOptionGroup signal changes
   }
 
   loadOptions(groupId: number) {
