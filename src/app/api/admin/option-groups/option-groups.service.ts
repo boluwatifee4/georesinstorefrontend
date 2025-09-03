@@ -10,6 +10,16 @@ export interface CreateOptionGroupRequest {
 
 export interface AddOptionRequest {
   value: string;
+  priceModifier: number;   // Price addition in kobo/cents
+  inventory: number;       // Option-specific inventory
+  isActive: boolean;       // Option availability
+}
+
+export interface UpdateOptionRequest {
+  value?: string;
+  priceModifier?: number;   // Price addition in kobo/cents
+  inventory?: number;       // Option-specific inventory
+  isActive?: boolean;       // Option availability
 }
 
 export interface AttachOptionGroupRequest {
@@ -54,6 +64,13 @@ export class AdminOptionGroupsService {
    */
   getOptions(groupId: number): Observable<AdminListResponse<Option>> {
     return this.apiHttp.adminGet<AdminListResponse<Option>>(`/admin/option-groups/${groupId}/options`);
+  }
+
+  /**
+   * Update option
+   */
+  updateOption(optionId: number, request: UpdateOptionRequest): Observable<Option> {
+    return this.apiHttp.adminPatch<Option>(`/admin/options/${optionId}`, request);
   }
 
   /**

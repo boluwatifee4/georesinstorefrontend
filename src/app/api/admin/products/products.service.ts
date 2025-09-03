@@ -6,12 +6,13 @@ import { AdminListResponse } from '../../dtos/api.dtos';
 
 export interface CreateProductRequest {
   title: string;
-  slug: string;
   description?: string;
   isActive?: boolean;
   featured?: boolean;
   metaTitle?: string;
   metaDescription?: string;
+  basePrice?: number;      // Base price in kobo/cents
+  baseInventory?: number;  // Base inventory quantity
 }
 
 export interface UpdateProductRequest {
@@ -22,6 +23,8 @@ export interface UpdateProductRequest {
   featured?: boolean;
   metaTitle?: string;
   metaDescription?: string;
+  basePrice?: number;      // Base price in kobo/cents
+  baseInventory?: number;  // Base inventory quantity
 }
 
 export interface AddMediaRequest {

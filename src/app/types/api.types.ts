@@ -17,8 +17,13 @@ export interface Product {
   featured: boolean;
   metaTitle: string | null;
   metaDescription: string | null;
+  basePrice?: number;        // Base price in kobo/cents (optional)
+  baseInventory?: number;    // Base inventory count (optional)
   createdAt: string;
   updatedAt: string;
+  media?: ProductMedia[];    // Product media/images
+  categories?: Category[];   // Assigned categories
+  optionGroups?: OptionGroup[]; // Attached option groups
 }
 
 export interface ProductMedia {
@@ -35,12 +40,16 @@ export interface OptionGroup {
   name: string;
   createdAt: string;
   updatedAt: string;
+  options?: Option[]; // Options in this group
 }
 
 export interface Option {
   id: number;
   groupId: number;
   value: string;
+  priceModifier: number;   // Price addition in kobo/cents
+  inventory: number;       // Option-specific inventory
+  isActive: boolean;       // Option availability
 }
 
 export interface ProductVariant {

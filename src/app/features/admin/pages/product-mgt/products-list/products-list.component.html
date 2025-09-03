@@ -1,1 +1,191 @@
-<p>products-list works!</p>
+<!-- Header -->
+<div class="mb-6 sm:mb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Products</h1>
+      <p class="mt-1 text-sm text-gray-600">Manage your store's products and inventory</p>
+    </div>
+    <button
+      (click)="onCreateProduct()"
+      class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors duration-200"
+    >
+      <ng-icon name="lucidePlus" class="text-lg"></ng-icon>
+      <span>Add Product</span>
+    </button>
+  </div>
+</div>
+
+<!-- Search Bar -->
+<div class="mb-6">
+  <div class="relative">
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <ng-icon name="lucideSearch" class="text-gray-400 text-lg"></ng-icon>
+    </div>
+    <input
+      type="text"
+      placeholder="Search products..."
+      (input)="onSearch($any($event.target).value)"
+      class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+    >
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading()" class="flex items-center justify-center py-12">
+  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+  <span class="ml-3 text-gray-600">Loading products...</span>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error() && !loading()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+  <div class="flex items-center">
+    <ng-icon name="lucideTriangleAlert" class="text-red-600 text-lg mr-2"></ng-icon>
+    <p class="text-red-800">{{ error() }}</p>
+  </div>
+</div>
+
+<!-- Products Grid/List -->
+<div *ngIf="!loading() && !error()" class="space-y-4">
+
+  <!-- Desktop Table View -->
+  <div class="hidden lg:block bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inventory</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let product of filteredProducts()" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <ng-icon name="lucidePackage" class="text-gray-600 text-lg"></ng-icon>
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">{{ product.title }}</div>
+                  <div class="text-sm text-gray-500">ID: {{ product.id }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ formatPrice(product.basePrice) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ product.baseInventory || 0 }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ getStatusBadgeClass(product) }}">
+                {{ getStatusText(product) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="onViewProduct(product)"
+                  class="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors"
+                  title="View product"
+                >
+                  <ng-icon name="lucideEye" class="text-lg"></ng-icon>
+                </button>
+                <button
+                  (click)="onEditProduct(product)"
+                  class="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
+                  title="Edit product"
+                >
+                  <ng-icon name="lucidePencil" class="text-lg"></ng-icon>
+                </button>
+                <button
+                  (click)="onDeleteProduct(product)"
+                  class="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
+                  title="Delete product"
+                >
+                  <ng-icon name="lucideTrash2" class="text-lg"></ng-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mobile Card View -->
+  <div class="lg:hidden space-y-4">
+    <div *ngFor="let product of filteredProducts()" class="bg-white border border-gray-200 rounded-lg p-4">
+      <div class="flex items-start justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+            <ng-icon name="lucidePackage" class="text-gray-600 text-lg"></ng-icon>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-900">{{ product.title }}</h3>
+            <p class="text-xs text-gray-500">ID: {{ product.id }}</p>
+          </div>
+        </div>
+        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ getStatusBadgeClass(product) }}">
+          {{ getStatusText(product) }}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-3">
+        <div>
+          <p class="text-xs text-gray-500">Price</p>
+          <p class="text-sm font-medium text-gray-900">{{ formatPrice(product.basePrice) }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Inventory</p>
+          <p class="text-sm font-medium text-gray-900">{{ product.baseInventory || 0 }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2">
+        <button
+          (click)="onViewProduct(product)"
+          class="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 px-3 py-1.5 text-sm rounded transition-colors"
+        >
+          <ng-icon name="lucideEye" class="text-base"></ng-icon>
+          <span>View</span>
+        </button>
+        <button
+          (click)="onEditProduct(product)"
+          class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 px-3 py-1.5 text-sm rounded transition-colors"
+        >
+          <ng-icon name="lucidePencil" class="text-base"></ng-icon>
+          <span>Edit</span>
+        </button>
+        <button
+          (click)="onDeleteProduct(product)"
+          class="inline-flex items-center gap-1 text-red-600 hover:text-red-900 px-3 py-1.5 text-sm rounded transition-colors"
+        >
+          <ng-icon name="lucideTrash2" class="text-base"></ng-icon>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="filteredProducts().length === 0 && !loading()" class="text-center py-12">
+    <ng-icon name="lucidePackage" class="mx-auto text-4xl text-gray-300 mb-3"></ng-icon>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">
+      {{ searchQuery() ? 'No products found' : 'No products yet' }}
+    </h3>
+    <p class="text-gray-600 mb-4">
+      {{ searchQuery() ? 'Try adjusting your search terms' : 'Get started by creating your first product' }}
+    </p>
+    <button
+      *ngIf="!searchQuery()"
+      (click)="onCreateProduct()"
+      class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+    >
+      <ng-icon name="lucidePlus" class="text-lg"></ng-icon>
+      <span>Create Product</span>
+    </button>
+  </div>
+</div>

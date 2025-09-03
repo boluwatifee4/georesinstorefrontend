@@ -23,10 +23,22 @@ export const ADMIN_ROUTES: Routes = [
         path: 'variants',
         loadChildren: () => import('./childrenroutes/variants/variants.routes').then(m => m.VARIANT_ROUTES)
       },
-      // { path: 'products', loadChildren: () => import('./childrenroutes/products/products.routes').then(m => m.PRODUCT_ROUTES) },
-      // { path: 'delivery-zones', loadChildren: () => import('./childrenroutes/delivery-zones/delivery-zones.routes').then(m => m.DELIVERY_ZONE_ROUTES) },
-      // { path: 'orders', loadChildren: () => import('./childrenroutes/orders/orders.routes').then(m => m.ORDER_ROUTES) },
-      // { path: 'config', loadChildren: () => import('./childrenroutes/config/config.routes').then(m => m.CONFIG_ROUTES) },
+      {
+        path: 'products',
+        loadChildren: () => import('./childrenroutes/products/products.routes').then(m => m.PRODUCT_ROUTES)
+      },
+      {
+        path: 'delivery-zones',
+        loadChildren: () => import('./childrenroutes/delivery-zones/delivery-zones.routes').then(m => m.DELIVERY_ZONE_ROUTES)
+      },
+      {
+        path: 'orders',
+        loadChildren: () => import('./childrenroutes/orders/orders.routes').then(m => m.ORDER_ROUTES)
+      },
+      {
+        path: 'config',
+        loadChildren: () => import('./childrenroutes/config/config.routes').then(m => m.CONFIG_ROUTES)
+      },
     ]
   }
 ];

@@ -63,4 +63,11 @@ export class AdminOrdersService {
   rejectOrder(id: number, request: RejectOrderRequest): Observable<Order> {
     return this.apiHttp.adminPost<Order>(`/admin/orders/${id}/reject`, request);
   }
+
+  /**
+   * Create manual quote for order
+   */
+  createManualQuote(id: number, quoteData: any): Observable<Order> {
+    return this.apiHttp.adminPost<Order>(`/admin/orders/${id}/quote`, quoteData);
+  }
 }

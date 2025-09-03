@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
 import { AdminOptionGroupsService } from '../../../api/admin/option-groups/option-groups.service';
 import { OptionGroup, Option } from '../../../types/api.types';
-import { CreateOptionGroupRequest, AddOptionRequest } from '../../../api/admin/option-groups/option-groups.service';
+import { CreateOptionGroupRequest, AddOptionRequest, UpdateOptionRequest } from '../../../api/admin/option-groups/option-groups.service';
 
 export interface AdminOptionGroupsState {
   optionGroups: OptionGroup[];
@@ -122,6 +122,16 @@ export class AdminOptionGroupsStore {
     );
   }
 
+  updateOption(optionId: number, optionData: UpdateOptionRequest) {
+    this.setLoading(true);
+    return this.optionGroupsService.updateOption(optionId, optionData).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to update option');
+        return of(null);
+      })
+    );
+  }
+
   deleteOption(optionId: number) {
     this.setLoading(true);
     return this.optionGroupsService.deleteOption(optionId).pipe(
@@ -137,6 +147,26 @@ export class AdminOptionGroupsStore {
     return this.optionGroupsService.deleteOptionGroup(id).pipe(
       catchError(error => {
         this.setError(error.message || 'Failed to delete option group');
+        return of(null);
+      })
+    );
+  }
+
+  attachToProduct(productId: number, request: any) {
+    this.setLoading(true);
+    return this.optionGroupsService.attachToProduct(productId, request).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to attach option group');
+        return of(null);
+      })
+    );
+  }
+
+  detachFromProduct(productId: number, groupId: number) {
+    this.setLoading(true);
+    return this.optionGroupsService.detachFromProduct(productId, groupId).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to detach option group');
         return of(null);
       })
     );

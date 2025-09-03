@@ -93,29 +93,89 @@
     <!-- Add New Option Form -->
     <div class="mb-6 p-4 bg-gray-50 rounded-lg">
       <h3 class="text-sm font-medium text-gray-900 mb-3">Add New Option</h3>
-      <form [formGroup]="optionForm" (ngSubmit)="onAddOption()" class="flex flex-col sm:flex-row gap-3">
-        <div class="flex-1">
+      <form [formGroup]="optionForm" (ngSubmit)="onAddOption()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div>
+          <label for="optionValue" class="block text-xs font-medium text-gray-700 mb-1">
+            Option Value *
+          </label>
           <input
+            id="optionValue"
             type="text"
             formControlName="value"
             placeholder="e.g., Small, Red, Cotton"
-            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-sm"
             [class.border-red-300]="getFieldError('value', optionForm)"
             [class.focus:ring-red-500]="getFieldError('value', optionForm)"
             [class.focus:border-red-500]="getFieldError('value', optionForm)"
           >
-          <div *ngIf="getFieldError('value', optionForm)" class="mt-1 text-sm text-red-600">
+          <div *ngIf="getFieldError('value', optionForm)" class="mt-1 text-xs text-red-600">
             {{ getFieldError('value', optionForm) }}
           </div>
         </div>
-        <button
-          type="submit"
-          [disabled]="optionForm.invalid"
-          class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2.5 rounded-lg font-medium transition-colors duration-200 whitespace-nowrap"
-        >
-          <ng-icon name="lucidePlus" class="text-lg"></ng-icon>
-          <span>Add Option</span>
-        </button>
+
+        <div>
+          <label for="priceModifier" class="block text-xs font-medium text-gray-700 mb-1">
+            Price Modifier (₦) *
+          </label>
+          <input
+            id="priceModifier"
+            type="number"
+            formControlName="priceModifier"
+            placeholder="0"
+            min="0"
+            step="0.01"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-sm"
+            [class.border-red-300]="getFieldError('priceModifier', optionForm)"
+            [class.focus:ring-red-500]="getFieldError('priceModifier', optionForm)"
+            [class.focus:border-red-500]="getFieldError('priceModifier', optionForm)"
+          >
+          <div *ngIf="getFieldError('priceModifier', optionForm)" class="mt-1 text-xs text-red-600">
+            {{ getFieldError('priceModifier', optionForm) }}
+          </div>
+        </div>
+
+        <div>
+          <label for="inventory" class="block text-xs font-medium text-gray-700 mb-1">
+            Inventory *
+          </label>
+          <input
+            id="inventory"
+            type="number"
+            formControlName="inventory"
+            placeholder="0"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-sm"
+            [class.border-red-300]="getFieldError('inventory', optionForm)"
+            [class.focus:ring-red-500]="getFieldError('inventory', optionForm)"
+            [class.focus:border-red-500]="getFieldError('inventory', optionForm)"
+          >
+          <div *ngIf="getFieldError('inventory', optionForm)" class="mt-1 text-xs text-red-600">
+            {{ getFieldError('inventory', optionForm) }}
+          </div>
+        </div>
+
+        <div class="flex items-end gap-2">
+          <div class="flex-1">
+            <label for="isActive" class="block text-xs font-medium text-gray-700 mb-1">
+              Active
+            </label>
+            <input
+              id="isActive"
+              type="checkbox"
+              formControlName="isActive"
+              class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            >
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="optionForm.invalid"
+            class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 whitespace-nowrap text-sm"
+          >
+            <ng-icon name="lucidePlus" class="text-lg"></ng-icon>
+            <span>Add</span>
+          </button>
+        </div>
       </form>
     </div>
 
@@ -124,15 +184,33 @@
       <h3 class="text-sm font-medium text-gray-900">Current Options</h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div *ngFor="let option of currentOptions()"
-             class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <span class="text-sm font-medium text-gray-900">{{ option.value }}</span>
-          <button
-            (click)="onDeleteOption(option)"
-            class="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-700 hover:bg-red-100 rounded-full transition-colors duration-200"
-            [attr.aria-label]="'Delete option ' + option.value"
-          >
-            <ng-icon name="lucideTrash2" class="text-sm"></ng-icon>
-          </button>
+             class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div class="flex items-start justify-between mb-2">
+            <span class="text-sm font-medium text-gray-900">{{ option.value }}</span>
+            <button
+              (click)="onDeleteOption(option)"
+              class="inline-flex items-center justify-center w-6 h-6 text-red-600 hover:text-red-700 hover:bg-red-100 rounded-full transition-colors duration-200"
+              [attr.aria-label]="'Delete option ' + option.value"
+            >
+              <ng-icon name="lucideTrash2" class="text-xs"></ng-icon>
+            </button>
+          </div>
+          <div class="space-y-1 text-xs text-gray-600">
+            <div class="flex justify-between">
+              <span>Price:</span>
+              <span class="font-medium">₦{{ option.priceModifier | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Inventory:</span>
+              <span class="font-medium">{{ option.inventory }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Status:</span>
+              <span class="font-medium" [class.text-green-600]="option.isActive" [class.text-red-600]="!option.isActive">
+                {{ option.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { switchMap, catchError, of } from 'rxjs';
-import { AdminProductsService } from '../../../api/admin/products/products.service';
+import { AdminProductsService, CreateProductRequest, UpdateProductRequest } from '../../../api/admin/products/products.service';
 import { Product } from '../../../types/api.types';
 
 export interface AdminProductsState {
@@ -72,7 +72,7 @@ export class AdminProductsStore {
     });
   }
 
-  createProduct(productData: any) {
+  createProduct(productData: CreateProductRequest) {
     this.setLoading(true);
     return this.productsService.createProduct(productData).pipe(
       catchError(error => {
@@ -82,7 +82,7 @@ export class AdminProductsStore {
     );
   }
 
-  updateProduct(id: number, productData: any) {
+  updateProduct(id: number, productData: UpdateProductRequest) {
     this.setLoading(true);
     return this.productsService.updateProduct(id, productData).pipe(
       catchError(error => {
@@ -97,6 +97,46 @@ export class AdminProductsStore {
     return this.productsService.deleteProduct(id).pipe(
       catchError(error => {
         this.setError(error.message || 'Failed to delete product');
+        return of(null);
+      })
+    );
+  }
+
+  addMedia(productId: number, mediaData: any) {
+    this.setLoading(true);
+    return this.productsService.addMedia(productId, mediaData).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to add media');
+        return of(null);
+      })
+    );
+  }
+
+  removeMedia(productId: number, mediaId: number) {
+    this.setLoading(true);
+    return this.productsService.removeMedia(productId, mediaId).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to remove media');
+        return of(null);
+      })
+    );
+  }
+
+  assignToCategory(productId: number, categoryId: number) {
+    this.setLoading(true);
+    return this.productsService.assignToCategory(productId, categoryId).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to assign to category');
+        return of(null);
+      })
+    );
+  }
+
+  removeFromCategory(productId: number, categoryId: number) {
+    this.setLoading(true);
+    return this.productsService.removeFromCategory(productId, categoryId).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to remove from category');
         return of(null);
       })
     );

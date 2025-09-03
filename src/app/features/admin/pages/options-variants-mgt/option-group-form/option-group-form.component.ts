@@ -61,7 +61,10 @@ export class OptionGroupFormComponent implements OnInit {
 
     // Initialize option form for adding new options
     this.optionForm = this.fb.group({
-      value: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]]
+      value: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      priceModifier: [0, [Validators.required, Validators.min(0)]],
+      inventory: [0, [Validators.required, Validators.min(0)]],
+      isActive: [true]
     });
 
     // Effect to watch for currentOptionGroup changes and update form
@@ -140,7 +143,10 @@ export class OptionGroupFormComponent implements OnInit {
 
     const groupId = this.optionGroupId()!;
     const optionData: AddOptionRequest = {
-      value: this.optionForm.get('value')?.value.trim()
+      value: this.optionForm.get('value')?.value.trim(),
+      priceModifier: this.optionForm.get('priceModifier')?.value,
+      inventory: this.optionForm.get('inventory')?.value,
+      isActive: this.optionForm.get('isActive')?.value
     };
 
     this.optionGroupsStore.addOption(groupId, optionData).subscribe({
@@ -167,14 +173,11 @@ export class OptionGroupFormComponent implements OnInit {
 
     this.optionGroupsStore.deleteOption(option.id).subscribe({
       next: (result) => {
-        if (result !== null) {
-          toast.success(`Option "${option.value}" deleted successfully`);
-          if (this.optionGroupId()) {
-            this.loadOptions(this.optionGroupId()!); // Reload options
-          }
-        } else {
-          toast.error(`Failed to delete option "${option.value}"`);
+        toast.success(`Option "${option.value}" deleted successfully`);
+        if (this.optionGroupId()) {
+          this.loadOptions(this.optionGroupId()!); // Reload options
         }
+
       },
       error: (error) => {
         console.error('Failed to delete option:', error);
@@ -201,7 +204,10 @@ export class OptionGroupFormComponent implements OnInit {
   private getFieldLabel(fieldName: string): string {
     const labels: { [key: string]: string } = {
       name: 'Option group name',
-      value: 'Option value'
+      value: 'Option value',
+      priceModifier: 'Price modifier',
+      inventory: 'Inventory',
+      isActive: 'Active status'
     };
     return labels[fieldName] || fieldName;
   }
