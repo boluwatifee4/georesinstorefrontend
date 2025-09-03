@@ -14,7 +14,8 @@ import {
   lucideTag,
   lucideGrid3x3,
   lucideChevronDown,
-  lucideChevronRight
+  lucideChevronRight,
+  lucideFileText
 } from '@ng-icons/lucide';
 
 interface NavItem {
@@ -44,7 +45,8 @@ interface NavItem {
       lucideTag,
       lucideGrid3x3,
       lucideChevronDown,
-      lucideChevronRight
+      lucideChevronRight,
+      lucideFileText
     })
   ],
   templateUrl: './admin-sidebar.component.html',
@@ -71,6 +73,12 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
       label: 'Dashboard',
       icon: 'lucideLayoutDashboard',
       route: '/admin'
+    },
+    {
+      id: 'invoice',
+      label: 'Invoice Generator',
+      icon: 'lucideFileText',
+      route: '/admin/invoice'
     },
     {
       id: 'catalog',

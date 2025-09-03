@@ -10,7 +10,7 @@ export interface AdminApiKeyData {
   providedIn: 'root'
 })
 export class AdminApiKeyService {
-  private readonly STORAGE_KEY = 'admin-api-key';
+  private readonly STORAGE_KEY = 'changeme-dev-key';
   private readonly EXPIRY_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
   private readonly platformId = inject(PLATFORM_ID);
 

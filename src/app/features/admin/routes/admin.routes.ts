@@ -39,6 +39,10 @@ export const ADMIN_ROUTES: Routes = [
         path: 'config',
         loadChildren: () => import('./childrenroutes/config/config.routes').then(m => m.CONFIG_ROUTES)
       },
+      {
+        path: 'invoice',
+        loadComponent: () => import('../pages/invoice-generator/invoice-generator.component').then(m => m.InvoiceGeneratorComponent)
+      },
     ]
   }
 ];
