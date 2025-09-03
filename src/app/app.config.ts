@@ -4,10 +4,11 @@ import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions } from '@angular/platform-browser';
-import { ADMIN_API_BASE_URL, ADMIN_API_KEY, BASE_API_URL } from './config/tokens/api.tokens';
+import { ADMIN_API_BASE_URL, BASE_API_URL } from './config/tokens/api.tokens';
 import { adminAuthInterceptor } from './core/interceptors/admin-auth.interceptor';
 import { environment } from '../environments/environment';
 import { ICON_PROVIDERS } from './shared/icon';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
@@ -25,7 +26,6 @@ export const appConfig: ApplicationConfig = {
     // Use environment configuration
     { provide: BASE_API_URL, useValue: environment.apiUrl },
     { provide: ADMIN_API_BASE_URL, useExisting: BASE_API_URL },
-    { provide: ADMIN_API_KEY, useValue: environment.adminApiKey },
     ICON_PROVIDERS
   ]
 };
