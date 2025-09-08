@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Optional } from '@angular/core';
 import { HttpClient, HttpParams, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ADMIN_API_BASE_URL, BASE_API_URL } from '../../config/tokens/api.tokens';
@@ -16,8 +16,16 @@ export interface ApiRequestOptions {
 @Injectable({ providedIn: 'root' })
 export class ApiHttpService {
   private readonly http = inject(HttpClient);
-  private readonly baseApiUrl = inject(BASE_API_URL);
-  private readonly adminApiUrl = inject(ADMIN_API_BASE_URL);
+  private readonly baseApiUrl = this.safeInject(BASE_API_URL, 'https://georesinstore-api.onrender.com');
+  private readonly adminApiUrl = this.safeInject(ADMIN_API_BASE_URL, this.baseApiUrl);
+
+  private safeInject<T>(token: any, fallback: T): T {
+    try {
+      return inject(token) as T;
+    } catch {
+      return fallback;
+    }
+  }
 
   /**
    * GET request for public endpoints

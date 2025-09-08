@@ -4,7 +4,7 @@ import { ApiHttpService } from '../../../core/http/api-http.service';
 import { Product, ProductMedia } from '../../../types/api.types';
 
 export interface ProductListResponse {
-  products: Product[];
+  data: Product[];
   total: number;
   page: number;
   limit: number;

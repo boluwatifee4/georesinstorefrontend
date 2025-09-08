@@ -37,12 +37,11 @@
 
 <!-- Main Form Content -->
 <div *ngIf="!loading()" class="space-y-6">
+  <form [formGroup]="productForm" (ngSubmit)="onSave()" class="space-y-4">
+    <!-- Basic Information Card -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
 
-  <!-- Basic Information Card -->
-  <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-
-    <form [formGroup]="productForm" (ngSubmit)="onSave()" class="space-y-4">
       <!-- Title Field -->
       <div>
         <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
@@ -84,155 +83,154 @@
         </div>
         <p class="mt-1 text-xs text-gray-500">Provide detailed information about your product (max 2000 characters)</p>
       </div>
-    </form>
-  </div>
+    </div>
 
-  <!-- Pricing & Inventory Card -->
-  <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Pricing & Inventory</h2>
+    <!-- Pricing & Inventory Card -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Pricing & Inventory</h2>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <!-- Base Price Field -->
-      <div>
-        <label for="basePrice" class="block text-sm font-medium text-gray-700 mb-2">
-          Base Price (₦)
-        </label>
-        <input
-          id="basePrice"
-          type="number"
-          formControlName="basePrice"
-          placeholder="0"
-          min="0"
-          step="0.01"
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
-          [class.border-red-300]="getFieldError('basePrice')"
-          [class.focus:ring-red-500]="getFieldError('basePrice')"
-          [class.focus:border-red-500]="getFieldError('basePrice')"
-        >
-        <div *ngIf="getFieldError('basePrice')" class="mt-1 text-sm text-red-600">
-          {{ getFieldError('basePrice') }}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Base Price Field -->
+        <div>
+          <label for="basePrice" class="block text-sm font-medium text-gray-700 mb-2">
+            Base Price (₦)
+          </label>
+          <input
+            id="basePrice"
+            type="number"
+            formControlName="basePrice"
+            placeholder="0"
+            min="0"
+            step="0.01"
+            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+            [class.border-red-300]="getFieldError('basePrice')"
+            [class.focus:ring-red-500]="getFieldError('basePrice')"
+            [class.focus:border-red-500]="getFieldError('basePrice')"
+          >
+          <div *ngIf="getFieldError('basePrice')" class="mt-1 text-sm text-red-600">
+            {{ getFieldError('basePrice') }}
+          </div>
+          <p class="mt-1 text-xs text-gray-500">Base price in kobo/cents (e.g., 2500 = ₦25.00). Leave empty if not applicable.</p>
         </div>
-        <p class="mt-1 text-xs text-gray-500">Base price in kobo/cents (e.g., 2500 = ₦25.00). Leave empty if not applicable.</p>
-      </div>
 
-      <!-- Base Inventory Field -->
-      <div>
-        <label for="baseInventory" class="block text-sm font-medium text-gray-700 mb-2">
-          Base Inventory
-        </label>
-        <input
-          id="baseInventory"
-          type="number"
-          formControlName="baseInventory"
-          placeholder="0"
-          min="0"
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
-          [class.border-red-300]="getFieldError('baseInventory')"
-          [class.focus:ring-red-500]="getFieldError('baseInventory')"
-          [class.focus:border-red-500]="getFieldError('baseInventory')"
-        >
-        <div *ngIf="getFieldError('baseInventory')" class="mt-1 text-sm text-red-600">
-          {{ getFieldError('baseInventory') }}
+        <!-- Base Inventory Field -->
+        <div>
+          <label for="baseInventory" class="block text-sm font-medium text-gray-700 mb-2">
+            Base Inventory
+          </label>
+          <input
+            id="baseInventory"
+            type="number"
+            formControlName="baseInventory"
+            placeholder="0"
+            min="0"
+            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+            [class.border-red-300]="getFieldError('baseInventory')"
+            [class.focus:ring-red-500]="getFieldError('baseInventory')"
+            [class.focus:border-red-500]="getFieldError('baseInventory')"
+          >
+          <div *ngIf="getFieldError('baseInventory')" class="mt-1 text-sm text-red-600">
+            {{ getFieldError('baseInventory') }}
+          </div>
+          <p class="mt-1 text-xs text-gray-500">Total available stock quantity. Leave empty if not applicable.</p>
         </div>
-        <p class="mt-1 text-xs text-gray-500">Total available stock quantity. Leave empty if not applicable.</p>
       </div>
     </div>
-  </div>
 
-  <!-- Settings Card -->
-  <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Settings</h2>
+    <!-- Settings Card -->
+    <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Settings</h2>
 
-    <div class="space-y-4">
-      <!-- Status Toggles -->
-      <div class="flex flex-col sm:flex-row gap-4">
-        <div class="flex items-center">
-          <input
-            id="isActive"
-            type="checkbox"
-            formControlName="isActive"
-            class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
-          >
-          <label for="isActive" class="ml-2 text-sm font-medium text-gray-700">
-            Active
+      <div class="space-y-4">
+        <!-- Status Toggles -->
+        <div class="flex flex-col sm:flex-row gap-4">
+          <div class="flex items-center">
+            <input
+              id="isActive"
+              type="checkbox"
+              formControlName="isActive"
+              class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            >
+            <label for="isActive" class="ml-2 text-sm font-medium text-gray-700">
+              Active
+            </label>
+          </div>
+
+          <div class="flex items-center">
+            <input
+              id="featured"
+              type="checkbox"
+              formControlName="featured"
+              class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            >
+            <label for="featured" class="ml-2 text-sm font-medium text-gray-700">
+              Featured Product
+            </label>
+          </div>
+        </div>
+
+        <!-- Meta Title Field -->
+        <div>
+          <label for="metaTitle" class="block text-sm font-medium text-gray-700 mb-2">
+            Meta Title
           </label>
-        </div>
-
-        <div class="flex items-center">
           <input
-            id="featured"
-            type="checkbox"
-            formControlName="featured"
-            class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            id="metaTitle"
+            type="text"
+            formControlName="metaTitle"
+            placeholder="SEO title for search engines"
+            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+            [class.border-red-300]="getFieldError('metaTitle')"
+            [class.focus:ring-red-500]="getFieldError('metaTitle')"
+            [class.focus:border-red-500]="getFieldError('metaTitle')"
           >
-          <label for="featured" class="ml-2 text-sm font-medium text-gray-700">
-            Featured Product
+          <div *ngIf="getFieldError('metaTitle')" class="mt-1 text-sm text-red-600">
+            {{ getFieldError('metaTitle') }}
+          </div>
+          <p class="mt-1 text-xs text-gray-500">Title shown in search engine results (max 200 characters)</p>
+        </div>
+
+        <!-- Meta Description Field -->
+        <div>
+          <label for="metaDescription" class="block text-sm font-medium text-gray-700 mb-2">
+            Meta Description
           </label>
+          <textarea
+            id="metaDescription"
+            formControlName="metaDescription"
+            rows="3"
+            placeholder="SEO description for search engines"
+            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors resize-vertical"
+            [class.border-red-300]="getFieldError('metaDescription')"
+            [class.focus:ring-red-500]="getFieldError('metaDescription')"
+            [class.focus:border-red-500]="getFieldError('metaDescription')"
+          ></textarea>
+          <div *ngIf="getFieldError('metaDescription')" class="mt-1 text-sm text-red-600">
+            {{ getFieldError('metaDescription') }}
+          </div>
+          <p class="mt-1 text-xs text-gray-500">Description shown in search engine results (max 500 characters)</p>
         </div>
-      </div>
-
-      <!-- Meta Title Field -->
-      <div>
-        <label for="metaTitle" class="block text-sm font-medium text-gray-700 mb-2">
-          Meta Title
-        </label>
-        <input
-          id="metaTitle"
-          type="text"
-          formControlName="metaTitle"
-          placeholder="SEO title for search engines"
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
-          [class.border-red-300]="getFieldError('metaTitle')"
-          [class.focus:ring-red-500]="getFieldError('metaTitle')"
-          [class.focus:border-red-500]="getFieldError('metaTitle')"
-        >
-        <div *ngIf="getFieldError('metaTitle')" class="mt-1 text-sm text-red-600">
-          {{ getFieldError('metaTitle') }}
-        </div>
-        <p class="mt-1 text-xs text-gray-500">Title shown in search engine results (max 200 characters)</p>
-      </div>
-
-      <!-- Meta Description Field -->
-      <div>
-        <label for="metaDescription" class="block text-sm font-medium text-gray-700 mb-2">
-          Meta Description
-        </label>
-        <textarea
-          id="metaDescription"
-          formControlName="metaDescription"
-          rows="3"
-          placeholder="SEO description for search engines"
-          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors resize-vertical"
-          [class.border-red-300]="getFieldError('metaDescription')"
-          [class.focus:ring-red-500]="getFieldError('metaDescription')"
-          [class.focus:border-red-500]="getFieldError('metaDescription')"
-        ></textarea>
-        <div *ngIf="getFieldError('metaDescription')" class="mt-1 text-sm text-red-600">
-          {{ getFieldError('metaDescription') }}
-        </div>
-        <p class="mt-1 text-xs text-gray-500">Description shown in search engine results (max 500 characters)</p>
       </div>
     </div>
-  </div>
 
-  <!-- Form Actions -->
-  <div class="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4">
-    <button
-      type="button"
-      (click)="onCancel()"
-      class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
-    >
-      Cancel
-    </button>
-    <button
-      type="submit"
-      (click)="onSave()"
-      [disabled]="productForm.invalid || isLoading()"
-      class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
-    >
-      <ng-icon *ngIf="isLoading()" name="lucideLoader" class="text-lg animate-spin"></ng-icon>
-      <ng-icon *ngIf="!isLoading()" name="lucideSave" class="text-lg"></ng-icon>
-      <span>{{ isEditMode() ? 'Update' : 'Create' }} Product</span>
-    </button>
-  </div>
+    <!-- Form Actions -->
+    <div class="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="productForm.invalid || isLoading()"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
+      >
+        <ng-icon *ngIf="isLoading()" name="lucideLoader" class="text-lg animate-spin"></ng-icon>
+        <ng-icon *ngIf="!isLoading()" name="lucideSave" class="text-lg"></ng-icon>
+        <span>{{ isEditMode() ? 'Update' : 'Create' }} Product</span>
+      </button>
+    </div>
+  </form>
 </div>

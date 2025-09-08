@@ -1,6 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { switchMap, catchError, of, EMPTY } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { PublicProductsService, ProductFilters } from '../../../api/public/products/products.service';
 import { Product } from '../../../types/api.types';
 
@@ -47,35 +46,17 @@ export class ProductsStore {
     return page * limit < total;
   });
 
-  constructor() {
-    // Auto-load products when filters change
-    toObservable(this.filters).pipe(
-      switchMap(filters => {
-        this.setLoading(true);
-        return this.productsService.getProducts(filters).pipe(
-          catchError(error => {
-            this.setError(error.message || 'Failed to load products');
-            return of(null);
-          })
-        );
-      })
-    ).subscribe(response => {
-      if (response) {
-        this.setProducts(response.products);
-        this.setPagination({
-          total: response.total,
-          page: response.page,
-          limit: response.limit
-        });
-      }
-      this.setLoading(false);
-    });
-  }
+  constructor() { }
 
   // Actions
   loadProducts(filters?: Partial<ProductFilters>) {
-    const newFilters = { ...this._state().filters, ...filters };
-    this.setFilters(newFilters);
+    const merged = { ...this._state().filters, ...filters };
+    this.setFilters(merged);
+    this.fetchProducts();
+  }
+
+  reloadProducts() {
+    this.fetchProducts();
   }
 
   loadProductBySlug(slug: string) {
@@ -116,5 +97,27 @@ export class ProductsStore {
 
   private setPagination(pagination: { total: number; page: number; limit: number }) {
     this._state.update(state => ({ ...state, pagination }));
+  }
+
+  private fetchProducts() {
+    const filters = this._state().filters;
+    this.setLoading(true);
+    this.productsService.getProducts(filters).pipe(
+      catchError(error => {
+        const message = (error?.error?.message) || error.message || 'Failed to load products';
+        this.setError(message);
+        return of(null);
+      })
+    ).subscribe(response => {
+      if (response) {
+        this.setProducts(response.data);
+        this.setPagination({
+          total: response.total,
+          page: response.page,
+          limit: response.limit
+        });
+      }
+      this.setLoading(false);
+    });
   }
 }
