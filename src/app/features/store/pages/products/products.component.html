@@ -1,0 +1,307 @@
+<!-- Mobile-First Products Page with Luxury Design -->
+<div class="min-h-screen bg-bg">
+  <!-- Search & Filter Header -->
+  <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-xl border-b border-border shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+
+      <!-- Search Bar -->
+      <div class="relative mb-4">
+        <input
+          [formControl]="searchControl"
+          type="search"
+          placeholder="Search premium resin products..."
+          class="w-full pl-12 pr-4 py-3 bg-bg border border-border rounded-xl text-sm
+                 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20
+                 transition-all duration-300 text-text placeholder:text-muted"
+        >
+        <svg class="absolute left-4 top-3.5 h-5 w-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <!-- Filter Toggle -->
+          <button
+            type="button"
+            (click)="toggleFilters()"
+            class="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg
+                   hover:bg-brand-700 transition-colors duration-300 text-sm font-medium"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"/>
+            </svg>
+            Filters
+          </button>
+
+          <!-- Sort Dropdown -->
+          <select
+            [formControl]="sortByControl"
+            class="px-3 py-2 bg-bg border border-border rounded-lg text-sm text-text
+                   focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="name">Name A-Z</option>
+          </select>
+        </div>
+
+        <!-- Results Count -->
+        <div class="text-sm text-muted">
+          {{ totalProducts() }} {{ totalProducts() === 1 ? 'product' : 'products' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expandable Filters Panel -->
+  <div *ngIf="showFilters()" class="bg-surface border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <form [formGroup]="filterForm" class="space-y-6">
+
+        <!-- Categories Filter -->
+        <div>
+          <label class="block text-sm font-medium text-text mb-3">Category</label>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            <button
+              type="button"
+              (click)="filterForm.patchValue({ category: '' })"
+              class="px-3 py-2 text-sm border border-border rounded-lg transition-all duration-300"
+              [ngClass]="{
+                'bg-brand-600 text-white border-brand-600': !filterForm.get('category')?.value,
+                'bg-bg text-text hover:border-brand-600': filterForm.get('category')?.value
+              }"
+            >
+              All
+            </button>
+            <button
+              *ngFor="let category of categories(); trackBy: trackById"
+              type="button"
+              (click)="filterForm.patchValue({ category: category.id })"
+              class="px-3 py-2 text-sm border border-border rounded-lg transition-all duration-300 text-left"
+              [ngClass]="{
+                'bg-brand-600 text-white border-brand-600': filterForm.get('category')?.value === category.id,
+                'bg-bg text-text hover:border-brand-600': filterForm.get('category')?.value !== category.id
+              }"
+            >
+              {{ category.name }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-text mb-2">Min Price (₦)</label>
+            <input
+              type="number"
+              formControlName="minPrice"
+              placeholder="0"
+              class="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm
+                     focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-text mb-2">Max Price (₦)</label>
+            <input
+              type="number"
+              formControlName="maxPrice"
+              placeholder="100000"
+              class="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm
+                     focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
+            >
+          </div>
+        </div>
+
+        <!-- Clear Filters -->
+        <div class="flex justify-end">
+          <button
+            type="button"
+            (click)="clearFilters()"
+            class="px-4 py-2 text-sm text-muted hover:text-text border border-border
+                   rounded-lg hover:border-brand-600 transition-all duration-300"
+          >
+            Clear Filters
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loadingProducts()" class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+      <div *ngFor="let sk of [1,2,3,4,5,6,7,8,9,10,11,12]" class="space-y-4">
+        <div class="aspect-square rounded-xl animate-pulse bg-surface border border-border"></div>
+        <div class="h-4 bg-surface rounded animate-pulse"></div>
+        <div class="h-4 bg-surface rounded animate-pulse w-2/3"></div>
+        <div class="h-6 bg-surface rounded animate-pulse w-1/2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="productsError()" class="max-w-7xl mx-auto px-4 py-16">
+    <div class="text-center">
+      <div class="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md mx-auto">
+        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full">
+          <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-red-900 mb-3">Failed to Load Products</h3>
+        <p class="text-red-700 mb-6">{{ productsError() }}</p>
+        <button
+          type="button"
+          (click)="retryLoadProducts()"
+          class="btn-primary px-6 py-3 rounded-lg"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div *ngIf="!loadingProducts() && !productsError()" class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- Empty State -->
+    <div *ngIf="filteredProducts().length === 0" class="text-center py-16">
+      <div class="bg-surface border border-border rounded-xl p-8 max-w-md mx-auto">
+        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.467.881-6.078 2.327C8.162 17.077 10.055 17 12 17c1.945 0 3.838.077 6.078-2.327z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-text mb-3">No Products Found</h3>
+        <p class="text-muted mb-6">Try adjusting your filters or search terms</p>
+        <button
+          type="button"
+          (click)="clearFilters()"
+          class="btn-primary px-6 py-3 rounded-lg"
+        >
+          Clear All Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div *ngIf="filteredProducts().length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+      <div
+        *ngFor="let product of filteredProducts(); trackBy: trackById"
+        class="group relative cursor-pointer bg-surface border border-border rounded-xl overflow-hidden
+               hover:shadow-xl hover:border-brand-600/30 transition-all duration-500
+               hover:-translate-y-1 active:scale-[0.98]"
+        (click)="viewProduct(product)"
+      >
+        <!-- Product Image -->
+        <div class="relative aspect-square overflow-hidden">
+          <div *ngIf="product.primaryImageUrl; else placeholderImage" class="w-full h-full">
+            <img
+              [ngSrc]="getImageUrl(product.primaryImageUrl)"
+              [alt]="product.title"
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              (error)="onImageError($event)"
+              width="300"
+              height="300"
+              [attr.data-orig]="product.primaryImageUrl"
+            >
+          </div>
+
+          <!-- Placeholder -->
+          <ng-template #placeholderImage>
+            <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div class="text-center">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-300/80 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <span class="text-gray-400 text-xs">Premium Product</span>
+              </div>
+            </div>
+          </ng-template>
+
+          <!-- Quick Actions Overlay -->
+          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                      flex items-center justify-center">
+            <button
+              type="button"
+              (click)="addToCart(product.id); $event.stopPropagation()"
+              class="px-4 py-2 bg-white text-black font-medium rounded-lg
+                     hover:bg-gray-100 transition-colors duration-300
+                     transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100
+                     shadow-lg text-sm"
+            >
+              Add to Cart
+            </button>
+          </div>
+
+          <!-- Premium Badge -->
+          <div *ngIf="product.featured"
+               class="absolute top-3 right-3 bg-black/80 backdrop-blur-sm text-white px-2 py-1
+                      rounded-full text-xs font-medium">
+            Featured
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="p-4 space-y-2">
+          <!-- Title -->
+          <h3 class="text-sm font-medium text-text leading-tight line-clamp-2 group-hover:text-brand-600 transition-colors">
+            {{ product.title }}
+          </h3>
+
+          <!-- Description -->
+          <p *ngIf="product.description" class="text-xs text-muted line-clamp-2 leading-relaxed">
+            {{ product.description }}
+          </p>
+
+          <!-- Price & Actions -->
+          <div class="flex items-center justify-between pt-2">
+            <div class="flex flex-col">
+              <span class="text-lg font-semibold text-text">
+                ₦{{ (product.basePrice || 0) | number:'1.0-0' }}
+              </span>
+            </div>
+
+            <!-- Mobile Add to Cart -->
+            <button
+              type="button"
+              (click)="addToCart(product.id); $event.stopPropagation()"
+              class="md:hidden flex items-center gap-1 px-3 py-1.5 bg-brand-600 text-white rounded-lg
+                     hover:bg-brand-700 transition-colors duration-300 text-xs font-medium
+                     active:scale-95"
+            >
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+              </svg>
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load More Indicator -->
+    <div *ngIf="loadingMore()" class="text-center py-8">
+      <div class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl">
+        <div class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-sm text-muted">Loading more products...</span>
+      </div>
+    </div>
+
+    <!-- End of Results -->
+    <div *ngIf="!hasMoreData() && !loadingMore() && filteredProducts().length > 0" class="text-center py-8">
+      <div class="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-xl text-sm text-muted">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        You've seen all products
+      </div>
+    </div>
+  </div>
+</div>

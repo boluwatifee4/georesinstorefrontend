@@ -24,8 +24,8 @@ export class GoogleDriveUtilService {
 
     if (match && match[1]) {
       const fileId = match[1];
-      // Convert to direct download URL
-      return `https://drive.usercontent.google.com/download?id=${fileId}`;
+      // Preferred inline host variant using googleusercontent domain
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
 
     // Also handle the alternative Google Drive URL format
@@ -34,7 +34,7 @@ export class GoogleDriveUtilService {
 
     if (altMatch && altMatch[1]) {
       const fileId = altMatch[1];
-      return `https://drive.usercontent.google.com/download?id=${fileId}`;
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
 
     // If it's not a Google Drive URL, return the original URL
@@ -89,20 +89,48 @@ export class GoogleDriveUtilService {
    */
   createGoogleDriveUrls(fileId: string) {
     return {
-      // Direct download URL (best for images)
-      direct: `https://drive.usercontent.google.com/download?id=${fileId}`,
+      // Primary (googleusercontent) inline host variant
+      gusercontent: `https://lh3.googleusercontent.com/d/${fileId}`,
 
-      // Alternative direct URL format
-      directAlt: `https://drive.google.com/uc?export=download&id=${fileId}`,
+      // Secondary (older lh3.google.com) host variant
+      lh3: `https://lh3.google.com/u/0/d/${fileId}`,
 
-      // Thumbnail URL (for previews)
+      // Legacy inline-safe view URL
+      viewInline: `https://drive.google.com/uc?export=view&id=${fileId}`,
+
+      // Direct download URL (sometimes blocked for hotlinking / 403)
+      direct: `https://drive.usercontent.google.com/uc?id=${fileId}`,
+
+      // Explicit download export variant
+      download: `https://drive.google.com/uc?export=download&id=${fileId}`,
+
+      // Thumbnail (can append &sz=w{width}-h{height})
       thumbnail: `https://drive.google.com/thumbnail?id=${fileId}`,
 
-      // View URL (opens in browser)
-      view: `https://drive.google.com/file/d/${fileId}/view`,
+      // Original view page URL
+      viewPage: `https://drive.google.com/file/d/${fileId}/view`,
 
-      // Sharing URL (what users typically copy)
+      // Share URL
       share: `https://drive.google.com/file/d/${fileId}/view?usp=sharing`
     };
+  }
+
+  /**
+   * Returns a prioritized list of fallback URLs you can try sequentially (e.g. via (error) handler on <img>)
+   */
+  getFallbackImageUrls(input: string): string[] {
+    const fileId = this.isGoogleDriveUrl(input) ? this.extractFileId(input) : input;
+    if (!fileId) return [input];
+    const urls = this.createGoogleDriveUrls(fileId as string);
+    return [
+      urls.gusercontent,
+      urls.lh3,
+      urls.viewInline,
+      urls.direct,
+      urls.download,
+      `${urls.thumbnail}&sz=w1000`,
+      urls.viewPage,
+      urls.share
+    ];
   }
 }

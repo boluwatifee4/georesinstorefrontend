@@ -21,6 +21,7 @@ export interface Product {
   baseInventory?: number;    // Base inventory count (optional)
   createdAt: string;
   updatedAt: string;
+  primaryImageUrl?: string | null; // URL of the primary image (optional)
   media?: ProductMedia[];    // Product media/images
   categories?: Category[];   // Assigned categories
   optionGroups?: OptionGroup[]; // Attached option groups

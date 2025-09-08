@@ -8,11 +8,13 @@ import { fromEvent, animationFrameScheduler } from 'rxjs';
 import { ProductsStore } from '../../state/products.store';
 import { CategoriesStore } from '../../state/categories.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
+import { Product } from '../../../../types/api.types';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-store-home',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, NgOptimizedImage],
   templateUrl: './store-home.component.html',
   styleUrls: ['./store-home.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -87,6 +89,11 @@ export class StoreHomeComponent implements OnInit {
   goToHome() { this.router.navigate(['/store']); }
   trackById(_: number, item: any) { return item.id || item.slug; }
 
+  viewProduct(product: Product): void {
+    // Navigate using product slug for SEO-friendly URLs
+    this.router.navigate(['/store/products', product.slug]);
+  }
+
   retryLoadProducts() {
     this.productsStore.loadProducts({ limit: 24 });
   }
@@ -104,8 +111,18 @@ export class StoreHomeComponent implements OnInit {
    */
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    if (img) {
-      // Hide the image and let the placeholder show instead
+    if (!img) return;
+    const original = img.getAttribute('data-orig') || img.currentSrc || img.src;
+    if (!img.dataset['fallbackIndex']) {
+      img.dataset['fallbackIndex'] = '0';
+      img.setAttribute('data-orig', original);
+    }
+    const fallbacks = this.googleDriveUtil.getFallbackImageUrls(original);
+    const idx = parseInt(img.dataset['fallbackIndex']!, 10);
+    if (idx < fallbacks.length) {
+      img.src = fallbacks[idx];
+      img.dataset['fallbackIndex'] = String(idx + 1);
+    } else {
       img.style.display = 'none';
     }
   }

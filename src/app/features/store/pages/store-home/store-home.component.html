@@ -1,74 +1,47 @@
-<header
-  class="sticky top-0 z-30 transition-all duration-500 backdrop-blur-xl border-b"
-  [ngClass]="{
-    'bg-transparent border-transparent shadow-none': !scrolled(),
-    'bg-surface/95 border-border shadow-lg': scrolled()
-  }"
->
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <div class="flex items-center">
-      <img src="/logo.png" alt="GeoResin" class="h-14 w-auto object-contain">
+<!-- Hero Section -->
+<section class="relative overflow-hidden">
+  <div class="relative min-h-[80vh] md:h-screen flex items-center">
+    <div class="absolute inset-0">
+      <img
+        ngSrc="/hero-bg.png"
+        alt="Premium Resin Collection"
+        class="w-full h-full object-cover"
+        priority
+        width="1920"
+        height="1080"
+      >
+      <div class="absolute inset-0 bg-gradient-to-r from-brand-900/80 via-brand-900/60 to-brand-700/40"></div>
     </div>
-    <div class="flex-1 max-w-md mx-6">
-      <div class="relative">
-        <input
-          [formControl]="search"
-          type="search"
-          placeholder="Search premium resin products..."
-          class="w-full pl-10 pr-4 py-3 bg-surface/80 border border-border rounded-full text-sm
-                 focus:outline-none focus:bg-surface focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20
-                 transition-all duration-300 text-text placeholder:text-muted"
-        >
-        <svg class="absolute left-3 top-3.5 h-4 w-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-      </div>
-    </div>
-  </div>
-</header>
 
-<main class="pb-24 bg-bg">
-  <!-- Hero Section -->
-  <section class="relative overflow-hidden">
-    <div class="relative min-h-[80vh] md:h-screen flex items-center">
-      <div class="absolute inset-0">
-        <img
-          src="/hero-bg.png"
-          alt="Premium Resin Collection"
-          class="w-full h-full object-cover"
-        >
-        <div class="absolute inset-0 bg-gradient-to-r from-brand-900/80 via-brand-900/60 to-brand-700/40"></div>
-      </div>
-
-      <div class="relative z-10 max-w-7xl mx-auto px-4">
-        <div class="max-w-2xl">
-          <h1 class="h1 text-white leading-tight mb-6">
-            Exquisite
-            <span class="block font-black italic text-accent">Resin Artistry</span>
-          </h1>
-          <p class="text-lg md:text-xl text-white/90 font-light leading-relaxed mb-8 max-w-lg">
-            Discover our curated collection of premium resin materials and craft supplies,
-            designed for the discerning artisan.
-          </p>
-          <div class="flex flex-col sm:flex-row gap-4">
-            <button type="button"
-              (click)="goToProducts()"
-              class="btn-primary px-8 py-4 font-semibold tracking-wide uppercase text-sm
-                     md:hover:bg-brand-700 md:hover:scale-105 transition-all duration-300 shadow-lg md:hover:shadow-xl rounded-lg active:scale-95"
-            >
-              Explore Collection
-            </button>
-            <button type="button"
-              class="px-8 py-4 border-2 border-white/30 text-white font-medium tracking-wide uppercase text-sm
-                     md:hover:bg-white/10 md:hover:border-accent md:hover:text-accent transition-all duration-300 rounded-lg active:scale-95"
-            >
-              New Arrivals
-            </button>
-          </div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4">
+      <div class="max-w-2xl">
+        <h1 class="h1 text-white leading-tight mb-6">
+          Exquisite
+          <span class="block font-black italic text-accent">Resin Artistry</span>
+        </h1>
+        <p class="text-lg md:text-xl text-white/90 font-light leading-relaxed mb-8 max-w-lg">
+          Discover our curated collection of premium resin materials and craft supplies,
+          designed for the discerning artisan.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <button type="button"
+            (click)="goToProducts()"
+            class="btn-primary px-8 py-4 font-semibold tracking-wide uppercase text-sm
+                   md:hover:bg-brand-700 md:hover:scale-105 transition-all duration-300 shadow-lg md:hover:shadow-xl rounded-lg active:scale-95"
+          >
+            Explore Collection
+          </button>
+          <button type="button"
+            class="px-8 py-4 border-2 border-white/30 text-white font-medium tracking-wide uppercase text-sm
+                   md:hover:bg-white/10 md:hover:border-accent md:hover:text-accent transition-all duration-300 rounded-lg active:scale-95"
+          >
+            New Arrivals
+          </button>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
   <!-- Categories Section -->
   <section class="py-20 px-4">
@@ -151,21 +124,24 @@
   <div *ngIf="!loadingProducts() && !productsError()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
         <div
           *ngFor="let p of featuredProducts(); trackBy: trackById"
-      class="group relative cursor-pointer transform transition-all duration-500 md:hover:-translate-y-2 active:scale-[0.98]"
+          class="group relative cursor-pointer transform transition-all duration-500 md:hover:-translate-y-2 active:scale-[0.98]"
+          (click)="viewProduct(p)"
         >
           <!-- Product Image Container -->
           <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 mb-4 md:mb-6 overflow-hidden
                       shadow-lg md:group-hover:shadow-2xl transition-all duration-500 border border-gray-100/50">
 
             <!-- Premium Image Display -->
-            <div *ngIf="p.media && p.media.length > 0; else placeholderImage"
+            <div *ngIf="p.primaryImageUrl; else placeholderImage"
                  class="w-full h-full relative overflow-hidden">
               <img
-                [src]="getImageUrl(p.media[0].url)"
+                [ngSrc]="getImageUrl(p.primaryImageUrl)"
                 [alt]="p.title"
                 class="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110"
                 (error)="onImageError($event)"
-                loading="lazy"
+                width="400"
+                height="400"
+                [attr.data-orig]="p.primaryImageUrl"
               >
               <!-- Overlay for premium effect -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent
@@ -265,7 +241,8 @@
     <div *ngIf="!loadingProducts()" class="flex gap-5 md:gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-4 px-4">
         <div
           *ngFor="let p of newProducts(); trackBy: trackById"
-      class="flex-shrink-0 w-48 sm:w-56 md:w-64 group cursor-pointer snap-start active:scale-[0.97] transition-transform"
+          class="flex-shrink-0 w-48 sm:w-56 md:w-64 group cursor-pointer snap-start active:scale-[0.97] transition-transform"
+          (click)="viewProduct(p)"
         >
       <div class="aspect-square rounded-lg bg-gray-100 mb-3 md:mb-4 overflow-hidden
             shadow-md md:group-hover:shadow-lg transition-all duration-300">
@@ -302,7 +279,7 @@
       </div>
     </div>
   </section>
-</main>
+
 
 <!-- Bottom Navigation -->
 <nav class="fixed bottom-0 left-0 right-0 flex justify-center z-30 p-3 md:p-4">

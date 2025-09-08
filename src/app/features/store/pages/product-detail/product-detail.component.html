@@ -1,0 +1,273 @@
+<!-- Luxury Product Detail Page -->
+<div class="min-h-screen bg-bg">
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <!-- Image Skeleton -->
+      <div class="space-y-4">
+        <div class="aspect-square rounded-2xl animate-pulse bg-surface border border-border"></div>
+        <div class="flex gap-2">
+          <div *ngFor="let sk of [1,2,3,4]" class="w-20 h-20 rounded-lg animate-pulse bg-surface border border-border"></div>
+        </div>
+      </div>
+      <!-- Content Skeleton -->
+      <div class="space-y-6">
+        <div class="h-8 bg-surface rounded animate-pulse"></div>
+        <div class="h-6 bg-surface rounded animate-pulse w-1/3"></div>
+        <div class="space-y-2">
+          <div class="h-4 bg-surface rounded animate-pulse"></div>
+          <div class="h-4 bg-surface rounded animate-pulse w-2/3"></div>
+        </div>
+        <div class="h-12 bg-surface rounded animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="max-w-4xl mx-auto px-4 py-16">
+    <div class="text-center">
+      <div class="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md mx-auto">
+        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full">
+          <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-red-900 mb-3">{{ error() }}</h3>
+        <button type="button" (click)="goBack()" class="btn-primary px-6 py-3 rounded-lg">
+          Back to Products
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Content -->
+  <div *ngIf="!loading() && !error() && product()" class="max-w-7xl mx-auto px-4 py-6 md:py-12">
+
+    <!-- Back Navigation -->
+    <button
+      type="button"
+      (click)="goBack()"
+      class="flex items-center gap-2 text-muted hover:text-text transition-colors duration-300 mb-6 md:mb-8"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      <span class="text-sm font-medium">Back to Products</span>
+    </button>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+
+      <!-- Image Gallery -->
+      <div class="space-y-4">
+        <!-- Main Image -->
+        <div class="relative aspect-square rounded-2xl overflow-hidden bg-surface border border-border shadow-lg">
+          <div *ngIf="allImages().length > 0; else noImagePlaceholder" class="w-full h-full">
+            <img
+              [ngSrc]="getImageUrl(allImages()[selectedImageIndex()])"
+              [alt]="product()?.title || 'Product image'"
+              class="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-700"
+              (click)="openImageModal()"
+              (error)="onImageError($event)"
+              width="600"
+              height="600"
+              [attr.data-orig]="allImages()[selectedImageIndex()]"
+              priority
+            >
+          </div>
+
+          <!-- No Image Placeholder -->
+          <ng-template #noImagePlaceholder>
+            <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-300/80 flex items-center justify-center">
+                  <svg class="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <span class="text-gray-400 text-sm uppercase tracking-widest font-light">Premium Product</span>
+              </div>
+            </div>
+          </ng-template>
+
+          <!-- Premium Badge -->
+          <div *ngIf="product()?.featured"
+               class="absolute top-4 right-4 bg-black/80 backdrop-blur-sm text-white px-3 py-1.5
+                      rounded-full text-xs font-medium tracking-wider uppercase">
+            Featured
+          </div>
+
+          <!-- Zoom Hint -->
+          <div class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm text-white px-2 py-1
+                      rounded-lg text-xs opacity-0 hover:opacity-100 transition-opacity duration-300">
+            Click to zoom
+          </div>
+        </div>
+
+        <!-- Thumbnail Gallery -->
+        <div *ngIf="allImages().length > 1" class="flex gap-2 overflow-x-auto pb-2">
+          <button
+            *ngFor="let image of allImages(); let i = index; trackBy: trackById"
+            type="button"
+            (click)="selectImage(i)"
+            class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300"
+            [ngClass]="{
+              'border-brand-600 shadow-lg': selectedImageIndex() === i,
+              'border-border hover:border-brand-600/50': selectedImageIndex() !== i
+            }"
+          >
+            <img
+              [src]="getImageUrl(image)"
+              [alt]="'Product image ' + (i + 1)"
+              class="w-full h-full object-cover"
+              (error)="onImageError($event)"
+              [attr.data-orig]="image"
+            >
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Information -->
+      <div class="space-y-6 md:space-y-8">
+
+        <!-- Title & Categories -->
+        <div class="space-y-4">
+          <div class="flex flex-wrap gap-2">
+            <span
+              *ngFor="let category of product()?.categories; trackBy: trackById"
+              class="text-xs uppercase tracking-wider text-brand-600 bg-brand-600/10 px-2 py-1 rounded-full font-medium"
+            >
+              {{ category.name }}
+            </span>
+          </div>
+
+          <h1 class="text-2xl md:text-3xl lg:text-4xl font-light text-text leading-tight">
+            {{ product()?.title }}
+          </h1>
+        </div>
+
+        <!-- Price -->
+        <div class="flex items-baseline gap-4">
+          <span class="text-3xl md:text-4xl font-light text-text tracking-wide">
+            ₦{{ currentPrice() | number:'1.0-0' }}
+          </span>
+          <!-- SKU will be added when variants are implemented -->
+        </div>
+
+        <!-- Stock Status -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+            <span class="text-sm font-medium text-green-700">In Stock</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div *ngIf="product()?.description" class="prose prose-gray max-w-none">
+          <p class="text-base md:text-lg text-muted leading-relaxed font-light">
+            {{ product()?.description }}
+          </p>
+        </div>
+
+        <!-- Variant Selection - TODO: Implement when backend supports variants -->
+        <!-- This section will be added when the backend implements option groups and variants -->
+
+        <!-- Quantity & Add to Cart -->
+        <div class="space-y-4">
+          <!-- Quantity Selector -->
+          <div class="flex items-center gap-4">
+            <label class="text-sm font-medium text-text">Quantity:</label>
+            <div class="flex items-center border border-border rounded-lg overflow-hidden">
+              <button
+                type="button"
+                (click)="decrementQuantity()"
+                [disabled]="quantity() <= 1"
+                class="px-4 py-2 hover:bg-surface transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                </svg>
+              </button>
+              <span class="px-4 py-2 min-w-[60px] text-center border-x border-border">{{ quantity() }}</span>
+              <button
+                type="button"
+                (click)="incrementQuantity()"
+                class="px-4 py-2 hover:bg-surface transition-colors duration-300"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Add to Cart Button -->
+          <button
+            type="button"
+            (click)="addToCart()"
+            [disabled]="!canAddToCart()"
+            class="w-full py-4 px-6 bg-brand-600 text-white font-medium rounded-xl
+                   hover:bg-brand-700 hover:scale-[1.02] active:scale-[0.98]
+                   transition-all duration-300 shadow-lg hover:shadow-xl
+                   disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          >
+            <span class="flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+              </svg>
+              Add to Cart - ₦{{ (currentPrice() * quantity()) | number:'1.0-0' }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Additional Actions -->
+        <div class="flex gap-4 pt-4 border-t border-border">
+          <button
+            type="button"
+            class="flex items-center gap-2 px-4 py-2 text-sm text-muted hover:text-text
+                   border border-border rounded-lg hover:border-brand-600 transition-all duration-300"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            Add to Wishlist
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-2 px-4 py-2 text-sm text-muted hover:text-text
+                   border border-border rounded-lg hover:border-brand-600 transition-all duration-300"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+            </svg>
+            Share
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Modal -->
+  <div *ngIf="showImageModal()"
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+       (click)="closeImageModal()">
+    <div class="relative max-w-4xl max-h-full p-4">
+      <button
+        type="button"
+        (click)="closeImageModal()"
+        class="absolute top-4 right-4 z-10 p-2 bg-black/50 text-white rounded-full
+               hover:bg-black/70 transition-colors duration-300"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <img
+        [src]="getImageUrl(allImages()[selectedImageIndex()])"
+        [alt]="product()?.title || 'Product image'"
+        class="max-w-full max-h-full object-contain rounded-lg"
+        (error)="onImageError($event)"
+        [attr.data-orig]="allImages()[selectedImageIndex()]"
+      >
+    </div>
+  </div>
+</div>
