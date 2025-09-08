@@ -1,303 +1,187 @@
-<div class="max-w-4xl mx-auto p-6">
-  <!-- Header -->
-  <div class="mb-8">
-    <div class="flex items-center">
-      <div class="p-2 bg-blue-100 rounded-lg mr-3">
-        <ng-icon name="lucideSettings" size="24" class="text-blue-600"></ng-icon>
+<div class="min-h-screen bg-gray-50/50 p-6">
+  <div class="max-w-2xl mx-auto">
+    <!-- Header with subtle gradient background -->
+    <header class="mb-8 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl p-6 backdrop-blur-sm">
+      <div class="flex items-center space-x-4">
+        <div class="p-3 bg-blue-600 bg-opacity-10 rounded-xl">
+          <ng-icon name="lucideSettings" size="28" class="text-blue-600"></ng-icon>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">
+            App Configuration
+          </h1>
+          <p class="text-gray-600 mt-1 text-sm">Manage your core application settings</p>
+        </div>
       </div>
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">App Configuration</h1>
-        <p class="text-gray-600 mt-1">Manage your application settings and preferences</p>
+    </header>
+
+    <!-- Loading State with improved animation -->
+    <div *ngIf="loading()" class="min-h-[400px] flex flex-col justify-center items-center py-12">
+      <div class="relative">
+        <div class="w-12 h-12 rounded-full border-4 border-blue-200 animate-pulse"></div>
+        <div class="absolute top-0 left-0 w-12 h-12 rounded-full border-t-4 border-blue-600 animate-spin"></div>
+      </div>
+      <p class="mt-4 text-gray-600 animate-pulse">Loading configuration...</p>
+    </div>
+
+    <!-- Error State with icon -->
+    <div *ngIf="error() && !loading()"
+         class="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
+      <div class="flex items-start">
+        <ng-icon name="lucideAlertTriangle" size="20" class="text-red-500 mt-0.5"></ng-icon>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">Configuration Error</h3>
+          <p class="mt-1 text-sm text-red-600">{{ error() }}</p>
+        </div>
       </div>
     </div>
+
+    <!-- Form with enhanced visual hierarchy -->
+    <form *ngIf="!loading()" [formGroup]="form" (ngSubmit)="onSubmit()"
+          class="space-y-6 bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+
+      <!-- Bank Details Section -->
+      <div class="space-y-6">
+        <div class="flex items-center mb-6">
+          <ng-icon name="lucideCreditCard" size="20" class="text-blue-600"></ng-icon>
+          <h2 class="ml-2 text-lg font-semibold text-gray-900">Payment Details</h2>
+        </div>
+
+        <!-- Bank Name -->
+        <div class="group">
+          <label for="bankName" class="inline-flex items-center text-sm font-medium text-gray-700">
+            Bank Name
+            <span class="text-red-500 ml-1">*</span>
+          </label>
+          <div class="mt-1.5 relative">
+            <input id="bankName"
+                   type="text"
+                   formControlName="bankName"
+                   placeholder="e.g. First Bank"
+                   class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg
+                          transition-all duration-200 ease-in-out
+                          focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+                          group-hover:border-gray-300"
+                   [class.border-red-300]="getFieldError('bankName')">
+            <p *ngIf="getFieldError('bankName')" class="mt-1.5 text-xs text-red-500 flex items-center">
+              <ng-icon name="lucideAlertCircle" size="12" class="mr-1"></ng-icon>
+              {{ getFieldError('bankName') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Account Number with masking -->
+        <div class="group">
+          <label for="accountNumber" class="inline-flex items-center text-sm font-medium text-gray-700">
+            Account Number
+            <span class="text-red-500 ml-1">*</span>
+          </label>
+          <div class="mt-1.5 relative">
+            <input id="accountNumber"
+                   type="text"
+                   maxlength="10"
+                   formControlName="accountNumber"
+                   placeholder="Enter 10-digit account number"
+                   class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg font-mono
+                          transition-all duration-200 ease-in-out tracking-widest
+                          focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+                          group-hover:border-gray-300"
+                   [class.border-red-300]="getFieldError('accountNumber')">
+            <p *ngIf="getFieldError('accountNumber')" class="mt-1.5 text-xs text-red-500 flex items-center">
+              <ng-icon name="lucideAlertCircle" size="12" class="mr-1"></ng-icon>
+              {{ getFieldError('accountNumber') }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Communication Section -->
+      <div class="space-y-6 pt-6 border-t border-gray-100">
+        <div class="flex items-center mb-6">
+          <ng-icon name="lucideMessageCircle" size="20" class="text-blue-600"></ng-icon>
+          <h2 class="ml-2 text-lg font-semibold text-gray-900">Communication</h2>
+        </div>
+
+        <!-- WhatsApp Link -->
+        <div class="group">
+          <label for="whatsappLink" class="inline-flex items-center text-sm font-medium text-gray-700">
+            WhatsApp Contact Link
+            <span class="text-red-500 ml-1">*</span>
+          </label>
+          <div class="mt-1.5 relative">
+            <div class="relative">
+              <ng-icon name="lucideMessageSquare" size="16"
+                      class="absolute left-4 top-3 text-white"></ng-icon>
+              <input id="whatsappLink"
+                     type="url"
+                     formControlName="whatsappLink"
+                     placeholder="https://wa.me/23480XXXXXXX"
+                     class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg
+                            transition-all duration-200 ease-in-out
+                            focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+                            group-hover:border-gray-300"
+                     [class.border-red-300]="getFieldError('whatsappLink')">
+            </div>
+            <p class="mt-1.5 text-xs text-gray-500 flex items-center">
+              <ng-icon name="lucideInfo" size="12" class="mr-1"></ng-icon>
+              Format: https://wa.me/&lt;number&gt; or https://api.whatsapp.com/send?phone=...
+            </p>
+            <p *ngIf="getFieldError('whatsappLink')" class="mt-1 text-xs text-red-500 flex items-center">
+              <ng-icon name="lucideAlertCircle" size="12" class="mr-1"></ng-icon>
+              {{ getFieldError('whatsappLink') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Checkout Note -->
+        <div class="group">
+          <div class="flex justify-between items-center mb-1.5">
+            <label for="checkoutNote" class="text-sm font-medium text-gray-700">
+              Checkout Note
+            </label>
+            <span class="text-xs px-2 py-0.5 rounded-full"
+                  [class.bg-blue-50]="form.get('checkoutNote')?.value?.length > 0"
+                  [class.text-blue-700]="form.get('checkoutNote')?.value?.length > 0"
+                  [class.bg-gray-50]="!form.get('checkoutNote')?.value?.length"
+                  [class.text-gray-500]="!form.get('checkoutNote')?.value?.length">
+              {{ form.get('checkoutNote')?.value?.length || 0 }}/500
+            </span>
+          </div>
+          <div class="relative">
+            <textarea id="checkoutNote"
+                     rows="4"
+                     formControlName="checkoutNote"
+                     placeholder="Add a note that will be shown to users during checkout (optional)"
+                     class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg resize-none
+                            transition-all duration-200 ease-in-out
+                            focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+                            group-hover:border-gray-300"
+                     [class.border-red-300]="getFieldError('checkoutNote')">
+            </textarea>
+            <p *ngIf="getFieldError('checkoutNote')" class="mt-1.5 text-xs text-red-500 flex items-center">
+              <ng-icon name="lucideAlertCircle" size="12" class="mr-1"></ng-icon>
+              {{ getFieldError('checkoutNote') }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-6 mt-6 border-t border-gray-100 flex justify-end">
+        <button type="submit"
+                [disabled]="form.invalid || loading()"
+                class="inline-flex items-center px-6 py-2.5 text-sm font-medium rounded-lg
+                       text-white bg-gradient-to-r from-blue-600 to-blue-700
+                       hover:from-blue-700 hover:to-blue-800
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-blue-600 disabled:hover:to-blue-700
+                       transition-all duration-200 ease-in-out
+                       shadow-sm hover:shadow">
+          <ng-icon *ngIf="!loading()" name="lucideSave" size="16" class="mr-2"></ng-icon>
+          <ng-icon *ngIf="loading()" name="lucideLoader" size="16" class="mr-2 animate-spin"></ng-icon>
+          <span>{{ loading() ? 'Saving Changes...' : 'Save Configuration' }}</span>
+        </button>
+      </div>
+    </form>
   </div>
-
-  <!-- Loading State -->
-  <div *ngIf="loading()" class="flex justify-center items-center py-12">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="error() && !loading()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-    <div class="flex">
-      <div class="flex-shrink-0">
-        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-        </svg>
-      </div>
-      <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-800">Error</h3>
-        <div class="mt-2 text-sm text-red-700">{{ error() }}</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Form -->
-  <form *ngIf="!loading()" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
-    <!-- General Settings -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-        <ng-icon name="lucideSettings" size="20" class="mr-2 text-gray-600"></ng-icon>
-        General Settings
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Site Name -->
-        <div class="md:col-span-2">
-          <label for="siteName" class="block text-sm font-medium text-gray-700 mb-2">
-            Site Name *
-          </label>
-          <input
-            id="siteName"
-            type="text"
-            formControlName="siteName"
-            placeholder="Your Store Name"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            [class.border-red-300]="form.get('siteName')?.invalid && form.get('siteName')?.touched">
-          <div *ngIf="getFieldError('siteName')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('siteName') }}
-          </div>
-        </div>
-
-        <!-- Site Description -->
-        <div class="md:col-span-2">
-          <label for="siteDescription" class="block text-sm font-medium text-gray-700 mb-2">
-            Site Description
-          </label>
-          <textarea
-            id="siteDescription"
-            formControlName="siteDescription"
-            rows="3"
-            placeholder="Brief description of your store"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            [class.border-red-300]="form.get('siteDescription')?.invalid && form.get('siteDescription')?.touched">
-          </textarea>
-          <div *ngIf="getFieldError('siteDescription')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('siteDescription') }}
-          </div>
-        </div>
-
-        <!-- Contact Email -->
-        <div>
-          <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-2">
-            Contact Email *
-          </label>
-          <input
-            id="contactEmail"
-            type="email"
-            formControlName="contactEmail"
-            placeholder="contact@yourstore.com"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            [class.border-red-300]="form.get('contactEmail')?.invalid && form.get('contactEmail')?.touched">
-          <div *ngIf="getFieldError('contactEmail')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('contactEmail') }}
-          </div>
-        </div>
-
-        <!-- Contact Phone -->
-        <div>
-          <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-2">
-            Contact Phone
-          </label>
-          <input
-            id="contactPhone"
-            type="tel"
-            formControlName="contactPhone"
-            placeholder="+2348012345678"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            [class.border-red-300]="form.get('contactPhone')?.invalid && form.get('contactPhone')?.touched">
-          <div *ngIf="getFieldError('contactPhone')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('contactPhone') }}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Shipping Settings -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-        <ng-icon name="lucideTruck" size="20" class="mr-2 text-gray-600"></ng-icon>
-        Shipping Settings
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Free Shipping Threshold -->
-        <div>
-          <label for="freeShippingThreshold" class="block text-sm font-medium text-gray-700 mb-2">
-            Free Shipping Threshold (₦)
-          </label>
-          <input
-            id="freeShippingThreshold"
-            type="number"
-            step="0.01"
-            min="0"
-            formControlName="freeShippingThreshold"
-            placeholder="5000.00"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            [class.border-red-300]="form.get('freeShippingThreshold')?.invalid && form.get('freeShippingThreshold')?.touched">
-          <div *ngIf="getFieldError('freeShippingThreshold')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('freeShippingThreshold') }}
-          </div>
-          <p class="mt-1 text-xs text-gray-500">Leave empty for no free shipping threshold</p>
-        </div>
-
-        <!-- Default Shipping Fee -->
-        <div>
-          <label for="defaultShippingFee" class="block text-sm font-medium text-gray-700 mb-2">
-            Default Shipping Fee (₦) *
-          </label>
-          <input
-            id="defaultShippingFee"
-            type="number"
-            step="0.01"
-            min="0"
-            formControlName="defaultShippingFee"
-            placeholder="500.00"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            [class.border-red-300]="form.get('defaultShippingFee')?.invalid && form.get('defaultShippingFee')?.touched">
-          <div *ngIf="getFieldError('defaultShippingFee')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('defaultShippingFee') }}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tax Settings -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-        <ng-icon name="lucidePercent" size="20" class="mr-2 text-gray-600"></ng-icon>
-        Tax Settings
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Tax Rate -->
-        <div>
-          <label for="taxRate" class="block text-sm font-medium text-gray-700 mb-2">
-            Tax Rate (%) *
-          </label>
-          <input
-            id="taxRate"
-            type="number"
-            step="0.01"
-            min="0"
-            max="100"
-            formControlName="taxRate"
-            placeholder="7.50"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            [class.border-red-300]="form.get('taxRate')?.invalid && form.get('taxRate')?.touched">
-          <div *ngIf="getFieldError('taxRate')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('taxRate') }}
-          </div>
-        </div>
-
-        <!-- Tax Included -->
-        <div class="flex items-center">
-          <input
-            id="taxIncluded"
-            type="checkbox"
-            formControlName="taxIncluded"
-            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-          <label for="taxIncluded" class="ml-2 block text-sm text-gray-900">
-            Tax included in prices
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Notification Settings -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-        <ng-icon name="lucideMail" size="20" class="mr-2 text-gray-600"></ng-icon>
-        Notification Settings
-      </h2>
-
-      <div class="space-y-4">
-        <div class="flex items-center">
-          <input
-            id="emailNotifications"
-            type="checkbox"
-            formControlName="emailNotifications"
-            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-          <label for="emailNotifications" class="ml-2 block text-sm text-gray-900">
-            Enable email notifications
-          </label>
-        </div>
-
-        <div class="flex items-center">
-          <input
-            id="smsNotifications"
-            type="checkbox"
-            formControlName="smsNotifications"
-            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-          <label for="smsNotifications" class="ml-2 block text-sm text-gray-900">
-            Enable SMS notifications
-          </label>
-        </div>
-
-        <div class="flex items-center">
-          <input
-            id="orderConfirmations"
-            type="checkbox"
-            formControlName="orderConfirmations"
-            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-          <label for="orderConfirmations" class="ml-2 block text-sm text-gray-900">
-            Send order confirmation notifications
-          </label>
-        </div>
-
-        <div class="flex items-center">
-          <input
-            id="shippingUpdates"
-            type="checkbox"
-            formControlName="shippingUpdates"
-            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-          <label for="shippingUpdates" class="ml-2 block text-sm text-gray-900">
-            Send shipping update notifications
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Maintenance Settings -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Maintenance Settings</h2>
-
-      <div class="space-y-4">
-        <div class="flex items-center">
-          <input
-            id="maintenanceMode"
-            type="checkbox"
-            formControlName="maintenanceMode"
-            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-          <label for="maintenanceMode" class="ml-2 block text-sm text-gray-900">
-            Enable maintenance mode
-          </label>
-        </div>
-
-        <div *ngIf="form.get('maintenanceMode')?.value">
-          <label for="maintenanceMessage" class="block text-sm font-medium text-gray-700 mb-2">
-            Maintenance Message
-          </label>
-          <textarea
-            id="maintenanceMessage"
-            formControlName="maintenanceMessage"
-            rows="3"
-            placeholder="We'll be back soon..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          </textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- Form Actions -->
-    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-      <button
-        type="submit"
-        [disabled]="form.invalid"
-        class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-        <ng-icon name="lucideSave" size="16" class="mr-2"></ng-icon>
-        Save Configuration
-      </button>
-    </div>
-  </form>
 </div>

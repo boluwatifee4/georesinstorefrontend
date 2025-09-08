@@ -3,29 +3,23 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { toast } from 'ngx-sonner';
-import {
-  lucideSave,
-  lucideSettings,
-  lucideMail,
-  lucideCreditCard,
-  lucideTruck,
-  lucidePercent
-} from '@ng-icons/lucide';
-
+import { lucideSave, lucideSettings, lucideMessageCircle, lucideFileText, lucideLoader } from '@ng-icons/lucide';
 import { AdminAppConfigStore } from '../../../state/admin-app-config.store';
+import { AppConfig } from '../../../../../types/api.types';
 
 @Component({
   selector: 'app-app-config',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgIcon],
-  providers: [provideIcons({
-    lucideSave,
-    lucideSettings,
-    lucideMail,
-    lucideCreditCard,
-    lucideTruck,
-    lucidePercent
-  })],
+  providers: [
+    provideIcons({
+      lucideSave,
+      lucideSettings,
+      lucideMessageCircle,
+      lucideFileText,
+      lucideLoader
+    })
+  ],
   templateUrl: './app-config.component.html',
   styleUrl: './app-config.component.css'
 })
@@ -33,168 +27,85 @@ export class AppConfigComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly appConfigStore = inject(AdminAppConfigStore);
 
+  // signals from store
   readonly loading = this.appConfigStore.loading;
   readonly error = this.appConfigStore.error;
   readonly appConfig = this.appConfigStore.config;
 
+  // Form strictly matching API contract
   form: FormGroup = this.fb.group({
-    // General Settings
-    siteName: ['', [Validators.required, Validators.minLength(2)]],
-    siteDescription: ['', [Validators.maxLength(500)]],
-    contactEmail: ['', [Validators.required, Validators.email]],
-    contactPhone: ['', [Validators.pattern(/^[\+]?[1-9][\d]{0,15}$/)]],
-
-    // Business Settings
-    businessHours: this.fb.group({
-      monday: ['09:00-17:00'],
-      tuesday: ['09:00-17:00'],
-      wednesday: ['09:00-17:00'],
-      thursday: ['09:00-17:00'],
-      friday: ['09:00-17:00'],
-      saturday: ['10:00-16:00'],
-      sunday: ['Closed']
-    }),
-
-    // Payment Settings
-    paymentMethods: this.fb.array([
-      this.fb.group({
-        name: ['Card Payment'],
-        provider: ['stripe'],
-        isActive: [true],
-        config: this.fb.group({
-          publicKey: [''],
-          secretKey: ['']
-        })
-      })
-    ]),
-
-    // Shipping Settings
-    freeShippingThreshold: ['', [Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-    defaultShippingFee: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-
-    // Tax Settings
-    taxRate: ['', [Validators.required, Validators.min(0), Validators.max(100), Validators.pattern(/^\d+(\.\d{2})?$/)]],
-    taxIncluded: [false],
-
-    // Notification Settings
-    emailNotifications: [true],
-    smsNotifications: [false],
-    orderConfirmations: [true],
-    shippingUpdates: [true],
-
-    // Maintenance
-    maintenanceMode: [false],
-    maintenanceMessage: ['']
+    bankName: ['', [Validators.required, Validators.minLength(2)]],
+    accountNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+    whatsappLink: ['', [Validators.required, Validators.pattern(/^https:\/\/(wa\.me|api\.whatsapp\.com)/)]],
+    checkoutNote: ['', [Validators.maxLength(500)]]
   });
 
   ngOnInit(): void {
-    this.loadAppConfig();
+    this.fetchConfig();
   }
 
-  private loadAppConfig(): void {
+  private fetchConfig(): void {
     this.appConfigStore.loadConfig().subscribe({
-      next: (config: any) => {
+      next: (config: AppConfig | null) => {
         if (config) {
           this.form.patchValue({
-            siteName: config.siteName,
-            siteDescription: config.siteDescription,
-            contactEmail: config.contactEmail,
-            contactPhone: config.contactPhone,
-            freeShippingThreshold: config.freeShippingThreshold,
-            defaultShippingFee: config.defaultShippingFee,
-            taxRate: config.taxRate,
-            taxIncluded: config.taxIncluded,
-            emailNotifications: config.emailNotifications,
-            smsNotifications: config.smsNotifications,
-            orderConfirmations: config.orderConfirmations,
-            shippingUpdates: config.shippingUpdates,
-            maintenanceMode: config.maintenanceMode,
-            maintenanceMessage: config.maintenanceMessage
+            bankName: config.bankName || '',
+            accountNumber: config.accountNumber || '',
+            whatsappLink: config.whatsappLink || '',
+            checkoutNote: config.checkoutNote || ''
           });
-
-          // Handle business hours if they exist
-          if (config.businessHours) {
-            this.form.get('businessHours')?.patchValue(config.businessHours);
-          }
         }
       },
-      error: (error: any) => {
-        toast.error('Failed to load app configuration');
+      error: () => {
+        toast.error('Failed to load configuration');
       }
     });
   }
 
   onSubmit(): void {
-    if (this.form.valid) {
-      const formValue = this.form.value;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      toast.error('Please fix validation errors');
+      return;
+    }
 
-      this.appConfigStore.updateConfig(formValue).subscribe({
-        next: () => {
-          toast.success('App configuration updated successfully');
-        },
-        error: (error: any) => {
-          toast.error('Failed to update app configuration');
+    const payload = this.form.value; // already matches UpdateConfigRequest shape
+
+    this.appConfigStore.updateConfig(payload).subscribe({
+      next: (updated) => {
+        if (updated) {
+          toast.success('Configuration updated');
         }
-      });
-    } else {
-      this.markFormGroupTouched();
-      toast.error('Please fill in all required fields correctly');
-    }
-  }
-
-  private markFormGroupTouched(): void {
-    Object.keys(this.form.controls).forEach(key => {
-      const control = this.form.get(key);
-      control?.markAsTouched();
-      if (control instanceof FormGroup) {
-        this.markNestedFormGroupTouched(control);
+      },
+      error: (err) => {
+        console.error(err);
+        toast.error('Update failed');
       }
     });
   }
 
-  private markNestedFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach(key => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-      if (control instanceof FormGroup) {
-        this.markNestedFormGroupTouched(control);
-      }
-    });
-  }
+  getFieldError(fieldName: string): string | null {
+    const ctrl = this.form.get(fieldName);
+    if (!ctrl || !ctrl.touched || !ctrl.errors) return null;
 
-  getFieldError(fieldName: string): string {
-    const control = this.form.get(fieldName);
-    if (control?.errors && control.touched) {
-      if (control.errors['required']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-      }
-      if (control.errors['email']) {
-        return 'Please enter a valid email address';
-      }
-      if (control.errors['minlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${control.errors['minlength'].requiredLength} characters`;
-      }
-      if (control.errors['maxlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at most ${control.errors['maxlength'].requiredLength} characters`;
-      }
-      if (control.errors['pattern']) {
-        return `Please enter a valid ${fieldName}`;
-      }
-      if (control.errors['min']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${control.errors['min'].min}`;
-      }
-      if (control.errors['max']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at most ${control.errors['max'].max}`;
-      }
+    if (ctrl.errors['required']) return `${this.label(fieldName)} is required`;
+    if (ctrl.errors['minlength']) return `${this.label(fieldName)} must be at least ${ctrl.errors['minlength'].requiredLength} characters`;
+    if (ctrl.errors['maxlength']) return `${this.label(fieldName)} must not exceed ${ctrl.errors['maxlength'].requiredLength} characters`;
+    if (ctrl.errors['pattern']) {
+      if (fieldName === 'accountNumber') return 'Account number must be exactly 10 digits';
+      if (fieldName === 'whatsappLink') return 'Enter a valid WhatsApp link starting with https://wa.me or https://api.whatsapp.com';
+      return 'Invalid format';
     }
-    return '';
+    return null;
   }
 
-  formatPrice(value: string): string {
-    return `₦${parseFloat(value || '0').toLocaleString()}`;
-  }
-
-  formatPercentage(value: string): string {
-    return `${parseFloat(value || '0').toFixed(2)}%`;
+  private label(name: string): string {
+    const map: Record<string, string> = {
+      bankName: 'Bank Name',
+      accountNumber: 'Account Number',
+      whatsappLink: 'WhatsApp Link',
+      checkoutNote: 'Checkout Note'
+    };
+    return map[name] || name;
   }
 }

@@ -27,6 +27,7 @@ import { AdminProductsStore } from '../../../state/admin-products.store';
 import { AdminCategoriesStore } from '../../../state/admin-categories.store';
 import { AdminOptionGroupsStore } from '../../../state/admin-option-groups.store';
 import { Product, ProductMedia, Category, OptionGroup } from '../../../../../types/api.types';
+import { GoogleDriveUtilService } from '../../../../../core/services/google-drive-util.service';
 
 @Component({
   selector: 'app-products-detail',
@@ -60,6 +61,7 @@ export class ProductsDetailComponent implements OnInit {
   private readonly productsStore = inject(AdminProductsStore);
   private readonly categoriesStore = inject(AdminCategoriesStore);
   private readonly optionGroupsStore = inject(AdminOptionGroupsStore);
+  private readonly googleDriveUtil = inject(GoogleDriveUtilService);
 
   // Component state
   productId = signal<number | null>(null);
@@ -153,6 +155,30 @@ export class ProductsDetailComponent implements OnInit {
   }
 
   // Media Management
+  onImageUrlChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const url = input.value;
+
+    if (url && this.googleDriveUtil.isGoogleDriveUrl(url)) {
+      const convertedUrl = this.googleDriveUtil.convertGoogleDriveUrl(url);
+      const fileId = this.googleDriveUtil.extractFileId(url);
+
+      // Update the form control with the converted URL
+      this.mediaForm.patchValue({ url: convertedUrl });
+
+      // Show a toast notification to inform the user
+      // toast.success('✅ Google Drive URL converted to direct image link!', {
+      //   description: `File ID: ${fileId}`,
+      //   duration: 4000
+      // });
+
+      // console.log('🔗 Google Drive URL Conversion:');
+      // console.log('📋 Original URL:', url);
+      // console.log('🔄 Converted URL:', convertedUrl);
+      // console.log('🆔 File ID:', fileId);
+    }
+  }
+
   onAddMedia() {
     if (this.mediaForm.invalid || !this.productId()) {
       this.mediaForm.markAllAsTouched();

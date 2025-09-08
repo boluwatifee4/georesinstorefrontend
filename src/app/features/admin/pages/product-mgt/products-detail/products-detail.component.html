@@ -168,15 +168,25 @@
                   id="mediaUrl"
                   type="url"
                   formControlName="url"
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="https://example.com/image.jpg or Google Drive sharing link"
+                  (change)="onImageUrlChange($event)"
                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 bg-white"
                   [class.border-red-300]="getMediaFieldError('url')"
                   [class.focus:ring-red-500]="getMediaFieldError('url')"
                   [class.focus:border-red-500]="getMediaFieldError('url')"
                 >
                 <div *ngIf="getMediaFieldError('url')" class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <ng-icon name="lucideAlertCircle" class="text-xs"></ng-icon>
+                  <ng-icon name="lucideTriangleAlert" class="text-xs"></ng-icon>
                   {{ getMediaFieldError('url') }}
+                </div>
+                <div class="mt-2 text-xs text-gray-500">
+                  <div class="flex items-start gap-1">
+                    <ng-icon name="lucideInfo" class="text-xs mt-0.5 text-blue-500"></ng-icon>
+                    <div>
+                      <strong>Google Drive:</strong> Paste the sharing link (e.g., https://drive.google.com/file/d/...)
+                      <br>We'll automatically convert it to a direct image URL for you.
+                    </div>
+                  </div>
                 </div>
               </div>
 
