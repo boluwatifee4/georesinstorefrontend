@@ -1,23 +1,23 @@
 <div class="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 dark:from-violet-950 dark:via-slate-900 dark:to-purple-950">
-  <div class="container mx-auto px-4 py-8 max-w-6xl">
+  <div class="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
 
     <!-- Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-violet-700 to-purple-600 bg-clip-text text-transparent">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-violet-700 to-purple-600 bg-clip-text text-transparent">
             Shopping Cart
           </h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-2">
+          <p class="text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">
             {{ itemCount() }} {{ itemCount() === 1 ? 'item' : 'items' }} in your cart
           </p>
         </div>
 
         <!-- Cart Actions -->
-        <div class="flex gap-3">
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             (click)="continueShopping()"
-            class="px-6 py-3 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-all duration-200 font-medium shadow-sm"
+            class="px-4 sm:px-6 py-2 sm:py-3 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 rounded-xl md:hover:bg-gray-50 active:bg-gray-50 dark:md:hover:bg-slate-700 dark:active:bg-slate-700 transition-all duration-200 font-medium shadow-sm text-sm sm:text-base"
           >
             Continue Shopping
           </button>
@@ -25,7 +25,7 @@
           <button
             *ngIf="!isEmpty()"
             (click)="clearCart()"
-            class="px-6 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 font-medium"
+            class="px-4 sm:px-6 py-2 sm:py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl md:hover:bg-red-100 active:bg-red-100 dark:md:hover:bg-red-900/30 dark:active:bg-red-900/30 transition-all duration-200 font-medium text-sm sm:text-base"
           >
             Clear Cart
           </button>
@@ -45,18 +45,18 @@
     </div>
 
     <!-- Empty Cart -->
-    <div *ngIf="isEmpty() && !loading()" class="text-center py-16">
-      <div class="bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-3xl p-12 mx-auto max-w-lg">
-        <div class="w-24 h-24 bg-gradient-to-br from-violet-200 to-purple-200 dark:from-violet-800 dark:to-purple-800 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg class="w-12 h-12 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div *ngIf="isEmpty() && !loading()" class="text-center py-12 sm:py-16">
+      <div class="bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-3xl p-8 sm:p-12 mx-auto max-w-lg">
+        <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-violet-200 to-purple-200 dark:from-violet-800 dark:to-purple-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+          <svg class="w-10 h-10 sm:w-12 sm:h-12 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Your cart is empty</h2>
-        <p class="text-gray-600 dark:text-gray-400 mb-8">Discover our curated collection of premium products</p>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">Your cart is empty</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base">Discover our curated collection of premium products</p>
         <button
           (click)="continueShopping()"
-          class="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          class="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl md:hover:from-violet-700 md:hover:to-purple-700 active:from-violet-700 active:to-purple-700 transition-all duration-200 font-semibold shadow-lg md:hover:shadow-xl active:shadow-xl transform md:hover:-translate-y-0.5 active:-translate-y-0.5 text-sm sm:text-base"
         >
           Start Shopping
         </button>
@@ -64,21 +64,21 @@
     </div>
 
     <!-- Cart Items -->
-    <div *ngIf="!isEmpty() && !loading()" class="grid lg:grid-cols-3 gap-8">
+    <div *ngIf="!isEmpty() && !loading()" class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
       <!-- Cart Items List -->
-      <div class="lg:col-span-2 space-y-6">
+      <div class="lg:col-span-2 space-y-4 sm:space-y-6">
         <div
           *ngFor="let item of cartItems(); trackBy: trackByItemId"
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all duration-200"
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden md:hover:shadow-md active:shadow-md transition-all duration-200"
         >
-          <div class="p-6">
-            <div class="flex gap-6">
+          <div class="p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
 
               <!-- Product Image (placeholder - no variant image in CartItem snapshot) -->
-              <div class="flex-shrink-0">
-                <div class="w-24 h-24 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-xl overflow-hidden flex items-center justify-center">
-                  <svg class="w-10 h-10 text-violet-500 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex-shrink-0 mx-auto sm:mx-0">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-xl overflow-hidden flex items-center justify-center">
+                  <svg class="w-8 h-8 sm:w-10 sm:h-10 text-violet-500 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
@@ -86,12 +86,12 @@
 
               <!-- Product Details -->
               <div class="flex-1 min-w-0">
-                <div class="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white text-lg leading-tight">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900 dark:text-white text-base sm:text-lg leading-tight text-center sm:text-left">
                       {{ item.titleSnap }}
                     </h3>
-                    <p *ngIf="item.skuSnap" class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <p *ngIf="item.skuSnap" class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 text-center sm:text-left">
                       SKU: {{ item.skuSnap }}
                     </p>
                   </div>
@@ -100,7 +100,7 @@
                   <button
                     (click)="removeItem(item)"
                     [disabled]="isItemUpdating(item.id)"
-                    class="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                    class="p-2 text-gray-400 md:hover:text-red-500 active:text-red-500 dark:md:hover:text-red-400 dark:active:text-red-400 transition-colors duration-200 rounded-lg md:hover:bg-red-50 active:bg-red-50 dark:md:hover:bg-red-900/20 dark:active:bg-red-900/20 mx-auto sm:mx-0"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -111,30 +111,30 @@
                 <!-- (Variant options removed: CartItem type doesn't include option combination snapshot) -->
 
                 <!-- Quantity and Price -->
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
                   <!-- Quantity Controls -->
-                  <div class="flex items-center gap-3">
+                  <div class="flex items-center justify-center sm:justify-start gap-3">
                     <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">Qty:</span>
                     <div class="flex items-center bg-gray-50 dark:bg-slate-700 rounded-lg overflow-hidden border border-gray-200 dark:border-slate-600">
                       <button
                         (click)="updateQuantity(item, item.qty - 1)"
                         [disabled]="isItemUpdating(item.id) || item.qty <= 1"
-                        class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="p-2 md:hover:bg-gray-100 active:bg-gray-100 dark:md:hover:bg-slate-600 dark:active:bg-slate-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                         </svg>
                       </button>
 
-                      <span class="px-4 py-2 font-semibold text-gray-900 dark:text-white min-w-[3rem] text-center">
+                      <span class="px-3 sm:px-4 py-2 font-semibold text-gray-900 dark:text-white min-w-[2.5rem] sm:min-w-[3rem] text-center text-sm sm:text-base">
                         {{ item.qty }}
                       </span>
 
                       <button
                         (click)="updateQuantity(item, item.qty + 1)"
                         [disabled]="isItemUpdating(item.id)"
-                        class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="p-2 md:hover:bg-gray-100 active:bg-gray-100 dark:md:hover:bg-slate-600 dark:active:bg-slate-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -144,11 +144,11 @@
                   </div>
 
                   <!-- Price -->
-                  <div class="text-right">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                  <div class="text-center sm:text-right">
+                    <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                       {{ getFormattedUnitPrice(item) }} each
                     </div>
-                    <div class="text-xl font-bold text-gray-900 dark:text-white">
+                    <div class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                       {{ getFormattedItemTotal(item) }}
                     </div>
                   </div>
@@ -166,24 +166,24 @@
       </div>
 
       <!-- Order Summary -->
-      <div class="lg:col-span-1">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 sticky top-6">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Order Summary</h2>
+      <div class="lg:col-span-1 order-first lg:order-last">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 sm:p-6 lg:sticky lg:top-6">
+          <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Order Summary</h2>
 
-          <div class="space-y-4 mb-6">
+          <div class="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
             <div class="flex justify-between items-center">
-              <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
-              <span class="font-semibold text-gray-900 dark:text-white">{{ formattedSubtotal() }}</span>
+              <span class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Subtotal</span>
+              <span class="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">{{ formattedSubtotal() }}</span>
             </div>
 
-            <div class="flex justify-between items-center text-sm">
+            <div class="flex justify-between items-center text-xs sm:text-sm">
               <span class="text-gray-500 dark:text-gray-400">Items ({{ itemCount() }})</span>
               <span class="text-gray-500 dark:text-gray-400">{{ itemCount() }} {{ itemCount() === 1 ? 'item' : 'items' }}</span>
             </div>
 
             <hr class="border-gray-200 dark:border-slate-600">
 
-            <div class="flex justify-between items-center text-sm text-amber-600 dark:text-amber-400">
+            <div class="flex justify-between items-center text-xs sm:text-sm text-amber-600 dark:text-amber-400">
               <span>Delivery fee</span>
               <span>Calculated at checkout</span>
             </div>
@@ -192,7 +192,7 @@
           <button
             (click)="proceedToCheckout()"
             [disabled]="loading()"
-            class="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            class="w-full py-3 sm:py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl md:hover:from-violet-700 md:hover:to-purple-700 active:from-violet-700 active:to-purple-700 transition-all duration-200 font-semibold shadow-lg md:hover:shadow-xl active:shadow-xl transform md:hover:-translate-y-0.5 active:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
           >
             <span *ngIf="!loading()">Proceed to Checkout</span>
             <span *ngIf="loading()" class="flex items-center justify-center gap-2">
@@ -202,8 +202,8 @@
           </button>
 
           <!-- Trust Indicators -->
-          <div class="mt-6 pt-6 border-t border-gray-200 dark:border-slate-600">
-            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div class="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 dark:border-slate-600">
+            <div class="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               <div class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>

@@ -87,7 +87,7 @@
           (click)="goToProducts()"
           class="text-sm uppercase tracking-wider text-brand-600 md:text-muted md:hover:text-brand-600 font-medium
                  flex items-center justify-center gap-2 py-2 px-4 rounded-lg border border-brand-600/20
-                 hover:bg-brand-600/5 transition-all duration-300"
+                 md:hover:bg-brand-600/5 transition-all duration-300"
         >
           View All
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,11 +96,11 @@
         </button>
       </div>
 
-      <div *ngIf="loadingProducts()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        <div *ngFor="let sk of [1,2,3,4,5,6,7,8]" class="space-y-4">
+      <div *ngIf="loadingProducts()" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-8">
+        <div *ngFor="let sk of [1,2,3,4,5,6,7,8]" class="space-y-3 sm:space-y-4">
           <div class="aspect-square rounded-2xl animate-pulse bg-surface border border-border"></div>
-          <div class="h-4 bg-surface rounded animate-pulse"></div>
-          <div class="h-4 bg-surface rounded animate-pulse w-1/2"></div>
+          <div class="h-3 sm:h-4 bg-surface rounded animate-pulse"></div>
+          <div class="h-3 sm:h-4 bg-surface rounded animate-pulse w-1/2"></div>
         </div>
       </div>
 
@@ -122,10 +122,10 @@
         </div>
       </div>
 
-  <div *ngIf="!loadingProducts() && !productsError()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+  <div *ngIf="!loadingProducts() && !productsError()" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-8">
         <div
           *ngFor="let p of featuredProducts(); trackBy: trackById"
-          class="group relative cursor-pointer transform transition-all duration-500 md:hover:-translate-y-2 active:scale-[0.98]"
+          class="group relative cursor-pointer transform transition-all duration-500 md:hover:-translate-y-2 active:scale-[0.98] touch-manipulation"
           (click)="viewProduct(p)"
         >
           <!-- Product Image Container -->
@@ -199,30 +199,32 @@
             </p>
 
             <!-- Price and Action Row -->
-            <div class="flex items-center justify-between pt-1 md:pt-2">
-            <!-- Price Display -->
-            <div class="flex flex-col">
-              <span class="text-lg sm:text-xl font-light text-gray-900 tracking-wide">
-                <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleFP">
-                  ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
-                </ng-container>
-                <ng-template #singleFP>
-                  ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}
-                </ng-template>
-              </span>
-            </div>              <!-- Quick Action Button -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-2 gap-2 sm:gap-0">
+              <!-- Price Display -->
+              <div class="flex flex-col">
+                <span class="text-base sm:text-lg md:text-xl font-light text-gray-900 tracking-wide">
+                  <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleFP">
+                    ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
+                  </ng-container>
+                  <ng-template #singleFP>
+                    ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}
+                  </ng-template>
+                </span>
+              </div>
+
+              <!-- Quick Action Button -->
               <button
                 type="button"
                 (click)="quickAddToCart(p, $event)"
                 [disabled]="isProductAdding(p.id)"
-                class="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100
+                class="flex items-center justify-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100
                        transition-all duration-300 transform md:translate-x-2 md:group-hover:translate-x-0
-                       bg-black text-white py-1.5 px-3 rounded-full hover:bg-gray-800 active:scale-95
-                       shadow-lg hover:shadow-xl text-xs tracking-wide focus-visible:opacity-100 focus-visible:outline-none
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+                       bg-black text-white py-2.5 sm:py-1.5 px-4 sm:px-3 rounded-full md:hover:bg-gray-800 active:bg-gray-800 active:scale-95
+                       shadow-lg md:hover:shadow-xl text-xs sm:text-xs tracking-wide focus-visible:opacity-100 focus-visible:outline-none
+                       disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto min-h-[40px] sm:min-h-[32px]"
               >
                 <div *ngIf="isProductAdding(p.id)" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
-                <svg *ngIf="!isProductAdding(p.id)" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <svg *ngIf="!isProductAdding(p.id)" class="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
                 </svg>
                 <span *ngIf="!isProductAdding(p.id)">Add to Cart</span>
@@ -252,27 +254,27 @@
         </div>
       </div>
 
-    <div *ngIf="!loadingProducts()" class="flex gap-5 md:gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-4 px-4">
+        <div *ngIf="!loadingProducts()" class="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-4 px-4">
         <div
           *ngFor="let p of newProducts(); trackBy: trackById"
-          class="flex-shrink-0 w-48 sm:w-56 md:w-64 group cursor-pointer snap-start active:scale-[0.97] transition-transform"
+          class="flex-shrink-0 w-44 sm:w-48 md:w-56 lg:w-64 group cursor-pointer snap-start active:scale-[0.97] transition-transform"
           (click)="viewProduct(p)"
         >
-      <div class="aspect-square rounded-lg bg-gray-100 mb-3 md:mb-4 overflow-hidden
-            shadow-md md:group-hover:shadow-lg transition-all duration-300">
+          <div class="aspect-square rounded-lg bg-gray-100 mb-3 md:mb-4 overflow-hidden
+                shadow-md md:group-hover:shadow-lg transition-all duration-300">
             <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
               <span class="text-gray-400 text-xs uppercase tracking-wider">Product Image</span>
             </div>
           </div>
-      <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 md:mb-2 tracking-wide line-clamp-2">{{ p.title }}</h3>
-      <p class="text-base sm:text-lg font-light text-gray-800 tracking-wide">
-        <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleNA">
-          ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
-        </ng-container>
-        <ng-template #singleNA>
-          ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}
-        </ng-template>
-      </p>
+          <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 md:mb-2 tracking-wide line-clamp-2">{{ p.title }}</h3>
+          <p class="text-sm sm:text-base md:text-lg font-light text-gray-800 tracking-wide">
+            <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleNA">
+              ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
+            </ng-container>
+            <ng-template #singleNA>
+              ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}
+            </ng-template>
+          </p>
         </div>
       </div>
     </div>
