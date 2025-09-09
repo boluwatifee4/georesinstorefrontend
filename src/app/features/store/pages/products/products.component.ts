@@ -215,8 +215,12 @@ export class ProductsComponent implements OnInit {
   }
 
   addToCart(productId: string | number): void {
-    // TODO: Implement add to cart functionality
-    console.log('Add to cart:', productId);
+    // For products listing, it's better to navigate to product detail
+    // where users can select specific variants/options
+    const product = this.filteredProducts().find(p => p.id === productId);
+    if (product) {
+      this.router.navigate(['/store/products', product.slug]);
+    }
   }
 
   viewProduct(product: Product): void {

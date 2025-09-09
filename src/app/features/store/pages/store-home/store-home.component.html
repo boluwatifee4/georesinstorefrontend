@@ -57,7 +57,8 @@
 
       <div *ngIf="!loadingCategories()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
         <button
-          *ngFor="let c of categories(); trackBy: trackById"
+          *ngFor="let c of topCategories(); trackBy: trackById"
+          (click)="viewCategory(c)"
      class="group aspect-square rounded-2xl bg-surface border border-border md:hover:border-brand-600
        shadow-lg md:hover:shadow-xl transition-all duration-500 p-6 md:p-8 flex flex-col items-center justify-center
        md:hover:-translate-y-2 md:hover:bg-gradient-to-br md:hover:from-brand-600/5 md:hover:to-accent/5 active:scale-95"
@@ -68,7 +69,7 @@
               <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
             </svg>
           </div>
-     <span class="text-xs sm:text-sm font-semibold text-text text-center tracking-wide md:group-hover:text-brand-600 transition-colors">{{ c.name }}</span>
+     <span class="text-xs sm:text-sm font-semibold text-text text-center tracking-wide md:group-hover:text-brand-600 transition-colors line-clamp-2">{{ c.name }}</span>
         </button>
       </div>
     </div>
@@ -205,14 +206,22 @@
                 ₦{{ p.basePrice | number:'1.0-0' }}
               </span>
             </div>              <!-- Quick Action Button -->
-              <button type="button" class="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100
-                             transition-all duration-300 transform md:translate-x-2 md:group-hover:translate-x-0
-                             bg-black text-white py-1.5 px-3 rounded-full hover:bg-gray-800 active:scale-95
-                             shadow-lg hover:shadow-xl text-xs tracking-wide focus-visible:opacity-100 focus-visible:outline-none">
-                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <button
+                type="button"
+                (click)="quickAddToCart(p, $event)"
+                [disabled]="isProductAdding(p.id)"
+                class="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100
+                       transition-all duration-300 transform md:translate-x-2 md:group-hover:translate-x-0
+                       bg-black text-white py-1.5 px-3 rounded-full hover:bg-gray-800 active:scale-95
+                       shadow-lg hover:shadow-xl text-xs tracking-wide focus-visible:opacity-100 focus-visible:outline-none
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div *ngIf="isProductAdding(p.id)" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+                <svg *ngIf="!isProductAdding(p.id)" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
                 </svg>
-                <span>Add to Cart</span>
+                <span *ngIf="!isProductAdding(p.id)">Add to Cart</span>
+                <span *ngIf="isProductAdding(p.id)">Adding...</span>
               </button>
             </div>
           </div>
@@ -262,20 +271,66 @@
     <div class="max-w-7xl mx-auto">
       <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-900 via-brand-700 to-brand-600 text-white p-16 md:p-20">
         <div class="relative z-10 text-center">
-          <h2 class="h2 text-white mb-6">Exclusive Offers</h2>
+          <h2 class="h2 text-white mb-6">Ready to Create?</h2>
           <p class="text-lg font-light text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Be the first to know about our seasonal collections and limited-time premium discounts
+            Start your resin art journey today with our premium materials and expert guidance
           </p>
-          <button type="button"
-            (click)="goToProducts()"
-            class="btn-primary px-10 py-4 bg-surface text-brand-600 font-bold tracking-wide uppercase text-sm
-                   hover:bg-white hover:scale-105 transition-all duration-300 rounded-xl shadow-xl"
-          >
-            Notify Me
-          </button>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button type="button"
+              (click)="goToProducts()"
+              class="btn-primary px-8 py-4 bg-surface text-brand-600 font-bold tracking-wide uppercase text-sm
+                     hover:bg-white hover:scale-105 transition-all duration-300 rounded-xl shadow-xl"
+            >
+              Shop Now
+            </button>
+            <button type="button"
+              (click)="goToOrderLookup()"
+              class="px-8 py-4 border-2 border-white/30 text-white font-medium tracking-wide uppercase text-sm
+                     hover:bg-white/10 hover:border-white hover:text-white transition-all duration-300 rounded-xl"
+            >
+              Track Order
+            </button>
+          </div>
         </div>
         <div class="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full -translate-y-40 translate-x-40"></div>
         <div class="absolute bottom-0 left-0 w-60 h-60 bg-white/5 rounded-full translate-y-30 -translate-x-30"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust and Support Section -->
+  <section class="py-16 px-4 bg-surface">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-text mb-2">Quality Guaranteed</h3>
+          <p class="text-muted text-sm">Premium materials tested for exceptional results</p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-text mb-2">Fast Processing</h3>
+          <p class="text-muted text-sm">Quick order confirmation and delivery</p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-text mb-2">Expert Support</h3>
+          <p class="text-muted text-sm">Guidance from experienced resin artists</p>
+        </div>
       </div>
     </div>
   </section>
@@ -313,10 +368,17 @@
         (click)="goToCart()"
         class="flex flex-col items-center justify-center gap-1 sm:gap-2 text-white md:hover:text-accent transition-colors duration-300 py-1.5 px-3 relative flex-1"
       >
-        <div class="w-6 h-6 flex items-center justify-center">
+        <div class="w-6 h-6 flex items-center justify-center relative">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
           </svg>
+          <!-- Cart item count badge -->
+          <span
+            *ngIf="cartItemCount() > 0"
+            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold min-w-[20px] animate-pulse"
+          >
+            {{ cartItemCount() > 99 ? '99+' : cartItemCount() }}
+          </span>
         </div>
         <span class="text-[10px] sm:text-xs tracking-wider font-medium">CART</span>
       </button>

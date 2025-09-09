@@ -1,0 +1,225 @@
+<div class="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 dark:from-violet-950 dark:via-slate-900 dark:to-purple-950">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <button
+        (click)="goBack()"
+        class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors mb-6"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Store
+      </button>
+
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-violet-700 to-purple-600 bg-clip-text text-transparent mb-4">
+        Track Your Order
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
+        Enter your order code to check the status and details of your order
+      </p>
+    </div>
+
+    <!-- Lookup Form -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-700 p-8 mb-8">
+      <form [formGroup]="lookupForm" (ngSubmit)="lookupOrder()" class="max-w-md mx-auto">
+        <div class="space-y-4">
+          <div>
+            <label for="orderCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Order Code
+            </label>
+            <input
+              id="orderCode"
+              type="text"
+              formControlName="orderCode"
+              placeholder="Enter your order code (e.g., ABC123)"
+              class="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 text-center font-mono text-lg"
+            >
+            <div *ngIf="lookupForm.get('orderCode')?.invalid && lookupForm.get('orderCode')?.touched" class="text-red-500 text-sm mt-1">
+              Please enter a valid order code
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="lookupForm.invalid || isLoading()"
+            class="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <span *ngIf="!isLoading()">Track Order</span>
+            <span *ngIf="isLoading()" class="flex items-center justify-center gap-2">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              Looking up order...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error()" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-8">
+      <div class="flex items-center gap-3">
+        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <h3 class="text-red-800 dark:text-red-200 font-semibold">Order Not Found</h3>
+          <p class="text-red-600 dark:text-red-400">{{ error() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Details -->
+    <div *ngIf="order()" class="space-y-6">
+
+      <!-- Order Status -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Order Details</h2>
+          <span [class]="'px-4 py-2 rounded-full text-sm font-medium ' + getStatusColor(order().status)">
+            {{ getStatusText(order().status) }}
+          </span>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Order Information</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Order Code:</span>
+                <span class="font-mono font-medium text-gray-900 dark:text-white">{{ order().orderCode }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Order Date:</span>
+                <span class="text-gray-900 dark:text-white">{{ order().createdAt | date:'medium' }}</span>
+              </div>
+              <div *ngIf="order().declaredAt" class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Payment Declared:</span>
+                <span class="text-gray-900 dark:text-white">{{ order().declaredAt | date:'medium' }}</span>
+              </div>
+              <div *ngIf="order().reviewedAt" class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Reviewed:</span>
+                <span class="text-gray-900 dark:text-white">{{ order().reviewedAt | date:'medium' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Customer Information</h3>
+            <div class="space-y-2 text-sm">
+              <div *ngIf="order().buyerName" class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Name:</span>
+                <span class="text-gray-900 dark:text-white">{{ order().buyerName }}</span>
+              </div>
+              <div *ngIf="order().phone" class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Phone:</span>
+                <span class="text-gray-900 dark:text-white">{{ order().phone }}</span>
+              </div>
+              <div *ngIf="order().email" class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Email:</span>
+                <span class="text-gray-900 dark:text-white">{{ order().email }}</span>
+              </div>
+              <div *ngIf="order().locationLabel" class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Location:</span>
+                <span class="text-gray-900 dark:text-white">{{ order().locationLabel }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rejection Reason -->
+        <div *ngIf="order().status === 'REJECTED' && order().rejectReason" class="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <h4 class="font-semibold text-red-800 dark:text-red-200 mb-2">Rejection Reason</h4>
+          <p class="text-red-600 dark:text-red-400">{{ order().rejectReason }}</p>
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Order Items</h3>
+
+        <div class="space-y-4">
+          <div
+            *ngFor="let item of order().items"
+            class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg"
+          >
+            <div class="w-16 h-16 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-lg overflow-hidden flex-shrink-0">
+              <!-- Variant image not on order item snapshot; show placeholder -->
+              <div class="w-full h-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-violet-500 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m2 2a9 9 0 11-9-9 9 9 0 019 9z" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="flex-1">
+              <h4 class="font-semibold text-gray-900 dark:text-white">{{ item.titleSnap }}</h4>
+              <p class="text-sm text-gray-500 dark:text-gray-400" *ngIf="item.skuSnap">SKU: {{ item.skuSnap }}</p>
+
+              <!-- Variant meta placeholder -->
+              <div *ngIf="item.variantId" class="mt-2">
+                <span class="inline-block px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded text-[10px] font-medium tracking-wide">
+                  Variant #{{ item.variantId }}
+                </span>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <p class="text-sm text-gray-500 dark:text-gray-400">Qty: {{ item.qty }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ item.unitPriceSnap }} each</p>
+              <p class="font-semibold text-gray-900 dark:text-white">
+                ₦{{ lineTotal(item.unitPriceSnap, item.qty) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Order Summary</h3>
+
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
+            <span class="font-medium text-gray-900 dark:text-white">₦{{ formatMoney(order().subTotal) }}</span>
+          </div>
+
+          <div *ngIf="order().deliveryFee" class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Delivery Fee</span>
+            <span class="font-medium text-gray-900 dark:text-white">₦{{ formatMoney(order().deliveryFee) }}</span>
+          </div>
+
+          <hr class="border-gray-200 dark:border-slate-600">
+
+          <div class="flex justify-between text-lg">
+            <span class="font-semibold text-gray-900 dark:text-white">Total</span>
+            <span class="font-bold text-violet-600 dark:text-violet-400">₦{{ formatMoney(order().total) }}</span>
+          </div>
+        </div>
+
+        <!-- Bank Details for Pending Payment -->
+        <div *ngIf="order().status === 'DECLARED_PAID' && order().bankName" class="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <h4 class="font-semibold text-amber-800 dark:text-amber-200 mb-3">Payment Details</h4>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-amber-700 dark:text-amber-300">Bank:</span>
+              <span class="text-amber-800 dark:text-amber-200 font-medium">{{ order().bankName }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-amber-700 dark:text-amber-300">Account:</span>
+              <span class="text-amber-800 dark:text-amber-200 font-mono font-medium">{{ order().accountNumber }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-amber-700 dark:text-amber-300">Amount:</span>
+              <span class="text-amber-800 dark:text-amber-200 font-bold">₦{{ formatMoney(order().total) }}</span>
+            </div>
+          </div>
+          <p class="text-xs text-amber-600 dark:text-amber-400 mt-3">
+            Your payment declaration is being reviewed. You'll be notified once it's confirmed.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+/* Cart Component Styles */
+
+.cart-container {
+  background: linear-gradient(
+    135deg,
+    var(--color-bg) 0%,
+    rgba(110, 68, 255, 0.03) 100%
+  );
+}
+
+.cart-item-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .cart-item-card {
+  background: rgba(23, 17, 35, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quantity-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Smooth transitions for all interactive elements */
+.cart-item-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Loading states */
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.updating-item {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Button hover effects */
+.checkout-btn {
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-600) 0%,
+    var(--color-accent) 100%
+  );
+  box-shadow: 0 10px 20px rgba(110, 68, 255, 0.3);
+}
+
+.checkout-btn:hover {
+  box-shadow: 0 15px 30px rgba(110, 68, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Responsive enhancements */
+@media (max-width: 768px) {
+  .cart-item-card {
+    margin-bottom: 1rem;
+  }
+
+  .cart-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .cart-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* Premium feel animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cart-item-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.cart-item-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.cart-item-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.cart-item-card:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.cart-item-card:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+/* Trust indicators styling */
+.trust-indicator {
+  transition: all 0.2s ease;
+}
+
+.trust-indicator:hover {
+  transform: translateX(4px);
+  color: var(--color-brand-600);
+}

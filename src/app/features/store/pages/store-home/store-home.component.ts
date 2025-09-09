@@ -7,6 +7,7 @@ import { debounceTime, distinctUntilChanged, throttleTime } from 'rxjs/operators
 import { fromEvent, animationFrameScheduler } from 'rxjs';
 import { ProductsStore } from '../../state/products.store';
 import { CategoriesStore } from '../../state/categories.store';
+import { CartStore } from '../../state/cart.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 import { Product } from '../../../../types/api.types';
 import { NgOptimizedImage } from '@angular/common';
@@ -24,6 +25,7 @@ export class StoreHomeComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly productsStore = inject(ProductsStore);
   private readonly categoriesStore = inject(CategoriesStore);
+  private readonly cartStore = inject(CartStore);
   private readonly googleDriveUtil = inject(GoogleDriveUtilService);
 
   readonly search = new FormControl('');
@@ -34,14 +36,26 @@ export class StoreHomeComponent implements OnInit {
   readonly loadingProducts = this.productsStore.loading;
   readonly productsError = this.productsStore.error;
 
+  // Cart state
+  readonly cartItemCount = this.cartStore.itemCount;
+  readonly isAddingToCart = signal<{ [productId: number]: boolean }>({});
+
   readonly featuredProducts = computed(() => {
     const products = this.products();
-    return products ? products.filter(p => p.featured) : [];
+    return products ? products.filter(p => p.featured).slice(0, 8) : [];
   });
 
   readonly newProducts = computed(() => {
     const products = this.products();
-    return products ? products.slice(6, 12) : [];
+    return products ? products
+      .filter(p => !p.featured)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 6) : [];
+  });
+
+  readonly topCategories = computed(() => {
+    const categories = this.categories();
+    return categories ? categories.slice(0, 8) : [];
   });
 
   // Header scroll state (transparent -> solid)
@@ -82,16 +96,84 @@ export class StoreHomeComponent implements OnInit {
     this.productsStore.loadProducts();
 
     this.categoriesStore.loadCategories();
+
+    // Initialize cart
+    this.cartStore.initializeCart();
   }
 
   goToProducts() { this.router.navigate(['/store/products']); }
   goToCart() { this.router.navigate(['/store/cart']); }
   goToHome() { this.router.navigate(['/store']); }
+  goToOrderLookup() { this.router.navigate(['/store/orders/lookup']); }
   trackById(_: number, item: any) { return item.id || item.slug; }
 
   viewProduct(product: Product): void {
     // Navigate using product slug for SEO-friendly URLs
     this.router.navigate(['/store/products', product.slug]);
+  }
+
+  viewCategory(category: any): void {
+    this.router.navigate(['/store/products'], {
+      queryParams: { category: category.slug }
+    });
+  }
+
+  quickAddToCart(product: Product, event?: Event): void {
+    if (event) {
+      event.stopPropagation(); // Prevent navigation to product detail
+    }
+
+    // For products with variants/options, go to product detail
+    const productData = product as any;
+    if (productData.optionGroups && productData.optionGroups.length > 0) {
+      this.viewProduct(product);
+      return;
+    }
+
+    // For simple products, find the default variant and add to cart
+    const variants = productData.variants || [];
+    if (variants.length === 0) {
+      this.viewProduct(product); // No variants available, go to detail
+      return;
+    }
+
+    const defaultVariant = variants[0]; // Use first variant as default
+    this.setProductAdding(product.id, true);
+
+    // Initialize cart if needed
+    if (!this.cartStore.cartId()) {
+      this.cartStore.createCart();
+      // Wait for cart creation then add item
+      setTimeout(() => {
+        this.cartStore.addItem(defaultVariant.id, 1);
+        this.setProductAdding(product.id, false);
+        this.showAddToCartSuccess(product.title);
+      }, 500);
+    } else {
+      this.cartStore.addItem(defaultVariant.id, 1);
+      this.setProductAdding(product.id, false);
+      this.showAddToCartSuccess(product.title);
+    }
+  }
+
+  private setProductAdding(productId: number, adding: boolean): void {
+    this.isAddingToCart.update(state => ({
+      ...state,
+      [productId]: adding
+    }));
+  }
+
+  isProductAdding(productId: number): boolean {
+    return this.isAddingToCart()[productId] || false;
+  }
+
+  private showAddToCartSuccess(productTitle: string): void {
+    // Simple success feedback - could be replaced with toast notification
+    // For now, we'll use a simple alert but this should be a toast
+    console.log(`Added ${productTitle} to cart!`);
+
+    // Optional: Show a brief success indicator
+    // This could be enhanced with a proper toast notification system
   }
 
   retryLoadProducts() {

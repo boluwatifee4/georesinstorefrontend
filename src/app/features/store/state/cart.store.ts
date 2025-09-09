@@ -1,4 +1,5 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, of, EMPTY } from 'rxjs';
 import { PublicCartService } from '../../../api/public/cart/cart.service';
@@ -14,6 +15,7 @@ export interface CartState {
 @Injectable({ providedIn: 'root' })
 export class CartStore {
   private readonly cartService = inject(PublicCartService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   // Private signals
   private readonly _state = signal<CartState>({
@@ -39,6 +41,9 @@ export class CartStore {
   });
 
   constructor() {
+    // Initialize cart from localStorage
+    this.initializeCart();
+
     // Auto-load cart when cartId changes
     toObservable(this.cartId).pipe(
       switchMap(cartId => {
@@ -60,6 +65,20 @@ export class CartStore {
   }
 
   // Actions
+  initializeCart() {
+    // Try to load existing cartId from localStorage
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        const savedCartId = localStorage.getItem('cartId');
+        if (savedCartId) {
+          this.setCartId(savedCartId);
+        }
+      } catch (err) {
+        // Ignore storage access errors (e.g., SSR or privacy mode)
+      }
+    }
+  }
+
   createCart() {
     this.setLoading(true);
     this.cartService.createCart().pipe(
@@ -70,6 +89,11 @@ export class CartStore {
     ).subscribe(result => {
       if (result) {
         this.setCartId(result.cartId);
+        if (isPlatformBrowser(this.platformId)) {
+          try {
+            localStorage.setItem('cartId', result.cartId);
+          } catch { }
+        }
       }
       this.setLoading(false);
     });
@@ -94,6 +118,10 @@ export class CartStore {
       }
       this.setLoading(false);
     });
+  }
+
+  updateItemQuantity(itemId: number, qty: number) {
+    return this.updateItemQty(itemId, qty);
   }
 
   updateItemQty(itemId: number, qty: number) {
@@ -126,6 +154,22 @@ export class CartStore {
       })
     ).subscribe(() => {
       this.removeItemFromState(itemId);
+      this.setLoading(false);
+    });
+  }
+
+  clearCart() {
+    const cartId = this.cartId();
+    if (!cartId) return;
+
+    this.setLoading(true);
+    this.cartService.clearCart(cartId).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to clear cart');
+        return of(null);
+      })
+    ).subscribe(() => {
+      this.setItems([]);
       this.setLoading(false);
     });
   }
