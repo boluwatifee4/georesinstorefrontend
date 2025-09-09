@@ -66,6 +66,8 @@ export class ProductsDetailComponent implements OnInit {
   // Component state
   productId = signal<number | null>(null);
   isLoading = signal(false);
+  attachingOptionGroup = signal(false);
+  detachingOptionGroup = signal<number | null>(null); // Track which option group is being detached
 
   // Store signals
   readonly product = this.productsStore.currentProduct;
@@ -292,8 +294,11 @@ export class ProductsDetailComponent implements OnInit {
       position: formData.position
     };
 
+    this.attachingOptionGroup.set(true);
     this.optionGroupsStore.attachToProduct(this.productId()!, attachData).subscribe({
       next: (result: any) => {
+        console.log('Attach Option Group Result:', result);
+        this.attachingOptionGroup.set(false);
         if (result !== null) {
           toast.success('Option group attached successfully');
           this.optionGroupForm.reset({
@@ -307,6 +312,7 @@ export class ProductsDetailComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to attach option group:', error);
+        this.attachingOptionGroup.set(false);
         toast.error(`Failed to attach option group: ${error.message || 'Unknown error'}`);
       }
     });
@@ -317,9 +323,11 @@ export class ProductsDetailComponent implements OnInit {
       return;
     }
 
+    this.detachingOptionGroup.set(optionGroup.id);
     this.optionGroupsStore.detachFromProduct(this.productId()!, optionGroup.id).subscribe({
       next: (result: any) => {
-        if (result !== null) {
+        this.detachingOptionGroup.set(null);
+        if (result === null) {
           toast.success(`Option group "${optionGroup.name}" detached successfully`);
           this.loadProduct(this.productId()!); // Reload product to update option groups list
         } else {
@@ -328,6 +336,7 @@ export class ProductsDetailComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to detach option group:', error);
+        this.detachingOptionGroup.set(null);
         toast.error(`Failed to detach option group: ${error.message || 'Unknown error'}`);
       }
     });
