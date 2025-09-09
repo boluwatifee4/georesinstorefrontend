@@ -275,17 +275,16 @@ export class ProductDetailComponent implements OnInit {
       dto.selectedOptions = Object.fromEntries(selectedOptionEntries);
     }
 
-    // Initialize cart if needed and add item (flexible DTO)
+    // Initialize cart if needed and add item (flexible DTO) using new callback pattern
     if (!this.cartStore.cartId()) {
-      this.cartStore.createCart();
-      setTimeout(() => {
+      this.cartStore.createCart(() => {
         this.cartStore.addItem(dto);
-      }, 400);
+        this.finalizeAddToCart(variantId, product, qty, selected);
+      });
     } else {
       this.cartStore.addItem(dto);
+      this.finalizeAddToCart(variantId, product, qty, selected);
     }
-
-    this.finalizeAddToCart(variantId, product, qty, selected);
   }
 
   private getSelectedVariantId(): number | null {

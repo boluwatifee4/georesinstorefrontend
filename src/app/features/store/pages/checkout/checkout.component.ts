@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { CartStore } from '../../state/cart.store';
 import { PublicDeliveryService, DeliveryQuoteResponse } from '../../../../api/public/delivery/delivery.service';
-import { PublicOrdersService, DeclarePaymentResponse } from '../../../../api/public/orders/orders.service';
+import { PublicOrdersService, DeclarePaymentResponse, SaveOrderResponse } from '../../../../api/public/orders/orders.service';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 
 @Component({
@@ -42,7 +42,10 @@ export class CheckoutComponent implements OnInit {
   readonly isLoadingDelivery = signal(false);
   readonly isPlacingOrder = signal(false);
   readonly orderResult = signal<DeclarePaymentResponse | null>(null);
+  readonly saveOrderResult = signal<SaveOrderResponse | null>(null);
   readonly error = signal<string | null>(null);
+  readonly isSavingOrder = signal(false);
+  readonly acknowledgeDelivery = signal(false); // User must acknowledge potential delivery fee adjustments
 
   // Computed properties
   readonly isEmpty = computed(() => this.cartItems().length === 0);
@@ -105,6 +108,12 @@ export class CheckoutComponent implements OnInit {
   declarePayment(): void {
     if (this.checkoutForm.invalid || !this.cartId()) return;
 
+    // Must acknowledge delivery disclaimer first
+    if (!this.acknowledgeDelivery()) {
+      this.error.set('Please acknowledge the delivery fee notice before proceeding.');
+      return;
+    }
+
     // Validate contact info
     const formValue = this.checkoutForm.value;
     if (!formValue.phone && !formValue.email && !formValue.whatsapp) {
@@ -140,6 +149,39 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  saveOrder(): void {
+    if (!this.cartId()) return;
+
+    if (!this.acknowledgeDelivery()) {
+      this.error.set('Please acknowledge the delivery fee notice before proceeding.');
+      return;
+    }
+
+    this.isSavingOrder.set(true);
+    this.error.set(null);
+
+    const locationLabel = this.checkoutForm.get('locationLabel')?.value || undefined;
+    const request = {
+      cartId: this.cartId()!,
+      locationLabel
+    };
+
+    this.ordersService.saveOrder(request).subscribe({
+      next: (result) => {
+        this.saveOrderResult.set(result);
+        this.isSavingOrder.set(false);
+        // Clear cart after successful save
+        if (isPlatformBrowser(this.platformId)) {
+          try { localStorage.removeItem('cartId'); } catch { }
+        }
+      },
+      error: (error) => {
+        this.error.set(error.error?.message || 'Failed to save order. Please try again.');
+        this.isSavingOrder.set(false);
+      }
+    });
+  }
+
   goBackToCart(): void {
     this.router.navigate(['/store/cart']);
   }
@@ -160,7 +202,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   copyOrderCode(): void {
-    const orderCode = this.orderResult()?.orderCode;
+    const orderCode = this.orderResult()?.orderCode || this.saveOrderResult()?.orderCode;
     if (orderCode && isPlatformBrowser(this.platformId) && navigator?.clipboard) {
       navigator.clipboard.writeText(orderCode).catch(() => { });
     }
@@ -172,6 +214,11 @@ export class CheckoutComponent implements OnInit {
       const details = `Bank: ${result.bankName}\nAccount: ${result.accountNumber}\nAmount: ${result.total}`;
       navigator.clipboard.writeText(details).catch(() => { });
     }
+  }
+
+  onAcknowledgeChange(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    this.acknowledgeDelivery.set(!!target?.checked);
   }
 
   trackByItemId(index: number, item: any): number {

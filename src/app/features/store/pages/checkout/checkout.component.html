@@ -1,8 +1,8 @@
 <div class="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 dark:from-violet-950 dark:via-slate-900 dark:to-purple-950">
   <div class="container mx-auto px-4 py-8 max-w-6xl">
 
-    <!-- Success State -->
-    <div *ngIf="orderResult()" class="max-w-2xl mx-auto">
+  <!-- Success State: Payment Declared -->
+  <div *ngIf="orderResult() && !saveOrderResult()" class="max-w-2xl mx-auto">
       <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
 
         <!-- Success Header -->
@@ -115,8 +115,50 @@
       </div>
     </div>
 
+    <!-- Success State: Order Saved (no payment declared yet) -->
+    <div *ngIf="saveOrderResult() && !orderResult()" class="max-w-2xl mx-auto">
+      <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
+        <div class="bg-gradient-to-r from-violet-600 to-purple-600 p-8 text-center">
+          <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold text-white mb-2">Order Saved!</h1>
+          <p class="text-violet-100">You can declare your payment later using the order code</p>
+        </div>
+        <div class="p-8 space-y-6">
+          <div class="bg-gray-50 dark:bg-slate-700 rounded-xl p-6 flex justify-between items-center">
+            <div>
+              <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Order Code</h3>
+              <p class="text-2xl font-mono font-bold text-violet-600 dark:text-violet-400">{{ saveOrderResult()?.orderCode }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Keep this code to declare payment later</p>
+            </div>
+            <button (click)="copyOrderCode()" class="p-3 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6 text-sm text-amber-700 dark:text-amber-300">
+            <p class="mb-2 font-medium">Next Steps</p>
+            <ul class="list-disc list-inside space-y-1">
+              <li>When ready, go to Declare Payment page and use your order code</li>
+              <li>We will confirm delivery fee if pending before fulfillment</li>
+            </ul>
+          </div>
+
+          <div class="flex gap-4">
+            <button (click)="startNewOrder()" class="flex-1 py-3 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-600 transition-all duration-200 font-medium">Continue Shopping</button>
+            <button routerLink="/store/orders/lookup" class="flex-1 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg">Declare Payment Later</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Checkout Form -->
-    <div *ngIf="!orderResult()" class="grid lg:grid-cols-3 gap-8">
+    <div *ngIf="!orderResult() && !saveOrderResult()" class="grid lg:grid-cols-3 gap-8">
 
       <!-- Checkout Form -->
       <div class="lg:col-span-2">
@@ -340,23 +382,47 @@
             </div>
           </div>
 
-          <!-- Submit Button -->
-          <button
-            type="submit"
-            (click)="declarePayment()"
-            [disabled]="checkoutForm.invalid || isPlacingOrder() || needsManualQuote()"
-            class="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            <span *ngIf="!isPlacingOrder()">Declare Payment</span>
-            <span *ngIf="isPlacingOrder()" class="flex items-center justify-center gap-2">
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              Processing...
-            </span>
-          </button>
+          <!-- Delivery Fee Acknowledgment -->
+          <div class="mb-5">
+            <div class="p-4 rounded-xl border text-sm"
+                 [ngClass]="{'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-200': needsManualQuote(), 'bg-violet-50 border-violet-200 text-violet-800 dark:bg-violet-900/20 dark:border-violet-800 dark:text-violet-200': !needsManualQuote()}">
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p *ngIf="needsManualQuote()" class="font-medium">Delivery fee will be confirmed separately. You may still save your order or declare payment now.</p>
+                  <p *ngIf="!needsManualQuote()" class="font-medium">Delivery fee shown is estimated and may be adjusted if there are special handling needs.</p>
+                  <label class="flex items-start gap-2 mt-3 cursor-pointer">
+          <input type="checkbox" class="mt-1 h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+            (change)="onAcknowledgeChange($event)" />
+                    <span class="text-xs leading-relaxed">I understand and accept that final delivery fees may change after review and agree to be contacted (incl. WhatsApp) if an adjustment is required.</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
-            By proceeding, you'll get bank details to complete payment
-          </p>
+          <!-- Action Buttons -->
+          <div class="space-y-3">
+            <button type="button" (click)="saveOrder()" [disabled]="checkoutForm.get('locationLabel')?.invalid || isSavingOrder() || isPlacingOrder() || !acknowledgeDelivery()" class="w-full py-3 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-600 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+              <span *ngIf="!isSavingOrder()">Save Order (Pay Later)</span>
+              <span *ngIf="isSavingOrder()" class="flex items-center justify-center gap-2">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                Saving...
+              </span>
+            </button>
+
+            <button type="button" (click)="declarePayment()" [disabled]="checkoutForm.invalid || isPlacingOrder() || isSavingOrder() || !acknowledgeDelivery()" class="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+              <span *ngIf="!isPlacingOrder()">Declare Payment</span>
+              <span *ngIf="isPlacingOrder()" class="flex items-center justify-center gap-2">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Processing...
+              </span>
+            </button>
+
+            <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">By declaring payment you'll receive bank details immediately.</p>
+          </div>
         </div>
       </div>
     </div>

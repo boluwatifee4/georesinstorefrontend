@@ -15,6 +15,111 @@
   </div>
 </div>
 
+<!-- Filters -->
+<div class="mb-6">
+  <div class="grid sm:flex gap-4">
+    <!-- Status Filter -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Status Filter</label>
+      <div class="flex items-center gap-2">
+        <button
+          (click)="toggleActiveFilter(true)"
+          [class.bg-green-600]="activeFilter() === true"
+          [class.text-white]="activeFilter() === true"
+          [class.bg-white]="activeFilter() !== true"
+          [class.text-gray-700]="activeFilter() !== true"
+          class="px-4 py-2 rounded-lg border font-medium text-sm transition-all duration-200
+                 hover:bg-green-50 active:scale-95 min-h-[40px] whitespace-nowrap"
+        >
+          Active Products
+        </button>
+        <button
+          (click)="toggleActiveFilter(false)"
+          [class.bg-red-600]="activeFilter() === false"
+          [class.text-white]="activeFilter() === false"
+          [class.bg-white]="activeFilter() !== false"
+          [class.text-gray-700]="activeFilter() !== false"
+          class="px-4 py-2 rounded-lg border font-medium text-sm transition-all duration-200
+                 hover:bg-red-50 active:scale-95 min-h-[40px] whitespace-nowrap"
+        >
+          Inactive Products
+        </button>
+        <button
+          *ngIf="activeFilter() !== null"
+          (click)="toggleActiveFilter(null)"
+          class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50
+                 active:scale-95 transition-all duration-200 min-h-[40px]"
+          title="Clear status filter"
+        >
+          <ng-icon name="lucideX" class="text-base"></ng-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Featured Filter -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Featured Filter</label>
+      <div class="flex items-center gap-2">
+        <button
+          (click)="toggleFeaturedFilter(true)"
+          [class.bg-purple-600]="featuredFilter() === true"
+          [class.text-white]="featuredFilter() === true"
+          [class.bg-white]="featuredFilter() !== true"
+          [class.text-gray-700]="featuredFilter() !== true"
+          class="px-4 py-2 rounded-lg border font-medium text-sm transition-all duration-200
+                 hover:bg-purple-50 active:scale-95 min-h-[40px] whitespace-nowrap"
+        >
+          Featured Only
+        </button>
+        <button
+          (click)="toggleFeaturedFilter(false)"
+          [class.bg-gray-600]="featuredFilter() === false"
+          [class.text-white]="featuredFilter() === false"
+          [class.bg-white]="featuredFilter() !== false"
+          [class.text-gray-700]="featuredFilter() !== false"
+          class="px-4 py-2 rounded-lg border font-medium text-sm transition-all duration-200
+                 hover:bg-gray-50 active:scale-95 min-h-[40px] whitespace-nowrap"
+        >
+          Non-Featured
+        </button>
+        <button
+          *ngIf="featuredFilter() !== null"
+          (click)="toggleFeaturedFilter(null)"
+          class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50
+                 active:scale-95 transition-all duration-200 min-h-[40px]"
+          title="Clear featured filter"
+        >
+          <ng-icon name="lucideX" class="text-base"></ng-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Filters Summary -->
+  <div *ngIf="activeFilter() !== null || featuredFilter() !== null"
+       class="mt-4 flex items-center gap-2 text-sm text-gray-600">
+    <span class="font-medium">Active Filters:</span>
+    <div class="flex flex-wrap gap-2">
+      <span *ngIf="activeFilter() !== null"
+            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+            [class.bg-green-100]="activeFilter()"
+            [class.text-green-800]="activeFilter()"
+            [class.bg-red-100]="!activeFilter()"
+            [class.text-red-800]="!activeFilter()">
+        Status: {{ activeFilter() ? 'Active' : 'Inactive' }}
+      </span>
+      <span *ngIf="featuredFilter() !== null"
+            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+            [class.bg-purple-100]="featuredFilter()"
+            [class.text-purple-800]="featuredFilter()"
+            [class.bg-gray-100]="!featuredFilter()"
+            [class.text-gray-800]="!featuredFilter()">
+        {{ featuredFilter() ? 'Featured Only' : 'Non-Featured Only' }}
+      </span>
+    </div>
+  </div>
+</div>
+
 <!-- Search Bar -->
 <div class="mb-6">
   <div class="relative">
@@ -25,12 +130,55 @@
       type="text"
       placeholder="Search products..."
       (input)="onSearch($any($event.target).value)"
-      class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+      class="w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
     >
+    <!-- Search Loading Indicator -->
+    <div *ngIf="isSearching()" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+    </div>
   </div>
 </div>
 
-<!-- Loading State -->
+<!-- Results Summary -->
+<div *ngIf="!loading() && !error()" class="mb-4 px-4 py-3 sm:px-5 sm:py-4 bg-white border border-gray-200 rounded-xl shadow-sm">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="flex flex-col gap-1">
+      <div class="text-sm sm:text-base text-gray-900 font-medium">
+        <span *ngIf="pagination().total > 0">
+          {{ pagination().total }} {{ pagination().total === 1 ? 'Product' : 'Products' }}
+        </span>
+        <span *ngIf="pagination().total === 0">
+          No products found
+        </span>
+      </div>
+      <div class="text-sm text-gray-600">
+        <span *ngIf="pagination().total > 0">
+          Showing {{ startItem() }}-{{ endItem() }}
+        </span>
+        <span *ngIf="searchQuery()" class="ml-2 text-purple-600 font-medium">
+          matching "{{ searchQuery() }}"
+        </span>
+      </div>
+    </div>
+
+    <!-- Page Size Selector -->
+    <div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
+      <label for="pageSize" class="text-sm text-gray-600">Show:</label>
+      <select
+        id="pageSize"
+        [value]="pageSize()"
+        (change)="onPageSizeChange(+$any($event.target).value)"
+        class="text-sm border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none bg-white"
+      >
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+      <span class="text-sm text-gray-600 hidden sm:inline">per page</span>
+    </div>
+  </div>
+</div><!-- Loading State -->
 <div *ngIf="loading()" class="flex items-center justify-center py-12">
   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
   <span class="ml-3 text-gray-600">Loading products...</span>
@@ -61,7 +209,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr *ngFor="let product of filteredProducts()" class="hover:bg-gray-50">
+          <tr *ngFor="let product of products()" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -116,52 +264,62 @@
   </div>
 
   <!-- Mobile Card View -->
-  <div class="lg:hidden space-y-4">
-    <div *ngFor="let product of filteredProducts()" class="bg-white border border-gray-200 rounded-lg p-4">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-center gap-3">
-          <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-            <ng-icon name="lucidePackage" class="text-gray-600 text-lg"></ng-icon>
+  <div class="lg:hidden space-y-3">
+    <div *ngFor="let product of products()" class="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 shadow-sm">
+      <!-- Product Header -->
+      <div class="flex items-start gap-3 mb-4">
+        <!-- Product Image/Icon -->
+        <div class="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 rounded-xl flex items-center justify-center">
+          <ng-icon name="lucidePackage" class="text-purple-600 text-xl"></ng-icon>
+        </div>
+
+        <!-- Product Info -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 class="text-sm sm:text-base font-medium text-gray-900 truncate">{{ product.title }}</h3>
+              <p class="text-xs text-gray-500 mt-0.5">ID: {{ product.id }}</p>
+            </div>
+            <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full shrink-0 {{ getStatusBadgeClass(product) }}">
+              {{ getStatusText(product) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Details -->
+      <div class="bg-gray-50 rounded-lg p-3 mb-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs text-gray-500 mb-1">Price</p>
+            <p class="text-sm sm:text-base font-medium text-gray-900">{{ formatPrice(product.basePrice) }}</p>
           </div>
           <div>
-            <h3 class="text-sm font-medium text-gray-900">{{ product.title }}</h3>
-            <p class="text-xs text-gray-500">ID: {{ product.id }}</p>
+            <p class="text-xs text-gray-500 mb-1">Inventory</p>
+            <p class="text-sm sm:text-base font-medium text-gray-900">{{ product.baseInventory || 0 }} units</p>
           </div>
         </div>
-        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ getStatusBadgeClass(product) }}">
-          {{ getStatusText(product) }}
-        </span>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 mb-3">
-        <div>
-          <p class="text-xs text-gray-500">Price</p>
-          <p class="text-sm font-medium text-gray-900">{{ formatPrice(product.basePrice) }}</p>
-        </div>
-        <div>
-          <p class="text-xs text-gray-500">Inventory</p>
-          <p class="text-sm font-medium text-gray-900">{{ product.baseInventory || 0 }}</p>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-end gap-2">
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-3 gap-2">
         <button
           (click)="onViewProduct(product)"
-          class="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 px-3 py-1.5 text-sm rounded transition-colors"
+          class="inline-flex items-center justify-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 active:bg-gray-100 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200"
         >
           <ng-icon name="lucideEye" class="text-base"></ng-icon>
           <span>View</span>
         </button>
         <button
           (click)="onEditProduct(product)"
-          class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 px-3 py-1.5 text-sm rounded transition-colors"
+          class="inline-flex items-center justify-center gap-1.5 bg-white border border-blue-200 hover:bg-blue-50 active:bg-blue-100 px-3 py-2 rounded-lg text-sm font-medium text-blue-700 transition-colors duration-200"
         >
           <ng-icon name="lucidePencil" class="text-base"></ng-icon>
           <span>Edit</span>
         </button>
         <button
           (click)="onDeleteProduct(product)"
-          class="inline-flex items-center gap-1 text-red-600 hover:text-red-900 px-3 py-1.5 text-sm rounded transition-colors"
+          class="inline-flex items-center justify-center gap-1.5 bg-white border border-red-200 hover:bg-red-50 active:bg-red-100 px-3 py-2 rounded-lg text-sm font-medium text-red-700 transition-colors duration-200"
         >
           <ng-icon name="lucideTrash2" class="text-base"></ng-icon>
           <span>Delete</span>
@@ -171,7 +329,7 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="filteredProducts().length === 0 && !loading()" class="text-center py-12">
+  <div *ngIf="products().length === 0 && !loading()" class="text-center py-12">
     <ng-icon name="lucidePackage" class="mx-auto text-4xl text-gray-300 mb-3"></ng-icon>
     <h3 class="text-lg font-medium text-gray-900 mb-2">
       {{ searchQuery() ? 'No products found' : 'No products yet' }}
@@ -187,5 +345,100 @@
       <ng-icon name="lucidePlus" class="text-lg"></ng-icon>
       <span>Create Product</span>
     </button>
+  </div>
+</div>
+
+<!-- Pagination -->
+<div *ngIf="!loading() && !error() && products().length > 0" class="mt-6">
+  <!-- Mobile Pagination -->
+  <div class="lg:hidden">
+    <div class="flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+      <button
+        (click)="onPreviousPage()"
+        [disabled]="!hasPreviousPage()"
+        class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:bg-gray-100"
+      >
+        <ng-icon name="lucideChevronLeft" class="text-base"></ng-icon>
+        Previous
+      </button>
+
+      <div class="text-sm font-medium text-gray-900">
+        Page {{ currentPage() }} of {{ totalPages() }}
+      </div>
+
+      <button
+        (click)="onNextPage()"
+        [disabled]="!hasNextPage()"
+        class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:bg-gray-100"
+      >
+        Next
+        <ng-icon name="lucideChevronRight" class="text-base"></ng-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Desktop Pagination -->
+  <div class="hidden lg:block bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+    <div class="flex items-center justify-between gap-4">
+      <!-- Pagination Info -->
+      <div class="text-sm text-gray-600">
+        Page {{ currentPage() }} of {{ totalPages() }}
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="flex items-center gap-2">
+        <!-- First Page -->
+        <button
+          (click)="onFirstPage()"
+          [disabled]="!hasPreviousPage()"
+          class="inline-flex items-center justify-center w-9 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title="First page"
+        >
+          <ng-icon name="lucideChevronsLeft" class="text-base"></ng-icon>
+        </button>
+
+        <!-- Previous Page -->
+        <button
+          (click)="onPreviousPage()"
+          [disabled]="!hasPreviousPage()"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ng-icon name="lucideChevronLeft" class="text-base"></ng-icon>
+          Previous
+        </button>
+
+        <!-- Page Numbers -->
+        <div class="flex items-center gap-1.5">
+          <button
+            *ngFor="let page of getPageNumbers()"
+            (click)="onPageChange(page)"
+            [class]="page === currentPage() ? 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'"
+            class="inline-flex items-center justify-center w-9 h-9 text-sm font-medium border rounded-lg transition-colors"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <!-- Next Page -->
+        <button
+          (click)="onNextPage()"
+          [disabled]="!hasNextPage()"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+          <ng-icon name="lucideChevronRight" class="text-base"></ng-icon>
+        </button>
+
+        <!-- Last Page -->
+        <button
+          (click)="onLastPage()"
+          [disabled]="!hasNextPage()"
+          class="inline-flex items-center justify-center w-9 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title="Last page"
+        >
+          <ng-icon name="lucideChevronsRight" class="text-base"></ng-icon>
+        </button>
+      </div>
+    </div>
   </div>
 </div>

@@ -80,7 +80,7 @@ export class CartStore {
     }
   }
 
-  createCart() {
+  createCart(afterCreate?: () => void) {
     this.setLoading(true);
     this.cartService.createCart().pipe(
       catchError(error => {
@@ -93,7 +93,11 @@ export class CartStore {
         if (isPlatformBrowser(this.platformId)) {
           try {
             localStorage.setItem('cartId', result.id);
-          } catch { }
+          } catch { /* ignore storage errors */ }
+        }
+        if (afterCreate) {
+          // Execute callback safely after cart ID is set
+          try { afterCreate(); } catch (err) { /* swallow callback errors */ }
         }
       }
       this.setLoading(false);
@@ -107,7 +111,10 @@ export class CartStore {
   addItem(arg1: number | AddCartItemDto, qty?: number) {
     const cartId = this.cartId();
     if (!cartId) {
-      this.createCart();
+      // Defer actual add until cart is created
+      this.createCart(() => {
+        this.addItem(arg1 as any, qty as any); // recursive call now that cartId exists
+      });
       return;
     }
 
