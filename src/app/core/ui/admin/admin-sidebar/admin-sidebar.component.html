@@ -83,6 +83,7 @@
                       [routerLink]="child.route || ''"
                       routerLinkActive="bg-brand-50 text-brand-600 border-l-2 border-brand-600"
                       class="flex items-center space-x-3 p-2 pl-3 rounded-lg text-sm transition-colors hover:bg-border/20 text-muted hover:text-text"
+                      (click)="onMenuItemClick()"
                     >
                       <ng-icon [name]="child.icon" size="16"></ng-icon>
                       <span>{{ child.label }}</span>
@@ -98,6 +99,7 @@
               routerLinkActive="bg-brand-50 text-brand-600 border-l-2 border-brand-600"
               class="flex items-center p-3 rounded-lg text-sm font-medium transition-colors hover:bg-border/20 text-muted hover:text-text group relative"
               [title]="isCollapsed() ? item.label : ''"
+              (click)="onMenuItemClick()"
             >
               <div class="flex items-center space-x-3 flex-1">
                 <ng-icon [name]="item.icon" size="18"></ng-icon>

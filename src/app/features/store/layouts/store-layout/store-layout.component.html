@@ -6,26 +6,34 @@
     'bg-surface/95 border-border shadow-lg': scrolled()
   }"
 >
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <div class="flex items-center md:flex-row flex-col">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+    <!-- Brand -->
+    <a routerLink="/store" class="flex items-center md:flex-row flex-col gap-2 shrink-0">
       <img ngSrc="/logo.png" alt="GeoResin" class="h-14 w-auto object-contain" priority="{{true}}" width="56" height="56">
-      <p class="text-[9px] md:text-base">
-        GEOResinStore
-      </p>
-    </div>
-    <div class="flex-1 max-w-md mx-6">
+      <span class="text-[9px] md:text-base font-medium tracking-wide">GEOResinStore</span>
+    </a>
+
+    <!-- Search -->
+    <div class="flex-1 max-w-md mx-2 hidden sm:block">
       <div class="relative">
         <input
           [formControl]="search"
           type="search"
           placeholder="Search premium resin products..."
-          class="w-full pl-10 pr-4 py-3 bg-surface/80 border border-border rounded-full text-sm
-                 focus:outline-none focus:bg-surface focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20
-                 transition-all duration-300 text-text placeholder:text-muted"
+          class="w-full pl-10 pr-4 py-3 bg-surface/80 border border-border rounded-full text-sm focus:outline-none focus:bg-surface focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all duration-300 text-text placeholder:text-muted"
         >
         <svg class="absolute left-3 top-3.5 h-4 w-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
+      </div>
+    </div>
+
+    <!-- Desktop Theme Segmented Toggle -->
+    <div class="hidden md:flex items-center">
+      <div class="flex items-stretch rounded-full border border-border overflow-hidden bg-surface/70 backdrop-blur supports-[backdrop-filter]:bg-surface/60">
+        <button type="button" (click)="setTheme('light')" [class.bg-brand-600]="theme()==='light'" [class.text-white]="theme()==='light'" class="px-3 py-1.5 text-xs font-medium text-muted hover:text-text transition-colors">☀️ <span class="ml-1 hidden lg:inline">Light</span></button>
+        <button type="button" (click)="setTheme('dark')" [class.bg-brand-600]="theme()==='dark'" [class.text-white]="theme()==='dark'" class="px-3 py-1.5 text-xs font-medium text-muted hover:text-text transition-colors border-l border-border/60">🌙 <span class="ml-1 hidden lg:inline">Dark</span></button>
+        <button type="button" (click)="setTheme('system')" [class.bg-brand-600]="theme()==='system'" [class.text-white]="theme()==='system'" class="px-3 py-1.5 text-xs font-medium text-muted hover:text-text transition-colors border-l border-border/60">🖥️ <span class="ml-1 hidden lg:inline">System</span></button>
       </div>
     </div>
   </div>
@@ -233,6 +241,69 @@
         </div>
         <span class="text-[10px] sm:text-xs tracking-wider font-medium">CART</span>
       </button>
+
+      <!-- Mobile Theme Toggle -->
+      <div class="relative flex-1 md:hidden">
+        <button type="button"
+          (click)="toggleThemeMenu(); $event.stopPropagation()"
+          class="flex flex-col items-center justify-center gap-1 sm:gap-2 text-white md:hover:text-accent transition-colors duration-300 py-1.5 px-3 w-full"
+          [attr.aria-expanded]="showThemeMenu()"
+          aria-haspopup="true"
+          [attr.aria-label]="'Theme menu (current ' + getThemeLabel() + ')'"
+        >
+          <div class="w-6 h-6 flex items-center justify-center">
+            <span class="text-base">{{ getThemeIcon() }}</span>
+          </div>
+          <span class="text-[10px] sm:text-xs tracking-wider font-medium">THEME</span>
+        </button>
+
+        <!-- Mobile Theme Dropdown (fixed & centered to avoid overflow) -->
+        <div *ngIf="showThemeMenu()" class="fixed inset-0 z-50 md:hidden" (click)="closeThemeMenu()">
+          <!-- Click shield -->
+          <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+          <!-- Menu container -->
+          <div class="absolute bottom-[74px] left-1/2 -translate-x-1/2 w-[min(230px,92vw)] rounded-xl border border-border bg-surface/95 backdrop-blur-xl shadow-2xl overflow-hidden animate-[fadeIn_.15s_ease]"
+               (click)="$event.stopPropagation()"
+               role="menu" aria-label="Select theme">
+            <div class="flex flex-col py-1">
+              <button type="button" role="menuitem"
+                (click)="setTheme('light')"
+                class="flex items-center gap-2 px-4 py-2 text-xs text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                [class.bg-brand-600]="theme()==='light'" [class.text-white]="theme()==='light'">
+                <span>☀️</span>
+                <span class="flex-1 text-left">Light</span>
+                <svg *ngIf="theme()==='light'" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </button>
+              <button type="button" role="menuitem"
+                (click)="setTheme('dark')"
+                class="flex items-center gap-2 px-4 py-2 text-xs text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                [class.bg-brand-600]="theme()==='dark'" [class.text-white]="theme()==='dark'">
+                <span>🌙</span>
+                <span class="flex-1 text-left">Dark</span>
+                <svg *ngIf="theme()==='dark'" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </button>
+              <button type="button" role="menuitem"
+                (click)="setTheme('system')"
+                class="flex items-center gap-2 px-4 py-2 text-xs text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                [class.bg-brand-600]="theme()==='system'" [class.text-white]="theme()==='system'">
+                <span>🖥️</span>
+                <span class="flex-1 text-left">System</span>
+                <svg *ngIf="theme()==='system'" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Bottom theme button (mobile) -->
+      <!-- <button type="button"
+        (click)="toggleThemeMenu()"
+        class="flex flex-col items-center justify-center gap-1 sm:gap-2 text-white md:hover:text-accent transition-colors duration-300 py-1.5 px-3 flex-1"
+      >
+        <div class="w-6 h-6 flex items-center justify-center">
+          <span class="text-lg">{{ getThemeIcon() }}</span>
+        </div>
+        <span class="text-[10px] sm:text-xs tracking-wider font-medium">THEME</span>
+      </button> -->
     </div>
   </div>
 </nav>

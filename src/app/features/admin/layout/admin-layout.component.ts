@@ -16,7 +16,10 @@ import { AdminSidebarComponent } from '../../../core/ui/admin/admin-sidebar/admi
   template: `
     <div class="flex h-screen bg-gray-50 dark:bg-gray-900">
       <!-- Admin Sidebar -->
-      <app-admin-sidebar [mobileOpen]="isSidebarOpen()" />
+      <app-admin-sidebar
+        [mobileOpen]="isSidebarOpen()"
+        (menuItemClicked)="onMenuItemClicked()"
+      />
 
       <!-- Main Content Area -->
       <div class="flex-1 flex flex-col min-w-0">
@@ -28,7 +31,7 @@ import { AdminSidebarComponent } from '../../../core/ui/admin/admin-sidebar/admi
         </div>
 
         <!-- Page Content -->
-        <main class="flex-1 overflow-auto px-10 py-3">
+        <main class="flex-1 overflow-auto px-3 md:px-10 py-3">
           <router-outlet />
         </main>
       </div>
@@ -108,5 +111,12 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   closeSidebar() {
     this._isSidebarOpen.set(false);
+  }
+
+  onMenuItemClicked() {
+    // Close sidebar on mobile when a menu item is clicked
+    if (this.isMobile()) {
+      this.closeSidebar();
+    }
   }
 }

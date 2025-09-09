@@ -74,11 +74,14 @@ export class ProductsComponent implements OnInit {
       }
 
       // Price range filter
-      if (filters.minPrice && (product.basePrice || 0) < filters.minPrice) {
+      const effectiveMin = product.minPrice ?? product.basePrice ?? 0;
+      const effectiveMax = product.maxPrice ?? product.basePrice ?? effectiveMin;
+
+      if (filters.minPrice && effectiveMin < filters.minPrice) {
         return false;
       }
 
-      if (filters.maxPrice && (product.basePrice || 0) > filters.maxPrice) {
+      if (filters.maxPrice && effectiveMax > filters.maxPrice) {
         return false;
       }
 

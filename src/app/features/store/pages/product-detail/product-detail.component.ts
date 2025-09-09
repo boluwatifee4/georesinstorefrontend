@@ -252,15 +252,37 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    // Initialize cart if needed and add item
+    // Build flexible DTO: only include variantId if real variants exist; only include selectedOptions if any selected
+    const variants = (product as any).variants || [];
+    const selectedOptionEntries = optionGroups.length
+      ? Object.entries(selected).map(([gId, opt]) => [gId, (opt as any)?.id]).filter(([_, id]) => !!id)
+      : [];
+
+    // If product truly has no variants, ignore the earlier fallback variantId (which may equal product.id)
+    const hasRealVariants = variants.length > 0;
+    if (!hasRealVariants) {
+      variantId = null; // prevent sending synthetic id as variantId
+    }
+
+    const dto: any = {
+      productId: product.id,
+      qty
+    };
+    if (hasRealVariants && variantId) {
+      dto.variantId = variantId;
+    }
+    if (selectedOptionEntries.length > 0) {
+      dto.selectedOptions = Object.fromEntries(selectedOptionEntries);
+    }
+
+    // Initialize cart if needed and add item (flexible DTO)
     if (!this.cartStore.cartId()) {
       this.cartStore.createCart();
-      // Wait a bit for cart creation then add item
       setTimeout(() => {
-        this.cartStore.addItem(variantId, qty);
-      }, 500);
+        this.cartStore.addItem(dto);
+      }, 400);
     } else {
-      this.cartStore.addItem(variantId, qty);
+      this.cartStore.addItem(dto);
     }
 
     this.finalizeAddToCart(variantId, product, qty, selected);
@@ -331,7 +353,7 @@ export class ProductDetailComponent implements OnInit {
     return variants[0]?.id ?? null;
   }
 
-  private finalizeAddToCart(variantId: number, product: any, qty: number, selected: Record<number, ProductOption>) {
+  private finalizeAddToCart(variantId: number | null, product: any, qty: number, selected: Record<number, ProductOption>) {
     const optionDetails = Object.values(selected).map(opt => opt.value).join(', ');
     const message = optionDetails
       ? `Added ${qty} × ${product.title} (${optionDetails}) – ₦${this.totalPrice().toLocaleString('en-NG')}`

@@ -1,5 +1,5 @@
-import { Component, signal, inject, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, inject, output, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -7,6 +7,7 @@ import {
   lucideLogOut, lucideMenu, lucideX, lucideChevronDown, lucideCheck
 } from '@ng-icons/lucide';
 import { ThemeService } from '../../../services/theme.service';
+import { AdminApiKeyService } from '../../../services/admin-api-key.service';
 
 @Component({
   selector: 'app-admin-header',
@@ -21,6 +22,8 @@ import { ThemeService } from '../../../services/theme.service';
 })
 export class AdminHeaderComponent {
   private themeService = inject(ThemeService);
+  private adminApiKeyService = inject(AdminApiKeyService);
+  private platformId = inject(PLATFORM_ID);
 
   // Output events for parent component
   sidebarToggle = output<boolean>();
@@ -117,10 +120,20 @@ export class AdminHeaderComponent {
   }
 
   logout() {
-    // Implement logout logic here
-    console.log('Logging out...');
-    // For example: this.authService.logout();
-    // then navigate to login page
+    // Clear the admin API key
+    this.adminApiKeyService.clearApiKey();
+
+    // Clear all localStorage (only in browser)
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        localStorage.clear();
+      } catch (error) {
+        console.warn('Failed to clear localStorage:', error);
+      }
+
+      // Refresh the page to reset application state
+      window.location.reload();
+    }
   }
 
   closeMenus() {

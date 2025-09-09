@@ -19,6 +19,8 @@ export interface Product {
   metaDescription: string | null;
   basePrice?: number;        // Base price in kobo/cents (optional)
   baseInventory?: number;    // Base inventory count (optional)
+  minPrice?: number;         // Minimum variant/option computed price
+  maxPrice?: number;         // Maximum variant/option computed price
   createdAt: string;
   updatedAt: string;
   primaryImageUrl?: string | null; // URL of the primary image (optional)

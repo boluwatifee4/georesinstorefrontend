@@ -4,6 +4,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, of, EMPTY } from 'rxjs';
 import { PublicCartService } from '../../../api/public/cart/cart.service';
 import { Cart, CartItem } from '../../../types/api.types';
+import { AddCartItemDto } from '../../../api/dtos/api.dtos';
 
 export interface CartState {
   cartId: string | null;
@@ -88,10 +89,10 @@ export class CartStore {
       })
     ).subscribe(result => {
       if (result) {
-        this.setCartId(result.cartId);
+        this.setCartId(result.id);
         if (isPlatformBrowser(this.platformId)) {
           try {
-            localStorage.setItem('cartId', result.cartId);
+            localStorage.setItem('cartId', result.id);
           } catch { }
         }
       }
@@ -99,15 +100,31 @@ export class CartStore {
     });
   }
 
-  addItem(variantId: number, qty: number) {
+  /**
+   * Flexible addItem API. Accepts any subset of { productId, productSlug, variantId, selectedOptions, qty }.
+   * For backward compatibility you can still call with (variantId, qty: number).
+   */
+  addItem(arg1: number | AddCartItemDto, qty?: number) {
     const cartId = this.cartId();
     if (!cartId) {
       this.createCart();
       return;
     }
 
+    // Normalize arguments
+    let dto: AddCartItemDto;
+    if (typeof arg1 === 'number') {
+      dto = { variantId: arg1, qty: qty ?? 1 };
+    } else {
+      dto = arg1;
+    }
+
+    if (!dto.qty || dto.qty < 1) {
+      dto.qty = 1;
+    }
+
     this.setLoading(true);
-    this.cartService.addItem(cartId, { variantId, qty }).pipe(
+    this.cartService.addItem(cartId, dto).pipe(
       catchError(error => {
         this.setError(error.message || 'Failed to add item');
         return of(null);

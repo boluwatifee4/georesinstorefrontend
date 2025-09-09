@@ -11,8 +11,8 @@ export class PublicCartService {
   /**
    * POST /cart - Create a new cart
    */
-  createCart(): Observable<{ cartId: string }> {
-    return this.apiHttp.post<{ cartId: string }>('cart', {});
+  createCart(): Observable<{ id: string }> {
+    return this.apiHttp.post<{ id: string }>('cart', {});
   }
 
   /**
@@ -23,7 +23,7 @@ export class PublicCartService {
   }
 
   /**
-   * POST /cart/{cartId}/items - Add item to cart
+   * POST /cart/{cartId}/items - Add item to cart (flexible: productId | productSlug | variantId + selectedOptions)
    */
   addItem(cartId: string, dto: AddCartItemDto): Observable<CartItem> {
     return this.apiHttp.post<CartItem>(`cart/${cartId}/items`, dto);

@@ -40,10 +40,8 @@ export class StoreHomeComponent implements OnInit {
   readonly cartItemCount = this.cartStore.itemCount;
   readonly isAddingToCart = signal<{ [productId: number]: boolean }>({});
 
-  readonly featuredProducts = computed(() => {
-    const products = this.products();
-    return products ? products.filter(p => p.featured).slice(0, 8) : [];
-  });
+  // Featured products now loaded from dedicated endpoint
+  readonly featuredProducts = this.productsStore.featured;
 
   readonly newProducts = computed(() => {
     const products = this.products();
@@ -93,7 +91,9 @@ export class StoreHomeComponent implements OnInit {
       });
     }
 
+    // Load general products (could be paginated list) & featured list
     this.productsStore.loadProducts();
+    this.productsStore.loadFeatured(8);
 
     this.categoriesStore.loadCategories();
 
@@ -123,21 +123,14 @@ export class StoreHomeComponent implements OnInit {
       event.stopPropagation(); // Prevent navigation to product detail
     }
 
-    // For products with variants/options, go to product detail
     const productData = product as any;
-    if (productData.optionGroups && productData.optionGroups.length > 0) {
+    // If options or multiple variants, take user to detail for selection logic
+    if ((productData.optionGroups && productData.optionGroups.length > 0)) {
       this.viewProduct(product);
       return;
     }
 
-    // For simple products, find the default variant and add to cart
-    const variants = productData.variants || [];
-    if (variants.length === 0) {
-      this.viewProduct(product); // No variants available, go to detail
-      return;
-    }
-
-    const defaultVariant = variants[0]; // Use first variant as default
+    // Flexible add to cart: simple product (may or may not expose variants)
     this.setProductAdding(product.id, true);
 
     // Initialize cart if needed
@@ -145,12 +138,12 @@ export class StoreHomeComponent implements OnInit {
       this.cartStore.createCart();
       // Wait for cart creation then add item
       setTimeout(() => {
-        this.cartStore.addItem(defaultVariant.id, 1);
+        this.cartStore.addItem({ productId: product.id, qty: 1 });
         this.setProductAdding(product.id, false);
         this.showAddToCartSuccess(product.title);
       }, 500);
     } else {
-      this.cartStore.addItem(defaultVariant.id, 1);
+      this.cartStore.addItem({ productId: product.id, qty: 1 });
       this.setProductAdding(product.id, false);
       this.showAddToCartSuccess(product.title);
     }

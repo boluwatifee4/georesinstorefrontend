@@ -264,7 +264,12 @@
           <div class="flex items-center justify-between pt-2">
             <div class="flex flex-col">
               <span class="text-lg font-semibold text-text">
-                ₦{{ (product.basePrice || 0) | number:'1.0-0' }}
+                <ng-container *ngIf="product.maxPrice && product.maxPrice !== product.basePrice; else singlePrice">
+                  ₦{{ (product.basePrice || product.minPrice || 0) | number:'1.0-0' }} - ₦{{ (product.maxPrice || 0) | number:'1.0-0' }}
+                </ng-container>
+                <ng-template #singlePrice>
+                  ₦{{ (product.basePrice || product.minPrice || 0) | number:'1.0-0' }}
+                </ng-template>
               </span>
             </div>
 

@@ -87,8 +87,13 @@ export interface UpdateDeliveryZoneDto {
 }
 
 // Cart DTOs
+// Flexible add-to-cart DTO now supports multiple ways to specify the product
+// Only one of productId | productSlug | variantId is required; backend resolves actual target.
 export interface AddCartItemDto {
-  variantId: number;
+  productId?: number;
+  productSlug?: string;
+  variantId?: number; // kept for backward compatibility
+  selectedOptions?: Record<string, number>; // groupId -> optionId for option-based pricing
   qty: number;
 }
 

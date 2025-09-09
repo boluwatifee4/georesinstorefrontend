@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminApiKeyService } from '../../core/services/admin-api-key.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-api-key-modal',
@@ -254,6 +255,7 @@ import { AdminApiKeyService } from '../../core/services/admin-api-key.service';
 })
 export class AdminApiKeyModalComponent {
   private readonly adminApiKeyService = inject(AdminApiKeyService);
+  private readonly VALID_API_KEY = environment.adminApiKey;
 
   // Output events
   closed = output<void>();
@@ -278,10 +280,15 @@ export class AdminApiKeyModalComponent {
     event?.preventDefault();
     event?.stopPropagation();
     const key = this.apiKey().trim();
-    console.log('Submitting API key:', key);
 
     if (!key) {
       this.errorMessage.set('API key is required');
+      return;
+    }
+
+    // Validate the exact API key
+    if (key !== this.VALID_API_KEY) {
+      this.errorMessage.set('Invalid API key. Please check your key and try again.');
       return;
     }
 
@@ -290,9 +297,7 @@ export class AdminApiKeyModalComponent {
 
     // Simulate a small delay to show loading state
     setTimeout(() => {
-      console.log('Setting API key in service...');
       this.adminApiKeyService.setApiKey(key);
-      console.log('API key set, checking validity:', this.adminApiKeyService.isApiKeyValid());
       this.isSubmitting.set(false);
       this.onClose();
     }, 300);

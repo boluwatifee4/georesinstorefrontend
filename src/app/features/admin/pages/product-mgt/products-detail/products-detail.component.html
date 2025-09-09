@@ -13,44 +13,46 @@
   </nav>
 
   <!-- Header Card -->
-  <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6 border border-purple-100">
-    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-      <div class="flex items-start gap-4">
+  <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-3 sm:p-6 border border-purple-100">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+      <div class="flex items-start gap-3 sm:gap-4">
         <!-- Product Icon -->
-        <div class="w-16 h-16 bg-white rounded-xl shadow-sm flex items-center justify-center">
-          <ng-icon name="lucidePackage" class="text-2xl text-purple-600"></ng-icon>
+        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-xl shadow-sm flex items-center justify-center">
+          <ng-icon name="lucidePackage" class="text-xl sm:text-2xl text-purple-600"></ng-icon>
         </div>
 
         <!-- Product Info -->
         <div>
-          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h1 class="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
             {{ product()?.title || 'Loading...' }}
           </h1>
-          <div class="flex flex-wrap items-center gap-4 text-sm">
-            <span class="text-gray-600">ID: {{ product()?.id }}</span>
-            <span *ngIf="product()" class="inline-flex px-3 py-1 rounded-full text-xs font-semibold {{ getStatusBadgeClass(product()!) }}">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
+            <span class="text-gray-600 text-xs sm:text-sm">ID: {{ product()?.id }}</span>
+            <span *ngIf="product()" class="inline-flex px-2 sm:px-3 py-1 rounded-full text-xs font-semibold {{ getStatusBadgeClass(product()!) }}">
               {{ getStatusText(product()!) }}
             </span>
           </div>
-          <p class="text-purple-700 mt-2 font-medium">Manage all aspects of your product</p>
+          <p class="text-purple-700 mt-2 font-medium text-sm hidden sm:block">Manage all aspects of your product</p>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex gap-3">
+      <div class="flex gap-2 sm:gap-3">
         <button
           (click)="onEditProduct()"
-          class="inline-flex items-center gap-2 bg-white text-purple-700 px-6 py-3 rounded-xl font-medium hover:bg-purple-50 transition-all duration-200 shadow-sm border border-purple-200 hover:shadow-md"
+          class="inline-flex items-center gap-1 sm:gap-2 bg-white text-purple-700 px-3 py-2 sm:px-6 sm:py-3 rounded-xl font-medium md:hover:bg-purple-50 transition-all duration-200 shadow-sm border border-purple-200 md:hover:shadow-md text-sm active:bg-purple-100 active:scale-95"
         >
-          <ng-icon name="lucidePencil" class="text-lg"></ng-icon>
-          <span>Edit Product</span>
+          <ng-icon name="lucidePencil" class="text-base sm:text-lg"></ng-icon>
+          <span class="hidden sm:inline">Edit Product</span>
+          <span class="sm:hidden">Edit</span>
         </button>
         <button
           (click)="onDeleteProduct()"
-          class="inline-flex items-center gap-2 bg-white text-red-600 px-6 py-3 rounded-xl font-medium hover:bg-red-50 transition-all duration-200 shadow-sm border border-red-200 hover:shadow-md"
+          class="inline-flex items-center gap-1 sm:gap-2 bg-white text-red-600 px-3 py-2 sm:px-6 sm:py-3 rounded-xl font-medium md:hover:bg-red-50 transition-all duration-200 shadow-sm border border-red-200 md:hover:shadow-md text-sm active:bg-red-100 active:scale-95"
         >
-          <ng-icon name="lucideTrash2" class="text-lg"></ng-icon>
-          <span>Delete</span>
+          <ng-icon name="lucideTrash2" class="text-base sm:text-lg"></ng-icon>
+          <span class="hidden sm:inline">Delete</span>
+          <span class="sm:hidden">Del</span>
         </button>
       </div>
     </div>
@@ -84,27 +86,27 @@
   <div class="lg:col-span-2 space-y-8">
     <!-- Product Information Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-50/50 border-b border-gray-100">
+      <div class="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-gray-50 to-gray-50/50 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-            <ng-icon name="lucideInfo" class="text-blue-600 text-lg"></ng-icon>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+            <ng-icon name="lucideInfo" class="text-blue-600 text-base sm:text-lg"></ng-icon>
           </div>
-          <h2 class="text-xl font-bold text-gray-900">Product Information</h2>
+          <h2 class="text-lg sm:text-xl font-bold text-gray-900">Product Information</h2>
         </div>
       </div>
 
-      <div class="p-8">
+      <div class="p-4 sm:p-8">
         <!-- Product Details Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <!-- Basic Information -->
-          <div class="space-y-4">
+          <div class="space-y-3 sm:space-y-4">
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
-              <p class="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl">{{ product()!.title }}</p>
+              <p class="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl text-sm sm:text-base">{{ product()!.title }}</p>
             </div>
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Slug</label>
-              <p class="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl font-mono">{{ product()!.slug }}</p>
+              <p class="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-mono text-xs sm:text-sm break-all">{{ product()!.slug }}</p>
             </div>
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
@@ -115,25 +117,25 @@
           </div>
 
           <!-- Pricing Information -->
-          <div class="space-y-4">
+          <div class="space-y-3 sm:space-y-4">
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Base Price</label>
-              <p class="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl font-semibold">
+              <p class="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base">
                 ₦{{ product()!.basePrice?.toFixed(2) || '0.00' }}
               </p>
             </div>
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Base Inventory</label>
-              <p class="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl">{{ product()!.baseInventory }} units</p>
+              <p class="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl text-sm sm:text-base">{{ product()!.baseInventory }} units</p>
             </div>
           </div>
         </div>
 
         <!-- Description -->
-        <div class="mt-6">
+        <div class="mt-4 sm:mt-6">
           <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-          <div class="bg-gray-50 px-4 py-4 rounded-xl">
-            <p class="text-gray-900 whitespace-pre-wrap leading-relaxed">{{ product()!.description || 'No description available' }}</p>
+          <div class="bg-gray-50 px-3 sm:px-4 py-3 sm:py-4 rounded-xl">
+            <p class="text-gray-900 whitespace-pre-wrap leading-relaxed text-sm sm:text-base">{{ product()!.description || 'No description available' }}</p>
           </div>
         </div>
       </div>
@@ -141,25 +143,25 @@
 
     <!-- Media Management Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-8 py-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-100">
+      <div class="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-            <ng-icon name="lucideImage" class="text-green-600 text-lg"></ng-icon>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-xl flex items-center justify-center">
+            <ng-icon name="lucideImage" class="text-green-600 text-base sm:text-lg"></ng-icon>
           </div>
-          <h2 class="text-xl font-bold text-gray-900">Media Gallery</h2>
-          <span class="ml-auto text-sm text-gray-500">{{ product()?.media?.length || 0 }} items</span>
+          <h2 class="text-lg sm:text-xl font-bold text-gray-900">Media Gallery</h2>
+          <span class="ml-auto text-xs sm:text-sm text-gray-500">{{ product()?.media?.length || 0 }} items</span>
         </div>
       </div>
 
-      <div class="p-8">
+      <div class="p-4 sm:p-8">
         <!-- Add Media Form -->
-        <div class="mb-8 p-6 bg-gradient-to-r from-green-50 to-green-50/50 rounded-2xl border border-green-100">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div class="mb-6 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-green-50 to-green-50/50 rounded-2xl border border-green-100">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
             <ng-icon name="lucidePlus" class="text-green-600"></ng-icon>
             Add New Media
           </h3>
           <form [formGroup]="mediaForm" (ngSubmit)="onAddMedia()">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4">
               <div>
                 <label for="mediaUrl" class="block text-sm font-semibold text-gray-700 mb-2">
                   Image URL *
@@ -168,9 +170,9 @@
                   id="mediaUrl"
                   type="url"
                   formControlName="url"
-                  placeholder="https://example.com/image.jpg or Google Drive sharing link"
+                  placeholder="https://example.com/image.jpg"
                   (change)="onImageUrlChange($event)"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 bg-white"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 bg-white text-sm"
                   [class.border-red-300]="getMediaFieldError('url')"
                   [class.focus:ring-red-500]="getMediaFieldError('url')"
                   [class.focus:border-red-500]="getMediaFieldError('url')"
@@ -183,8 +185,7 @@
                   <div class="flex items-start gap-1">
                     <ng-icon name="lucideInfo" class="text-xs mt-0.5 text-blue-500"></ng-icon>
                     <div>
-                      <strong>Google Drive:</strong> Paste the sharing link (e.g., https://drive.google.com/file/d/...)
-                      <br>We'll automatically convert it to a direct image URL for you.
+                      <strong>Google Drive:</strong> Paste the sharing link - we'll convert it automatically.
                     </div>
                   </div>
                 </div>
@@ -251,7 +252,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div
             *ngFor="let media of product()?.media"
-            class="group relative bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+            class="group relative bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm md:hover:shadow-md transition-all duration-200"
           >
             <!-- Image -->
             <div class="aspect-square bg-gray-100">
@@ -264,10 +265,10 @@
             </div>
 
             <!-- Media Info Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <div class="absolute bottom-0 left-0 right-0 p-4">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+              <div class="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
                 <div class="flex items-center justify-between text-white">
-                  <div class="text-sm">
+                  <div class="text-xs sm:text-sm">
                     <p class="font-medium">Position: {{ media.position }}</p>
                     <p *ngIf="media.isPrimary" class="text-xs text-green-300 flex items-center gap-1">
                       <ng-icon name="lucideStar" class="text-xs"></ng-icon>
@@ -276,7 +277,7 @@
                   </div>
                   <button
                     (click)="onRemoveMedia(media)"
-                    class="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+                    class="w-8 h-8 bg-red-500 md:hover:bg-red-600 active:bg-red-600 active:scale-95 rounded-full flex items-center justify-center transition-all duration-200"
                   >
                     <ng-icon name="lucideTrash2" class="text-sm"></ng-icon>
                   </button>
@@ -306,10 +307,10 @@
     </div>
 
   <!-- Sidebar -->
-  <div class="lg:col-span-1 space-y-8">
+  <div class="lg:col-span-1 space-y-6 lg:space-y-8">
     <!-- Quick Stats Card -->
-    <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-100">
-      <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Stats</h3>
+    <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-4 sm:p-6 border border-purple-100">
+      <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-4">Quick Stats</h3>
       <div class="grid grid-cols-1 gap-4">
         <div class="bg-white/80 rounded-xl p-4 backdrop-blur-sm">
           <div class="text-2xl font-bold text-purple-600">{{ product()?.media?.length || 0 }}</div>
@@ -328,17 +329,17 @@
 
     <!-- Category Management Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+      <div class="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
+          <div class="w-8 h-8 sm:w-9 sm:h-9 bg-blue-100 rounded-lg flex items-center justify-center">
             <ng-icon name="lucideTag" class="text-blue-600"></ng-icon>
           </div>
-          <h2 class="text-lg font-bold text-gray-900">Categories</h2>
+          <h2 class="text-base sm:text-lg font-bold text-gray-900">Categories</h2>
           <span class="ml-auto text-sm text-gray-500">{{ product()?.categories?.length || 0 }}</span>
         </div>
       </div>
 
-      <div class="p-6">
+      <div class="p-4 sm:p-6">
         <!-- Add Category Form -->
         <div class="mb-6 p-4 bg-blue-50 rounded-xl">
           <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -382,13 +383,13 @@
           <div class="flex flex-wrap gap-2">
             <div
               *ngFor="let category of product()?.categories"
-              class="group inline-flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-2 rounded-xl text-sm font-medium transition-colors"
+              class="group inline-flex items-center gap-2 bg-blue-100 md:hover:bg-blue-200 active:bg-blue-200 active:scale-95 text-blue-800 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200"
             >
               <ng-icon name="lucideTag" class="text-xs"></ng-icon>
               <span>{{ category.name }}</span>
               <button
                 (click)="onRemoveCategory(category)"
-                class="opacity-0 group-hover:opacity-100 hover:bg-blue-300 rounded-full p-1 transition-all duration-200"
+                class="opacity-70 md:opacity-0 md:group-hover:opacity-100 md:hover:bg-blue-300 active:bg-blue-300 rounded-full p-1 transition-all duration-200 min-w-[24px] min-h-[24px] flex items-center justify-center"
                 title="Remove category"
               >
                 <ng-icon name="lucideX" class="text-xs"></ng-icon>
@@ -409,17 +410,17 @@
 
     <!-- Option Groups Management Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-6 py-5 bg-gradient-to-r from-green-50 to-teal-50 border-b border-gray-100">
+      <div class="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-green-50 to-teal-50 border-b border-gray-100">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center">
+          <div class="w-8 h-8 sm:w-9 sm:h-9 bg-green-100 rounded-lg flex items-center justify-center">
             <ng-icon name="lucideSettings" class="text-green-600"></ng-icon>
           </div>
-          <h2 class="text-lg font-bold text-gray-900">Option Groups</h2>
+          <h2 class="text-base sm:text-lg font-bold text-gray-900">Option Groups</h2>
           <span class="ml-auto text-sm text-gray-500">{{ product()?.optionGroups?.length || 0 }}</span>
         </div>
       </div>
 
-      <div class="p-6">
+      <div class="p-4 sm:p-6">
         <!-- Attach Option Group Form -->
         <div class="mb-6 p-4 bg-green-50 rounded-xl">
           <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -464,7 +465,7 @@
           <div class="space-y-3">
             <div
               *ngFor="let group of product()?.optionGroups"
-              class="group bg-gray-50 hover:bg-gray-100 rounded-xl p-4 border border-gray-200 transition-colors"
+              class="group bg-gray-50 md:hover:bg-gray-100 active:bg-gray-100 rounded-xl p-4 border border-gray-200 transition-all duration-200"
             >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -472,13 +473,13 @@
                     <ng-icon name="lucideSettings" class="text-green-600 text-sm"></ng-icon>
                   </div>
                   <div>
-                    <h5 class="font-medium text-gray-900">{{ group.name }}</h5>
-                    <p class="text-sm text-gray-600">{{ group.options?.length || 0 }} options available</p>
+                    <h5 class="font-medium text-gray-900 text-sm sm:text-base">{{ group.name }}</h5>
+                    <p class="text-xs sm:text-sm text-gray-600">{{ group.options?.length || 0 }} options available</p>
                   </div>
                 </div>
                 <button
                   (click)="onDetachOptionGroup(group)"
-                  class="opacity-0 group-hover:opacity-100 w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all duration-200"
+                  class="opacity-70 md:opacity-0 md:group-hover:opacity-100 w-8 h-8 bg-red-100 md:hover:bg-red-200 active:bg-red-200 active:scale-95 text-red-600 rounded-lg flex items-center justify-center transition-all duration-200"
                   title="Detach option group"
                 >
                   <ng-icon name="lucideX" class="text-sm"></ng-icon>

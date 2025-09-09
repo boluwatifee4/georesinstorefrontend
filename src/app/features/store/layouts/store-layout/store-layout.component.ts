@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, throttleTime } from 'rxjs/operators';
 import { fromEvent, animationFrameScheduler, EMPTY } from 'rxjs';
 import { CartStore } from '../../state/cart.store';
+import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-store-layout',
@@ -27,15 +28,37 @@ export class StoreLayoutComponent implements OnInit {
   // Cart state
   readonly cartItemCount = this.cartStore.itemCount;
 
+  // Theme
+  readonly theme = signal<'light' | 'dark' | 'system'>('light');
+  readonly showThemeMenu = signal(false);
+  private readonly themeService = inject(ThemeService);
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   ngOnInit(): void {
     this.setupScrollDetection();
     this.setupSearchHandling();
     this.cartStore.initializeCart();
+    this.setupClickOutside();
+    // Initialize theme
+    const current = this.themeService.get();
+    this.theme.set(current);
+    this.themeService.init();
   }
 
-  private setupScrollDetection(): void {
+  private setupClickOutside(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    fromEvent(document, 'click')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.showThemeMenu()) {
+          this.closeThemeMenu();
+        }
+      });
+  } private setupScrollDetection(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return; // Skip scroll detection on server
     }
@@ -76,5 +99,40 @@ export class StoreLayoutComponent implements OnInit {
 
   goToCart(): void {
     this.router.navigate(['/store/cart']);
+  }
+
+  // Theme controls
+  toggleThemeMenu(): void {
+    this.showThemeMenu.update(show => !show);
+  }
+
+  closeThemeMenu(): void {
+    this.showThemeMenu.set(false);
+  }
+
+  setTheme(t: 'light' | 'dark' | 'system') {
+    this.theme.set(t);
+    this.themeService.set(t);
+    this.closeThemeMenu();
+  }
+
+  getThemeIcon(): string {
+    const t = this.theme();
+    switch (t) {
+      case 'light': return '☀️';
+      case 'dark': return '🌙';
+      case 'system': return '🖥️';
+      default: return '☀️';
+    }
+  }
+
+  getThemeLabel(): string {
+    const t = this.theme();
+    switch (t) {
+      case 'light': return 'Light';
+      case 'dark': return 'Dark';
+      case 'system': return 'System';
+      default: return 'Light';
+    }
   }
 }

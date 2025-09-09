@@ -32,6 +32,15 @@ export class PublicProductsService {
   }
 
   /**
+   * Get featured products (homepage)
+   */
+  getFeaturedProducts(limit?: number): Observable<Product[]> {
+    const params: any = {};
+    if (typeof limit === 'number') params.limit = limit;
+    return this.apiHttp.get<Product[]>('/products/featured', { params });
+  }
+
+  /**
    * Get product detail by slug
    */
   getProductBySlug(slug: string): Observable<Product & {

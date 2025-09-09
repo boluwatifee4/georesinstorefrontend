@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://georesinstore-api.onrender.com' // Your NestJS backend URL
+  apiUrl: 'https://georesinstore-api.onrender.com', // Your NestJS backend URL
+  adminApiKey: 'changeme-dev-key'
 };

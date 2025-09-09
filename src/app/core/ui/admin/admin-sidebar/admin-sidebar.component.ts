@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, PLATFORM_ID, input, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, PLATFORM_ID, input, output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -57,6 +57,9 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
 
   // Input for mobile state from parent
   mobileOpen = input<boolean>(false);
+
+  // Output events
+  menuItemClicked = output<void>();
 
   // Component state
   isCollapsed = signal(false);
@@ -206,6 +209,11 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
   closeMobileSidebar() {
     // This will be handled by parent component
     // Emit event or use output if needed
+  }
+
+  onMenuItemClick() {
+    // Emit event when a menu item is clicked
+    this.menuItemClicked.emit();
   }
 
   ngOnInit() {

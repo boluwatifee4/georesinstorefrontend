@@ -5,6 +5,7 @@ import { Product } from '../../../types/api.types';
 
 export interface ProductsState {
   products: Product[];
+  featured: Product[];
   currentProduct: Product | null;
   loading: boolean;
   error: string | null;
@@ -23,6 +24,7 @@ export class ProductsStore {
   // Private signals
   private readonly _state = signal<ProductsState>({
     products: [],
+    featured: [],
     currentProduct: null,
     loading: false,
     error: null,
@@ -33,6 +35,7 @@ export class ProductsStore {
   // Public read-only signals
   readonly state = this._state.asReadonly();
   readonly products = computed(() => this._state().products);
+  readonly featured = computed(() => this._state().featured);
   readonly currentProduct = computed(() => this._state().currentProduct);
   readonly loading = computed(() => this._state().loading);
   readonly error = computed(() => this._state().error);
@@ -79,6 +82,10 @@ export class ProductsStore {
     this._state.update(state => ({ ...state, products, error: null }));
   }
 
+  private setFeatured(products: Product[]) {
+    this._state.update(state => ({ ...state, featured: products }));
+  }
+
   private setCurrentProduct(product: Product) {
     this._state.update(state => ({ ...state, currentProduct: product, error: null }));
   }
@@ -110,14 +117,33 @@ export class ProductsStore {
       })
     ).subscribe(response => {
       if (response) {
-        this.setProducts(response.data);
-        this.setPagination({
-          total: response.total,
-          page: response.page,
-          limit: response.limit
-        });
+        // Support legacy paginated response or new simple array response
+        if (Array.isArray(response)) {
+          this.setProducts(response as any as Product[]);
+          this.setPagination({ total: (response as any).length || 0, page: 1, limit: (response as any).length || filters.limit || 20 });
+        } else {
+          this.setProducts(response.data);
+          this.setPagination({
+            total: response.total,
+            page: response.page,
+            limit: response.limit
+          });
+        }
       }
       this.setLoading(false);
+    });
+  }
+
+  loadFeatured(limit?: number) {
+    this.productsService.getFeaturedProducts(limit).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to load featured products');
+        return of(null);
+      })
+    ).subscribe(products => {
+      if (products) {
+        this.setFeatured(products);
+      }
     });
   }
 }
