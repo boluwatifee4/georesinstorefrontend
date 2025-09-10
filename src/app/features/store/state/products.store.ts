@@ -53,8 +53,13 @@ export class ProductsStore {
 
   // Actions
   loadProducts(filters?: Partial<ProductFilters>) {
-    const merged = { ...this._state().filters, ...filters };
+    const prev = this._state().filters;
+    const merged = { ...prev, ...filters };
     this.setFilters(merged);
+    // If requesting the first page, reset the list before fetching
+    if (!merged.page || merged.page === 1) {
+      this._state.update(state => ({ ...state, products: [] }));
+    }
     this.fetchProducts();
   }
 
@@ -78,8 +83,12 @@ export class ProductsStore {
   }
 
   // Private state updaters
-  private setProducts(products: Product[]) {
-    this._state.update(state => ({ ...state, products, error: null }));
+  private setProducts(products: Product[], append = false) {
+    this._state.update(state => ({
+      ...state,
+      products: append ? [...state.products, ...products] : products,
+      error: null
+    }));
   }
 
   private setFeatured(products: Product[]) {
@@ -118,11 +127,13 @@ export class ProductsStore {
     ).subscribe(response => {
       if (response) {
         // Support legacy paginated response or new simple array response
+        const isAppend = (filters.page || 1) > 1;
         if (Array.isArray(response)) {
-          this.setProducts(response as any as Product[]);
-          this.setPagination({ total: (response as any).length || 0, page: 1, limit: (response as any).length || filters.limit || 20 });
+          this.setProducts(response as any as Product[], isAppend);
+          const total = (response as any).length || 0;
+          this.setPagination({ total, page: isAppend ? (filters.page || 1) : 1, limit: filters.limit || total });
         } else {
-          this.setProducts(response.data);
+          this.setProducts(response.data, isAppend);
           this.setPagination({
             total: response.total,
             page: response.page,

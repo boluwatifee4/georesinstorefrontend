@@ -3,8 +3,8 @@ import { CommonModule, NgOptimizedImage, isPlatformBrowser } from '@angular/comm
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
-import { fromEvent } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, filter, take } from 'rxjs/operators';
 import { ProductsStore } from '../../state/products.store';
 import { CategoriesStore } from '../../state/categories.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
@@ -34,8 +34,8 @@ export class ProductsComponent implements OnInit {
   readonly loadingCategories = this.categoriesStore.loading;
   readonly productsError = this.productsStore.error;
   readonly showFilters = signal(false);
-  readonly currentPage = signal(1);
-  readonly hasMoreData = signal(true);
+  // Pagination from store
+  readonly hasMoreData = this.productsStore.hasMore;
   readonly loadingMore = signal(false);
 
   // Filter form
@@ -105,13 +105,12 @@ export class ProductsComponent implements OnInit {
   ngOnInit(): void {
     this.loadInitialData();
     this.setupFilterHandling();
-    this.setupInfiniteScroll();
     this.handleQueryParams();
   }
 
   private loadInitialData(): void {
     // Load products and categories
-    this.productsStore.loadProducts();
+    this.productsStore.loadProducts({ page: 1, limit: 20 });
     this.categoriesStore.loadCategories();
   }
 
@@ -127,25 +126,7 @@ export class ProductsComponent implements OnInit {
       });
   }
 
-  private setupInfiniteScroll(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    fromEvent(window, 'scroll', { passive: true })
-      .pipe(
-        debounceTime(100),
-        filter(() => !this.loadingMore() && this.hasMoreData()),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(() => {
-        const scrollPosition = window.innerHeight + window.scrollY;
-        const documentHeight = document.documentElement.scrollHeight;
-
-        // Load more when user is 200px from bottom
-        if (scrollPosition >= documentHeight - 200) {
-          this.loadMoreProducts();
-        }
-      });
-  }
+  // Removed scroll detection; users will click a Load More button instead
 
   private handleQueryParams(): void {
     this.route.queryParams
@@ -180,21 +161,28 @@ export class ProductsComponent implements OnInit {
   }
 
   private loadMoreProducts(): void {
+    if (!this.hasMoreData()) return;
+
+    const preCount = this.products().length;
+    const { page, limit } = this.productsStore.pagination();
+    const nextPage = (page || 1) + 1;
+
     this.loadingMore.set(true);
+    this.productsStore.loadProducts({ page: nextPage, limit });
 
-    // Simulate loading more products (replace with actual API call)
-    setTimeout(() => {
-      const nextPage = this.currentPage() + 1;
-      // Here you would load more products from the API
-      // For now, we'll just increment the page and stop loading
-      this.currentPage.set(nextPage);
-      this.loadingMore.set(false);
+    // Turn off the loading indicator once products length grows or loading ends
+    toObservable(this.products)
+      .pipe(
+        filter(list => list.length > preCount),
+        take(1)
+      )
+      .subscribe(() => this.loadingMore.set(false));
+  }
 
-      // Simulate reaching end of data after page 5
-      if (nextPage >= 5) {
-        this.hasMoreData.set(false);
-      }
-    }, 1000);
+  // Expose for template button
+  onLoadMore(): void {
+    if (this.loadingMore() || !this.hasMoreData()) return;
+    this.loadMoreProducts();
   }
 
   // UI Methods

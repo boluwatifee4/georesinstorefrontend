@@ -117,13 +117,8 @@ export class StoreLayoutComponent implements OnInit {
   }
 
   getThemeIcon(): string {
-    const t = this.theme();
-    switch (t) {
-      case 'light': return '☀️';
-      case 'dark': return '🌙';
-      case 'system': return '🖥️';
-      default: return '☀️';
-    }
+    // Deprecated: UI now uses SVGs directly in template based on theme()
+    return '';
   }
 
   getThemeLabel(): string {

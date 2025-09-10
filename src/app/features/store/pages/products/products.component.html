@@ -291,22 +291,26 @@
       </div>
     </div>
 
-    <!-- Load More Indicator -->
-    <div *ngIf="loadingMore()" class="text-center py-8">
-      <div class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl">
-        <div class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></div>
-        <span class="text-sm text-muted">Loading more products...</span>
-      </div>
-    </div>
-
-    <!-- End of Results -->
-    <div *ngIf="!hasMoreData() && !loadingMore() && filteredProducts().length > 0" class="text-center py-8">
-      <div class="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-xl text-sm text-muted">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        You've seen all products
-      </div>
+    <!-- Load More Button / End of Results -->
+    <div class="text-center py-8" *ngIf="filteredProducts().length > 0">
+      <button
+        *ngIf="hasMoreData(); else endOfResults"
+        type="button"
+        (click)="onLoadMore()"
+        class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl hover:border-brand-600 transition-colors disabled:opacity-60"
+        [disabled]="loadingMore()"
+      >
+        <div *ngIf="loadingMore()" class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></div>
+        <span>{{ loadingMore() ? 'Loading...' : 'Load More Products' }}</span>
+      </button>
+      <ng-template #endOfResults>
+        <div class="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-xl text-sm text-muted">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          You've seen all products
+        </div>
+      </ng-template>
     </div>
   </div>
 </div>
