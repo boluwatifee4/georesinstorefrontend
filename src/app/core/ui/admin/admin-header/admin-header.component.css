@@ -2,8 +2,12 @@
 
 /* Custom button styles that work with our theme */
 .btn-ghost {
-  @apply px-3 py-2 rounded-lg transition-colors hover:bg-border/20 active:bg-border/30;
+  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  border-radius: 0.5rem; /* rounded-lg */
+  transition: background-color 150ms ease;
 }
+.btn-ghost:hover { background-color: color-mix(in srgb, var(--color-border) 20%, transparent); }
+.btn-ghost:active { background-color: color-mix(in srgb, var(--color-border) 30%, transparent); }
 
 /* Smooth transitions for dropdowns */
 .dropdown-enter {
