@@ -1,3 +1,4 @@
+@reference "tailwindcss";
 /* Admin Dashboard specific styles */
 :host {
   @apply block h-screen;

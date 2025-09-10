@@ -42,11 +42,24 @@ nav::-webkit-scrollbar-thumb:hover {
 
 /* Tooltip for collapsed state */
 .tooltip {
-  @apply absolute left-full ml-2 px-2 py-1 bg-surface border border-border rounded text-sm text-text whitespace-nowrap opacity-0 pointer-events-none transition-opacity z-50;
+  position: absolute;
+  left: 100%;
+  margin-left: 0.5rem; /* ml-2 */
+  padding: 0.25rem 0.5rem; /* py-1 px-2 */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem; /* rounded */
+  font-size: 0.875rem; /* text-sm */
+  color: var(--color-text);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+  z-index: 50;
 }
 
 .tooltip.show {
-  @apply opacity-100;
+  opacity: 1;
 }
 
 /* Icon rotation animation */
@@ -63,5 +76,6 @@ nav::-webkit-scrollbar-thumb:hover {
 /* Focus styles for accessibility */
 button:focus-visible,
 a:focus-visible {
-  @apply ring-2 ring-brand-600 ring-offset-2 ring-offset-surface outline-none;
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px; /* simulate ring offset */
 }
