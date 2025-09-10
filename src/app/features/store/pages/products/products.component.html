@@ -296,7 +296,8 @@
       <button
         *ngIf="hasMoreData(); else endOfResults"
         type="button"
-        (click)="onLoadMore()"
+        (mousedown)="$event.preventDefault()"
+        (click)="onLoadMore($event)"
         class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl hover:border-brand-600 transition-colors disabled:opacity-60"
         [disabled]="loadingMore()"
       >

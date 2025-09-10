@@ -180,7 +180,10 @@ export class ProductsComponent implements OnInit {
   }
 
   // Expose for template button
-  onLoadMore(): void {
+  onLoadMore(event?: Event): void {
+    // Avoid the button stealing focus and changing scroll position
+    const target = event?.currentTarget as HTMLElement | undefined;
+    target?.blur?.();
     if (this.loadingMore() || !this.hasMoreData()) return;
     this.loadMoreProducts();
   }
