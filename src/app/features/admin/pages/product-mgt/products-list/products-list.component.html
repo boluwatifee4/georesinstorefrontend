@@ -186,11 +186,16 @@
 
 <!-- Error State -->
 <div *ngIf="error() && !loading()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-  <div class="flex items-center">
-    <ng-icon name="lucideTriangleAlert" class="text-red-600 text-lg mr-2"></ng-icon>
-    <p class="text-red-800">{{ error() }}</p>
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <ng-icon name="lucideTriangleAlert" class="text-red-600 text-lg"></ng-icon>
+      <p class="text-red-800">{{ error() }}</p>
+    </div>
+    <button type="button" (click)="retryLoad()" class="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-red-300 text-red-700 rounded-md hover:bg-red-50 active:bg-red-100 text-sm font-medium">
+      Try Again
+    </button>
   </div>
-</div>
+  </div>
 
 <!-- Products Grid/List -->
 <div *ngIf="!loading() && !error()" class="space-y-4">

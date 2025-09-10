@@ -265,4 +265,9 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     if (product.featured) return 'Featured';
     return 'Active';
   }
+
+  // Retry loading with current filters
+  retryLoad(): void {
+    this.loadProducts();
+  }
 }
