@@ -265,17 +265,25 @@
           <button
             type="button"
             (click)="addToCart()"
-            [disabled]="!canAddToCart()"
+            [disabled]="!canAddToCart() || addInProgress()"
             class="w-full py-4 px-6 bg-brand-600 text-white font-medium rounded-xl
                    hover:bg-brand-700 hover:scale-[1.02] active:scale-[0.98]
                    transition-all duration-300 shadow-lg hover:shadow-xl
                    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            [class.opacity-90]="addInProgress()"
           >
-            <span class="flex items-center justify-center gap-2">
+            <span class="flex items-center justify-center gap-2" *ngIf="!addInProgress()">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
               </svg>
               Add to Cart - ₦{{ totalPrice() | number:'1.0-0' }}
+            </span>
+            <span class="flex items-center justify-center gap-3" *ngIf="addInProgress()">
+              <span class="relative flex h-5 w-5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/60"></span>
+                <span class="relative inline-flex rounded-full h-5 w-5 bg-white"></span>
+              </span>
+              <span>Adding...</span>
             </span>
           </button>
         </div>

@@ -53,6 +53,7 @@ export class ProductDetailComponent implements OnInit {
   // Inline feedback (instead of window alert/confirm)
   readonly feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
   readonly showPostAddActions = signal(false);
+  readonly addInProgress = signal(false);
 
   // Computed properties
   readonly unitPrice = computed(() => {
@@ -276,14 +277,22 @@ export class ProductDetailComponent implements OnInit {
     }
 
     // Initialize cart if needed and add item (flexible DTO) using new callback pattern
+    this.addInProgress.set(true);
+    const finish = (success: boolean) => {
+      this.addInProgress.set(false);
+      if (success) {
+        this.finalizeAddToCart(variantId, product, qty, selected);
+      } else {
+        this.showFeedback('error', 'Failed to add to cart. Please try again.');
+      }
+    };
+
     if (!this.cartStore.cartId()) {
       this.cartStore.createCart(() => {
-        this.cartStore.addItem(dto);
-        this.finalizeAddToCart(variantId, product, qty, selected);
+        this.cartStore.addItem(dto, undefined, finish);
       });
     } else {
-      this.cartStore.addItem(dto);
-      this.finalizeAddToCart(variantId, product, qty, selected);
+      this.cartStore.addItem(dto, undefined, finish);
     }
   }
 

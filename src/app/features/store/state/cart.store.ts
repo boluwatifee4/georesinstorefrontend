@@ -36,8 +36,27 @@ export class CartStore {
 
   // Computed totals
   readonly subtotal = computed(() => {
+    const parsePrice = (val: any): number => {
+      if (val == null) return 0;
+      let str = String(val).trim();
+      if (!str) return 0;
+      // Remove currency symbols & spaces
+      str = str.replace(/[₦$€£¥]/g, '').trim();
+      // Remove thousands separators (commas or spaces or underscores)
+      str = str.replace(/[,\s_](?=\d{3}(\D|$))/g, '');
+      // Keep only first decimal point
+      const firstDot = str.indexOf('.');
+      if (firstDot !== -1) {
+        // Remove any subsequent dots
+        str = str.slice(0, firstDot + 1) + str.slice(firstDot + 1).replace(/\./g, '');
+      }
+      const num = parseFloat(str);
+      return isNaN(num) ? 0 : num;
+    };
     return this._state().items.reduce((sum, item) => {
-      return sum + (parseFloat(item.unitPriceSnap) * item.qty);
+      const raw = (item as any).unitPriceSnap ?? (item as any).price ?? (item as any).unitPrice;
+      const price = parsePrice(raw);
+      return sum + price * item.qty;
     }, 0);
   });
 
@@ -108,12 +127,12 @@ export class CartStore {
    * Flexible addItem API. Accepts any subset of { productId, productSlug, variantId, selectedOptions, qty }.
    * For backward compatibility you can still call with (variantId, qty: number).
    */
-  addItem(arg1: number | AddCartItemDto, qty?: number) {
+  addItem(arg1: number | AddCartItemDto, qty?: number, done?: (success: boolean) => void) {
     const cartId = this.cartId();
     if (!cartId) {
       // Defer actual add until cart is created
       this.createCart(() => {
-        this.addItem(arg1 as any, qty as any); // recursive call now that cartId exists
+        this.addItem(arg1 as any, qty as any, done); // recursive call now that cartId exists
       });
       return;
     }
@@ -134,25 +153,38 @@ export class CartStore {
     this.cartService.addItem(cartId, dto).pipe(
       catchError(error => {
         this.setError(error.message || 'Failed to add item');
+        if (done) done(false);
         return of(null);
       })
     ).subscribe(item => {
       if (item) {
         this.addItemToState(item);
+        // If price snapshot missing or not numeric, refresh full cart silently
+        const needsRefresh = !item.unitPriceSnap || isNaN(parseFloat(item.unitPriceSnap as any));
+        if (needsRefresh) {
+          this.refreshCart(false);
+        }
+        if (done) done(true);
+      } else {
+        if (done) done(false);
       }
       this.setLoading(false);
     });
   }
 
-  updateItemQuantity(itemId: number, qty: number) {
-    return this.updateItemQty(itemId, qty);
+  updateItemQuantity(itemId: number, qty: number, opts?: { silent?: boolean }) {
+    return this.updateItemQty(itemId, qty, opts);
   }
 
-  updateItemQty(itemId: number, qty: number) {
+  /**
+   * Update item quantity.
+   * Pass opts.silent=true to avoid toggling global loading state (used for inline +/- adjustments).
+   */
+  updateItemQty(itemId: number, qty: number, opts?: { silent?: boolean }) {
     const cartId = this.cartId();
     if (!cartId) return;
-
-    this.setLoading(true);
+    const silent = !!opts?.silent;
+    if (!silent) this.setLoading(true);
     this.cartService.updateItem(cartId, itemId, { qty }).pipe(
       catchError(error => {
         this.setError(error.message || 'Failed to update item');
@@ -162,7 +194,7 @@ export class CartStore {
       if (item) {
         this.updateItemInState(item);
       }
-      this.setLoading(false);
+      if (!silent) this.setLoading(false);
     });
   }
 
@@ -195,6 +227,22 @@ export class CartStore {
     ).subscribe(() => {
       this.setItems([]);
       this.setLoading(false);
+    });
+  }
+
+  /** Public method to force reloading cart items (silent by default) */
+  refreshCart(showLoader = false) {
+    const cartId = this.cartId();
+    if (!cartId) return;
+    if (showLoader) this.setLoading(true);
+    this.cartService.getCart(cartId).pipe(
+      catchError(error => {
+        this.setError(error.message || 'Failed to refresh cart');
+        return of(null);
+      })
+    ).subscribe(cart => {
+      if (cart) this.setItems(cart.items);
+      if (showLoader) this.setLoading(false);
     });
   }
 

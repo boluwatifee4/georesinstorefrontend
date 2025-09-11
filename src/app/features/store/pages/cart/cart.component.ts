@@ -45,7 +45,7 @@ export class CartComponent implements OnInit {
     }
 
     this.setItemUpdating(item.id, true);
-    this.cartStore.updateItemQty(item.id, newQuantity);
+    this.cartStore.updateItemQty(item.id, newQuantity, { silent: true });
     // Since the store method doesn't return observable, just reset updating state
     setTimeout(() => this.setItemUpdating(item.id, false), 500);
   }
@@ -54,6 +54,7 @@ export class CartComponent implements OnInit {
     if (!confirm(`Remove ${item.titleSnap} from cart?`)) return;
 
     this.setItemUpdating(item.id, true);
+    // Removal is a heavier action; keep existing loading UX (optional). If you want silent remove, pass opts in store similar to qty.
     this.cartStore.removeItem(item.id);
     // Since the store method doesn't return observable, just reset updating state
     setTimeout(() => this.setItemUpdating(item.id, false), 500);
@@ -77,7 +78,8 @@ export class CartComponent implements OnInit {
   }
 
   getItemTotal(item: CartItem): number {
-    return parseFloat(item.unitPriceSnap) * item.qty;
+    const price = parseFloat((item as any).unitPriceSnap ?? '0');
+    return (isNaN(price) ? 0 : price) * item.qty;
   }
 
   getFormattedItemTotal(item: CartItem): string {
@@ -85,7 +87,9 @@ export class CartComponent implements OnInit {
   }
 
   getFormattedUnitPrice(item: CartItem): string {
-    return `₦${parseFloat(item.unitPriceSnap).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+    const price = parseFloat((item as any).unitPriceSnap ?? '0');
+    const safe = isNaN(price) ? 0 : price;
+    return `₦${safe.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
   }
 
   private setItemUpdating(itemId: number, updating: boolean): void {
