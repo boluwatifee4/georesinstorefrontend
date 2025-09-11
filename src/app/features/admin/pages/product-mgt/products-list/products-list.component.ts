@@ -244,10 +244,10 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  formatPrice(price: number | undefined): string {
-    if (price === undefined) return 'N/A';
-    return `₦${(price / 100).toFixed(2)}`;
+  formatPrice(price: number | string | null | undefined): string {
+    if (price === null || price === undefined || price === '') return 'N/A';
+    if (typeof price === 'string') return price; // already formatted upstream
+    return `₦${price.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   getStatusBadgeClass(product: Product): string {

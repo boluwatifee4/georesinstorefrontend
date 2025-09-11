@@ -117,7 +117,10 @@ export class ProductsStore {
 
   private fetchProducts() {
     const filters = this._state().filters;
-    this.setLoading(true);
+    const isFirstPage = !filters.page || filters.page === 1;
+    if (isFirstPage) {
+      this.setLoading(true);
+    }
     this.productsService.getProducts(filters).pipe(
       catchError(error => {
         const message = (error?.error?.message) || error.message || 'Failed to load products';
@@ -141,7 +144,9 @@ export class ProductsStore {
           });
         }
       }
-      this.setLoading(false);
+      if (isFirstPage) {
+        this.setLoading(false);
+      }
     });
   }
 

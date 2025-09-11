@@ -8,7 +8,7 @@
 >
   <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
     <!-- Brand -->
-    <a routerLink="/store" class="flex items-center md:flex-row flex-col gap-2 shrink-0">
+  <a routerLink="/store" (click)="onLogoClick($event)" class="flex items-center md:flex-row flex-col gap-2 shrink-0">
       <img ngSrc="/logo.png" alt="GeoResin" class="h-14 w-auto object-contain" priority="{{true}}" width="56" height="56">
       <span class="text-[9px] md:text-base font-medium tracking-wide">GEOResinStore</span>
     </a>

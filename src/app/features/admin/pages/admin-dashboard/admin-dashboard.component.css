@@ -1,7 +1,7 @@
-@reference "tailwindcss";
 /* Admin Dashboard specific styles */
 :host {
-  @apply block h-screen;
+  display: block;
+  min-height: 100vh;
 }
 
 /* Animation for stats cards */
@@ -26,13 +26,19 @@ main::-webkit-scrollbar {
 }
 
 main::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-800;
+  background-color: var(--color-bg);
 }
 
 main::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  background-color: var(--color-border);
+  border-radius: 9999px;
 }
 
 main::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-gray-500;
+  /* Slightly stronger contrast on hover */
+  background-color: color-mix(
+    in srgb,
+    var(--color-border),
+    var(--color-text) 15%
+  );
 }

@@ -6,8 +6,12 @@
   border-radius: 0.5rem; /* rounded-lg */
   transition: background-color 150ms ease;
 }
-.btn-ghost:hover { background-color: color-mix(in srgb, var(--color-border) 20%, transparent); }
-.btn-ghost:active { background-color: color-mix(in srgb, var(--color-border) 30%, transparent); }
+.btn-ghost:hover {
+  background-color: color-mix(in srgb, var(--color-border) 20%, transparent);
+}
+.btn-ghost:active {
+  background-color: color-mix(in srgb, var(--color-border) 30%, transparent);
+}
 
 /* Smooth transitions for dropdowns */
 .dropdown-enter {

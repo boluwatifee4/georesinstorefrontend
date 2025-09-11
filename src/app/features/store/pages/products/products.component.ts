@@ -63,9 +63,10 @@ export class ProductsComponent implements OnInit {
         return false;
       }
 
-      // Category filter
-      if (filters.category && product.categories?.[0]?.id !== filters.category) {
-        return false;
+      // Category filter (match by slug)
+      if (filters.category) {
+        const match = product.categories?.some(c => c.slug === filters.category);
+        if (!match) return false;
       }
 
       // Active filter
@@ -103,9 +104,9 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadInitialData();
     this.setupFilterHandling();
     this.handleQueryParams();
+    this.loadInitialData();
   }
 
   private loadInitialData(): void {
@@ -132,14 +133,25 @@ export class ProductsComponent implements OnInit {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
-        if (params['q']) {
-          this.filterForm.patchValue({ search: params['q'] });
-        }
-        if (params['category']) {
-          this.filterForm.patchValue({ category: params['category'] });
-        }
+        const current = this.filterForm.value;
+        const next: any = {};
+        let changed = false;
+        if (params['q'] !== undefined && current.search !== params['q']) { next.search = params['q']; changed = true; }
+        if (params['category'] !== undefined && current.category !== params['category']) { next.category = params['category']; changed = true; }
         if (params['isActive'] !== undefined) {
-          this.filterForm.patchValue({ isActive: params['isActive'] === 'true' });
+          const boolVal = params['isActive'] === 'true';
+          if (current.isActive !== boolVal) { next.isActive = boolVal; changed = true; }
+        }
+        if (changed) {
+          this.filterForm.patchValue(next, { emitEvent: false }); // avoid bouncing back into applyFilters
+        }
+
+        // If category (or search) present in URL, load products directly with those filters to avoid fetching full list first
+        const filtersInUrl: any = {};
+        if (params['category']) filtersInUrl.category = params['category'];
+        if (params['q']) filtersInUrl.q = params['q'];
+        if (Object.keys(filtersInUrl).length) {
+          this.productsStore.loadProducts({ page: 1, limit: 20, ...filtersInUrl });
         }
       });
   }
@@ -158,6 +170,8 @@ export class ProductsComponent implements OnInit {
       queryParams,
       queryParamsHandling: 'merge'
     });
+
+    // Do not call loadProducts directly here; queryParams subscription will trigger the fetch (prevents duplicate calls)
   }
 
   private loadMoreProducts(): void {
