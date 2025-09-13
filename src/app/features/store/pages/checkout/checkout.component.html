@@ -1,121 +1,7 @@
 <div class="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 dark:from-violet-950 dark:via-slate-900 dark:to-purple-950">
   <div class="container mx-auto px-4 py-8 max-w-6xl">
 
-  <!-- Success State: Payment Declared -->
-  <div *ngIf="orderResult() && !saveOrderResult()" class="max-w-2xl mx-auto">
-      <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
-
-        <!-- Success Header -->
-        <div class="bg-gradient-to-r from-green-500 to-emerald-500 p-8 text-center">
-          <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-          </div>
-          <h1 class="text-2xl font-bold text-white mb-2">Order Placed Successfully!</h1>
-          <p class="text-green-100">Your payment declaration has been received</p>
-        </div>
-
-        <!-- Order Details -->
-        <div class="p-8">
-          <div class="space-y-6">
-
-            <!-- Order Code -->
-            <div class="bg-gray-50 dark:bg-slate-700 rounded-xl p-6">
-              <div class="flex justify-between items-center">
-                <div>
-                  <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Order Code</h3>
-                  <p class="text-2xl font-mono font-bold text-violet-600 dark:text-violet-400">
-                    {{ orderResult()?.orderCode }}
-                  </p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                    Save this code to track your order
-                  </p>
-                </div>
-                <button
-                  (click)="copyOrderCode()"
-                  class="p-3 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- Payment Instructions -->
-            <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
-              <h3 class="font-semibold text-amber-800 dark:text-amber-200 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                </svg>
-                Complete Your Payment
-              </h3>
-
-              <div class="bg-white dark:bg-slate-800 rounded-lg p-4 mb-4">
-                <div class="flex justify-between items-center mb-3">
-                  <div>
-                    <p class="font-semibold text-gray-900 dark:text-white">{{ orderResult()?.bankName }}</p>
-                    <p class="text-lg font-mono font-bold text-gray-900 dark:text-white">{{ orderResult()?.accountNumber }}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Account Number</p>
-                  </div>
-                  <button
-                    (click)="copyBankDetails()"
-                    class="p-2 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-                    </svg>
-                  </button>
-                </div>
-
-                <div class="bg-gradient-to-r from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-lg p-4">
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Amount to Pay:</p>
-                  <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">{{ orderResult()?.total }}</p>
-                </div>
-              </div>
-
-              <div class="space-y-2 text-sm text-amber-700 dark:text-amber-300">
-                <p class="flex items-start gap-2">
-                  <span class="font-semibold">1.</span>
-                  Transfer the exact amount to the account above
-                </p>
-                <p class="flex items-start gap-2">
-                  <span class="font-semibold">2.</span>
-                  Use your order code ({{ orderResult()?.orderCode }}) as the payment reference
-                </p>
-                <p class="flex items-start gap-2">
-                  <span class="font-semibold">3.</span>
-                  Our team will confirm your payment and process your order
-                </p>
-                <p class="flex items-start gap-2">
-                  <span class="font-semibold">4.</span>
-                  You'll receive updates on your order status
-                </p>
-              </div>
-            </div>
-
-            <!-- Next Steps -->
-            <div class="flex gap-4">
-              <button
-                (click)="startNewOrder()"
-                class="flex-1 py-3 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-600 transition-all duration-200 font-medium"
-              >
-                Continue Shopping
-              </button>
-              <button
-                routerLink="/store/orders/lookup"
-                class="flex-1 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg"
-              >
-                Track Order
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Success State: Order Saved (no payment declared yet) -->
+    <!-- Success State: Order Saved (NOT Payment Declared) -->
     <div *ngIf="saveOrderResult() && !orderResult()" class="max-w-2xl mx-auto">
       <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
         <div class="bg-gradient-to-r from-violet-600 to-purple-600 p-8 text-center">
@@ -279,43 +165,14 @@
                   Please enter your delivery location
                 </div>
 
-                <!-- Delivery Quote Loading -->
-                <div *ngIf="isLoadingDelivery()" class="flex items-center gap-2 mt-3 text-sm text-violet-600 dark:text-violet-400">
-                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-violet-600"></div>
-                  <span>Getting delivery quote...</span>
-                </div>
-
-                <!-- Delivery Quote Result -->
-                <div *ngIf="deliveryQuote() && !isLoadingDelivery()" class="mt-3">
-                  <div *ngIf="hasDeliveryFee()" class="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <span class="text-sm text-green-700 dark:text-green-300">
-                      Delivery available to {{ deliveryQuote()?.zoneName }} - {{ formattedDeliveryFee() }}
-                    </span>
-                  </div>
-
-                  <div *ngIf="needsManualQuote()" class="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                    <div class="flex items-start gap-3">
-                      <svg class="w-5 h-5 text-amber-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                      <div>
-                        <p class="text-sm text-amber-700 dark:text-amber-300 font-medium mb-2">
-                          Custom delivery quote needed for your location
-                        </p>
-                        <button
-                          type="button"
-                          (click)="contactViaWhatsApp()"
-                          class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
-                        >
-                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.886 3.188z"/>
-                          </svg>
-                          Contact via WhatsApp
-                        </button>
-                      </div>
+                    <div class="text-sm text-blue-700 dark:text-blue-300">
+                      <p class="font-medium mb-1">Delivery Information</p>
+                      <p>We deliver to the nearest park in your area for ₦1,000. You will be informed of the exact pickup location and any additional cost for park-to-destination delivery after order confirmation.</p>
                     </div>
                   </div>
                 </div>
@@ -362,14 +219,9 @@
               <span class="font-semibold text-gray-900 dark:text-white">{{ formattedSubtotal() }}</span>
             </div>
 
-            <div *ngIf="hasDeliveryFee()" class="flex justify-between items-center">
-              <span class="text-gray-600 dark:text-gray-400">Delivery</span>
-              <span class="font-semibold text-gray-900 dark:text-white">{{ formattedDeliveryFee() }}</span>
-            </div>
-
-            <div *ngIf="needsManualQuote()" class="flex justify-between items-center">
-              <span class="text-gray-600 dark:text-gray-400">Delivery</span>
-              <span class="text-amber-600 dark:text-amber-400 text-sm">Quote needed</span>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-400">Delivery (to park)</span>
+              <span class="font-semibold text-gray-900 dark:text-white">₦1,000</span>
             </div>
 
             <hr class="border-gray-200 dark:border-slate-600">
@@ -377,26 +229,29 @@
             <div class="flex justify-between items-center text-lg">
               <span class="font-semibold text-gray-900 dark:text-white">Total</span>
               <span class="font-bold text-violet-600 dark:text-violet-400">
-                {{ needsManualQuote() ? 'TBD' : formattedTotal() }}
+                {{ formattedTotal() }}
               </span>
             </div>
           </div>
 
           <!-- Delivery Fee Acknowledgment -->
           <div class="mb-5">
-            <div class="p-4 rounded-xl border text-sm"
-                 [ngClass]="{'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-200': needsManualQuote(), 'bg-violet-50 border-violet-200 text-violet-800 dark:bg-violet-900/20 dark:border-violet-800 dark:text-violet-200': !needsManualQuote()}">
+            <div class="p-4 rounded-xl border text-sm bg-violet-50 border-violet-200 text-violet-800 dark:bg-violet-900/20 dark:border-violet-800 dark:text-violet-200">
               <div class="flex items-start gap-3">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <p *ngIf="needsManualQuote()" class="font-medium">Delivery fee will be confirmed separately. You may still save your order or declare payment now.</p>
-                  <p *ngIf="!needsManualQuote()" class="font-medium">Delivery fee shown is estimated and may be adjusted if there are special handling needs.</p>
+                  <p class="font-medium mb-2">Delivery Information</p>
+                  <ul class="text-xs space-y-1 mb-3">
+                    <li>• ₦1,000 delivery fee covers transport from our location to the nearest park in your area</li>
+                    <li>• You will be responsible for pickup from the park to your final destination</li>
+                    <li>• After order confirmation, you will be contacted with park details and pickup arrangements</li>
+                  </ul>
                   <label class="flex items-start gap-2 mt-3 cursor-pointer">
-          <input type="checkbox" class="mt-1 h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
-            (change)="onAcknowledgeChange($event)" />
-                    <span class="text-xs leading-relaxed">I understand and accept that final delivery fees may change after review and agree to be contacted (incl. WhatsApp) if an adjustment is required.</span>
+                    <input type="checkbox" class="mt-1 h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                      (change)="onAcknowledgeChange($event)" />
+                    <span class="text-xs leading-relaxed">I understand the delivery process and agree to pickup from the designated park location.</span>
                   </label>
                 </div>
               </div>
@@ -421,10 +276,27 @@
               </span>
             </button>
 
-            <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">By declaring payment you'll receive bank details immediately.</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+              Save Order: Get order code and pay later<br>
+              Declare Payment: Get bank details immediately and confirm payment
+            </p>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Payment Modal -->
+  <app-payment-modal
+    *ngIf="showPaymentModal()"
+    [totalAmount]="formattedTotal()"
+    [cartId]="cartId()!"
+    [buyerName]="checkoutForm.get('buyerName')?.value"
+    [phone]="checkoutForm.get('phone')?.value || undefined"
+    [email]="checkoutForm.get('email')?.value || undefined"
+    [whatsapp]="checkoutForm.get('whatsapp')?.value || undefined"
+    [locationLabel]="checkoutForm.get('locationLabel')?.value"
+    (onClose)="onPaymentModalClose()"
+    (onPaymentConfirmed)="onPaymentConfirmed($event)"
+  ></app-payment-modal>
 </div>

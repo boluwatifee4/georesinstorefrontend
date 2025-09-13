@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, of, EMPTY } from 'rxjs';
 import { PublicCartService } from '../../../api/public/cart/cart.service';
+import { toast } from 'ngx-sonner';
 import { Cart, CartItem } from '../../../types/api.types';
 import { AddCartItemDto } from '../../../api/dtos/api.dtos';
 
@@ -84,6 +85,14 @@ export class CartStore {
     });
   }
 
+  private showOperationFailedToast(message: string) {
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        toast.error(message || 'Operation failed');
+      } catch { /* ignore toast errors */ }
+    }
+  }
+
   // Actions
   initializeCart() {
     // Try to load existing cartId from localStorage
@@ -152,7 +161,9 @@ export class CartStore {
     this.setLoading(true);
     this.cartService.addItem(cartId, dto).pipe(
       catchError(error => {
-        this.setError(error.message || 'Failed to add item');
+        const msg = error.message || 'Failed to add item';
+        this.setError(msg);
+        this.showOperationFailedToast(msg);
         if (done) done(false);
         return of(null);
       })
@@ -180,19 +191,33 @@ export class CartStore {
    * Update item quantity.
    * Pass opts.silent=true to avoid toggling global loading state (used for inline +/- adjustments).
    */
-  updateItemQty(itemId: number, qty: number, opts?: { silent?: boolean }) {
+  updateItemQty(itemId: number, qty: number, opts?: { silent?: boolean; done?: (success: boolean) => void }) {
     const cartId = this.cartId();
     if (!cartId) return;
     const silent = !!opts?.silent;
     if (!silent) this.setLoading(true);
     this.cartService.updateItem(cartId, itemId, { qty }).pipe(
       catchError(error => {
-        this.setError(error.message || 'Failed to update item');
+        const msg = error.message || 'Failed to update item';
+        this.setError(msg);
+        this.showOperationFailedToast(msg);
+        if (opts?.done) {
+          try { opts.done(false); } catch { /* ignore */ }
+        }
         return of(null);
       })
     ).subscribe(item => {
       if (item) {
         this.updateItemInState(item);
+        // Silent refresh to ensure any server-side recalculations (pricing, promos) are reflected
+        this.refreshCart(false);
+        if (opts?.done) {
+          try { opts.done(true); } catch { /* ignore */ }
+        }
+      } else {
+        if (opts?.done) {
+          try { opts.done(false); } catch { /* ignore */ }
+        }
       }
       if (!silent) this.setLoading(false);
     });
@@ -205,11 +230,15 @@ export class CartStore {
     this.setLoading(true);
     this.cartService.removeItem(cartId, itemId).pipe(
       catchError(error => {
-        this.setError(error.message || 'Failed to remove item');
+        const msg = error.message || 'Failed to remove item';
+        this.setError(msg);
+        this.showOperationFailedToast(msg);
         return of(null);
       })
-    ).subscribe(() => {
-      this.removeItemFromState(itemId);
+    ).subscribe(result => {
+      if (result !== null) {
+        this.removeItemFromState(itemId);
+      }
       this.setLoading(false);
     });
   }
@@ -221,11 +250,15 @@ export class CartStore {
     this.setLoading(true);
     this.cartService.clearCart(cartId).pipe(
       catchError(error => {
-        this.setError(error.message || 'Failed to clear cart');
+        const msg = error.message || 'Failed to clear cart';
+        this.setError(msg);
+        this.showOperationFailedToast(msg);
         return of(null);
       })
-    ).subscribe(() => {
-      this.setItems([]);
+    ).subscribe(result => {
+      if (result !== null) {
+        this.setItems([]);
+      }
       this.setLoading(false);
     });
   }
@@ -237,7 +270,10 @@ export class CartStore {
     if (showLoader) this.setLoading(true);
     this.cartService.getCart(cartId).pipe(
       catchError(error => {
-        this.setError(error.message || 'Failed to refresh cart');
+        const msg = error.message || 'Failed to refresh cart';
+        this.setError(msg);
+        // Do not toast refresh errors unless loader visible to avoid noise
+        if (showLoader) this.showOperationFailedToast(msg);
         return of(null);
       })
     ).subscribe(cart => {

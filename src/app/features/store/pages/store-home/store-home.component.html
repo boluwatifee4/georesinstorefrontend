@@ -43,37 +43,95 @@
   </div>
 </section>
 
-  <!-- Categories Section -->
-  <section class="py-20 px-4">
+  <!-- New Arrivals -->
+  <section class="py-16 px-4 bg-gray-50/50">
     <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="h2 text-text mb-4">Product Categories</h2>
-        <div class="w-32 h-px bg-brand-600 mx-auto"></div>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-light text-gray-900 tracking-wide mb-4">New Arrivals</h2>
+        <p class="text-gray-600 font-light max-w-2xl mx-auto">
+          The latest additions to our premium collection, featuring innovative materials and exclusive designs
+        </p>
       </div>
 
-      <div *ngIf="loadingCategories()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        <div *ngFor="let sk of [1,2,3,4,5,6,7,8]" class="aspect-square rounded-2xl animate-pulse bg-surface border border-border"></div>
+      <div *ngIf="loadingProducts()" class="flex gap-6 overflow-x-auto pb-4">
+        <div *ngFor="let sk of [1,2,3,4,5,6]" class="flex-shrink-0 w-64 space-y-4">
+          <div class="aspect-square rounded-lg animate-pulse bg-gray-200"></div>
+          <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+        </div>
       </div>
 
-      <div *ngIf="!loadingCategories()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-        <button
-          *ngFor="let c of topCategories(); trackBy: trackById"
-          (click)="viewCategory(c)"
-     class="group aspect-square rounded-2xl bg-surface border border-border md:hover:border-brand-600
-       shadow-lg md:hover:shadow-xl transition-all duration-500 p-6 md:p-8 flex flex-col items-center justify-center
-       md:hover:-translate-y-2 md:hover:bg-gradient-to-br md:hover:from-brand-600/5 md:hover:to-accent/5 active:scale-95"
+        <div *ngIf="!loadingProducts()" class="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-4 px-4">
+        <div
+          *ngFor="let p of newProducts(); trackBy: trackById"
+          class="flex-shrink-0 w-44 sm:w-48 md:w-56 lg:w-64 group cursor-pointer snap-start active:scale-[0.97] transition-transform"
+          (click)="viewProduct(p)"
         >
-     <div class="w-16 h-16 bg-gradient-to-br from-brand-600 to-accent rounded-2xl mb-4 md:mb-6
-       md:group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
-            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-            </svg>
+          <div class="aspect-square rounded-lg bg-gray-100 mb-3 md:mb-4 overflow-hidden
+                shadow-md md:group-hover:shadow-lg transition-all duration-300">
+            <!-- Product Image with Fallback -->
+            <div *ngIf="p.primaryImageUrl; else newProductPlaceholder"
+                 class="w-full h-full relative overflow-hidden">
+              <img
+                [ngSrc]="getImageUrl(p.primaryImageUrl)"
+                [alt]="p.title"
+                class="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110"
+                (error)="onImageError($event)"
+                width="400"
+                height="400"
+                [attr.data-orig]="p.primaryImageUrl"
+              >
+              <!-- Hover Overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent
+                          opacity-0 md:group-hover:opacity-100 transition-opacity duration-500"></div>
+            </div>
+
+            <!-- Placeholder for products without images -->
+            <ng-template #newProductPlaceholder>
+              <div class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100
+                          flex items-center justify-center relative overflow-hidden">
+                <!-- Elegant pattern overlay -->
+                <div class="absolute inset-0 opacity-10">
+                  <svg class="w-full h-full" viewBox="0 0 100 100" fill="none">
+                    <defs>
+                      <pattern id="grid-new" width="10" height="10" patternUnits="userSpaceOnUse">
+                        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" stroke-width="0.5"/>
+                      </pattern>
+                    </defs>
+                    <rect width="100" height="100" fill="url(#grid-new)" />
+                  </svg>
+                </div>
+                <div class="relative z-10 text-center">
+                  <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-200/80 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <span class="text-gray-400 text-xs uppercase tracking-wider font-light">New Arrival</span>
+                </div>
+              </div>
+            </ng-template>
+
+            <!-- New Badge -->
+            <div class="absolute top-2 right-2 bg-brand-600 text-white px-2 py-1
+                      rounded-full text-xs font-medium tracking-wider">
+              New
+            </div>
           </div>
-     <span class="text-xs sm:text-sm font-semibold text-text text-center tracking-wide md:group-hover:text-brand-600 transition-colors line-clamp-2">{{ c.name }}</span>
-        </button>
+          <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 md:mb-2 tracking-wide line-clamp-2">{{ p.title }}</h3>
+          <p class="text-sm sm:text-base md:text-lg font-light text-gray-800 tracking-wide">
+            <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleNA">
+              ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
+            </ng-container>
+            <ng-template #singleNA>
+              ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}
+            </ng-template>
+          </p>
+        </div>
       </div>
     </div>
   </section>
+
+
 
   <!-- Featured Products -->
   <section class="py-20 px-4 bg-surface">
@@ -237,90 +295,34 @@
     </div>
   </section>
 
-  <!-- New Arrivals -->
-  <section class="py-16 px-4 bg-gray-50/50">
+  <!-- Categories Section -->
+  <section class="py-20 px-4">
     <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-light text-gray-900 tracking-wide mb-4">New Arrivals</h2>
-        <p class="text-gray-600 font-light max-w-2xl mx-auto">
-          The latest additions to our premium collection, featuring innovative materials and exclusive designs
-        </p>
+      <div class="text-center mb-16">
+        <h2 class="h2 text-text mb-4">Product Categories</h2>
+        <div class="w-32 h-px bg-brand-600 mx-auto"></div>
       </div>
 
-      <div *ngIf="loadingProducts()" class="flex gap-6 overflow-x-auto pb-4">
-        <div *ngFor="let sk of [1,2,3,4,5,6]" class="flex-shrink-0 w-64 space-y-4">
-          <div class="aspect-square rounded-lg animate-pulse bg-gray-200"></div>
-          <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
-        </div>
+      <div *ngIf="loadingCategories()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div *ngFor="let sk of [1,2,3,4,5,6,7,8]" class="aspect-square rounded-2xl animate-pulse bg-surface border border-border"></div>
       </div>
 
-        <div *ngIf="!loadingProducts()" class="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-4 px-4">
-        <div
-          *ngFor="let p of newProducts(); trackBy: trackById"
-          class="flex-shrink-0 w-44 sm:w-48 md:w-56 lg:w-64 group cursor-pointer snap-start active:scale-[0.97] transition-transform"
-          (click)="viewProduct(p)"
+      <div *ngIf="!loadingCategories()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+        <button
+          *ngFor="let c of topCategories(); trackBy: trackById"
+          (click)="viewCategory(c)"
+     class="group aspect-square rounded-2xl bg-surface border border-border md:hover:border-brand-600
+       shadow-lg md:hover:shadow-xl transition-all duration-500 p-6 md:p-8 flex flex-col items-center justify-center
+       md:hover:-translate-y-2 md:hover:bg-gradient-to-br md:hover:from-brand-600/5 md:hover:to-accent/5 active:scale-95"
         >
-          <div class="aspect-square rounded-lg bg-gray-100 mb-3 md:mb-4 overflow-hidden
-                shadow-md md:group-hover:shadow-lg transition-all duration-300">
-            <!-- Product Image with Fallback -->
-            <div *ngIf="p.primaryImageUrl; else newProductPlaceholder"
-                 class="w-full h-full relative overflow-hidden">
-              <img
-                [ngSrc]="getImageUrl(p.primaryImageUrl)"
-                [alt]="p.title"
-                class="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110"
-                (error)="onImageError($event)"
-                width="400"
-                height="400"
-                [attr.data-orig]="p.primaryImageUrl"
-              >
-              <!-- Hover Overlay -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent
-                          opacity-0 md:group-hover:opacity-100 transition-opacity duration-500"></div>
-            </div>
-
-            <!-- Placeholder for products without images -->
-            <ng-template #newProductPlaceholder>
-              <div class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100
-                          flex items-center justify-center relative overflow-hidden">
-                <!-- Elegant pattern overlay -->
-                <div class="absolute inset-0 opacity-10">
-                  <svg class="w-full h-full" viewBox="0 0 100 100" fill="none">
-                    <defs>
-                      <pattern id="grid-new" width="10" height="10" patternUnits="userSpaceOnUse">
-                        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                      </pattern>
-                    </defs>
-                    <rect width="100" height="100" fill="url(#grid-new)" />
-                  </svg>
-                </div>
-                <div class="relative z-10 text-center">
-                  <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-200/80 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-                    </svg>
-                  </div>
-                  <span class="text-gray-400 text-xs uppercase tracking-wider font-light">New Arrival</span>
-                </div>
-              </div>
-            </ng-template>
-
-            <!-- New Badge -->
-            <div class="absolute top-2 right-2 bg-brand-600 text-white px-2 py-1
-                      rounded-full text-xs font-medium tracking-wider">
-              New
-            </div>
+     <div class="w-16 h-16 bg-gradient-to-br from-brand-600 to-accent rounded-2xl mb-4 md:mb-6
+       md:group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+            </svg>
           </div>
-          <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 md:mb-2 tracking-wide line-clamp-2">{{ p.title }}</h3>
-          <p class="text-sm sm:text-base md:text-lg font-light text-gray-800 tracking-wide">
-            <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleNA">
-              ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
-            </ng-container>
-            <ng-template #singleNA>
-              ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}
-            </ng-template>
-          </p>
-        </div>
+     <span class="text-xs sm:text-sm font-semibold text-text text-center tracking-wide md:group-hover:text-brand-600 transition-colors line-clamp-2">{{ c.name }}</span>
+        </button>
       </div>
     </div>
   </section>

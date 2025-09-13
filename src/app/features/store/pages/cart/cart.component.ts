@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toast } from 'ngx-sonner';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CartStore } from '../../state/cart.store';
@@ -45,9 +46,17 @@ export class CartComponent implements OnInit {
     }
 
     this.setItemUpdating(item.id, true);
-    this.cartStore.updateItemQty(item.id, newQuantity, { silent: true });
-    // Since the store method doesn't return observable, just reset updating state
-    setTimeout(() => this.setItemUpdating(item.id, false), 500);
+    this.cartStore.updateItemQty(item.id, newQuantity, {
+      silent: true,
+      done: (success) => {
+        // Only clear spinner after backend confirms (success or failure)
+        this.setItemUpdating(item.id, false);
+        if (!success) {
+          toast.error('Failed to update quantity');
+        }
+        // Potential place for toast/notification based on success flag
+      }
+    });
   }
 
   removeItem(item: CartItem): void {
