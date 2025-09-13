@@ -1,6 +1,9 @@
-import { Injectable, inject } from '@angular/core';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+// ng add jspdf + jspdf-autotable first (or install via npm):
+// npm i jspdf jspdf-autotable
+
+import { Injectable } from '@angular/core';
+import jsPDF, { jsPDFOptions } from 'jspdf';
+import autoTable, { UserOptions } from 'jspdf-autotable';
 import { CartItem } from '../../types/api.types';
 import { toast } from 'ngx-sonner';
 
@@ -18,220 +21,321 @@ export interface ReceiptData {
   date: Date;
 }
 
+type AnyItem = CartItem & {
+  titleSnap?: string;
+  unitPriceSnap?: string | number;
+  qty: number;
+};
+
 @Injectable({ providedIn: 'root' })
 export class ReceiptGeneratorService {
+  // Brand tokens – tweak to your brand
+  private readonly brand = {
+    primary: [99, 102, 241] as [number, number, number],   // #6366F1
+    ink: [55, 65, 81] as [number, number, number],         // #374151
+    muted: [107, 114, 128] as [number, number, number],    // #6B7280
+    border: [229, 231, 235] as [number, number, number],   // #E5E7EB
+  };
 
-  generateReceipt(data: ReceiptData): void {
+  async generateReceipt(data: ReceiptData): Promise<void> {
     try {
-      // Create a temporary div for the receipt
-      const receiptElement = this.createReceiptElement(data);
-      document.body.appendChild(receiptElement);
+      const logo = await this.loadImage('/logo.png').catch(() => null);
 
-      // Apply watermark background (tiled logo) before rendering
-      this.applyWatermark(receiptElement, '/logo.png')
-        .catch(err => { console.warn('Watermark failed:', err); });
+      const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+        putOnlyUsedFonts: true,
+      } as jsPDFOptions);
 
-      // Use html2canvas to convert to image, then jsPDF to create PDF
-      html2canvas(receiptElement, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true
-      }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
+      // PDF metadata
+      doc.setProperties({
+        title: `Receipt ${data.orderCode}`,
+        subject: 'Order Receipt',
+        author: 'GEOResinStore',
+        creator: 'GEOResinStore',
+        keywords: `receipt, order, ${data.orderCode}`,
+      });
 
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 295; // A4 height in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = { top: 42, right: 16, bottom: 22, left: 16 }; // room for header & footer
 
-        let position = 0;
+      // Page decorator: header, footer, watermark
+      const renderHeaderFooter = (d: ReceiptData) => {
+        // HEADER
+        // line under header
+        doc.setDrawColor(...this.brand.border);
+        doc.setLineWidth(0.3);
+        doc.line(margin.left, 30, pageWidth - margin.right, 30);
 
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+        // logo
+        if (logo) {
+          const logoHeight = 14;
+          const logoWidth = logo.width * (logoHeight / logo.height);
+          doc.addImage(logo, 'PNG', margin.left, 12, logoWidth, logoHeight, undefined, 'FAST');
         }
 
-        // Download the PDF
-        pdf.save(`receipt-${data.orderCode}.pdf`);
+        // brand + title
+        doc.setTextColor(...this.brand.primary);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        const brandX = margin.left + (logo ? 18 : 0);
+        doc.text('GEOResinStore', brandX, 20, { baseline: 'alphabetic' });
 
-        // Clean up
-        document.body.removeChild(receiptElement);
-      }).catch(error => {
-        console.error('Error generating receipt:', error);
-        document.body.removeChild(receiptElement);
-        toast.error('Receipt generation failed');
+        doc.setTextColor(...this.brand.muted);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text('Order Receipt', brandX, 26);
+
+        // right-side order code + date
+        doc.setTextColor(...this.brand.ink);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        const rightX = pageWidth - margin.right;
+        doc.text(`Order: ${d.orderCode}`, rightX, 16, { align: 'right' });
+        doc.setFont('helvetica', 'normal');
+        const dateFmt = new Intl.DateTimeFormat('en-NG', {
+          dateStyle: 'medium', timeStyle: 'short'
+        }).format(d.date);
+        doc.text(dateFmt, rightX, 22, { align: 'right' });
+
+        // FOOTER
+        doc.setDrawColor(...this.brand.border);
+        doc.setLineWidth(0.3);
+        doc.line(margin.left, pageHeight - margin.bottom + 4, pageWidth - margin.right, pageHeight - margin.bottom + 4);
+
+        doc.setFontSize(9);
+        doc.setTextColor(...this.brand.muted);
+        doc.text('Thank you for shopping with GEOResinStore!', margin.left, pageHeight - 8);
+
+        const pageCount = (doc as any).internal.getNumberOfPages?.() ?? doc.getNumberOfPages();
+        const pageCurrent = doc.getCurrentPageInfo().pageNumber;
+        doc.text(`Page ${pageCurrent} of ${pageCount}`, pageWidth - margin.right, pageHeight - 8, { align: 'right' });
+
+        // WATERMARK (faint, behind content)
+        // Draw it *before* main content on each page in didDrawPage
+        if (logo) {
+          const docAny = doc as any; // cast to access plugin / untyped methods
+          docAny.saveGraphicsState?.();
+          // alpha is supported via setGState in newer jsPDF versions; fallback: draw lightened PNG
+          const wmW = 120;
+          const wmH = (logo.height * wmW) / logo.width;
+          const wmX = (pageWidth - wmW) / 2;
+          const wmY = (pageHeight - wmH) / 2;
+
+          // rotate around center
+          docAny.rotate?.(330, { origin: [pageWidth / 2, pageHeight / 2] }); // -30 degrees
+          // simulate opacity by drawing very faint
+          docAny.setGState?.(docAny.GState({ opacity: 0.06 })) ?? doc.setTextColor(200, 200, 200);
+          doc.addImage(logo, 'PNG', wmX, wmY, wmW, wmH, undefined, 'FAST');
+          // reset rotation
+          docAny.rotate?.(30, { origin: [pageWidth / 2, pageHeight / 2] }); // back
+          docAny.restoreGraphicsState?.();
+        }
+      };
+
+      // CUSTOMER + ORDER INFO BLOCK (above table)
+      const infoBlock = () => {
+        const startX = margin.left;
+        let cursorY = margin.top;
+
+        // Titles
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...this.brand.ink);
+        doc.setFontSize(11);
+        doc.text('Order Information', startX, cursorY);
+        doc.text('Customer Details', pageWidth / 2, cursorY);
+
+        cursorY += 6;
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...this.brand.muted);
+        doc.setFontSize(10);
+
+        // Order column
+        const colGap = 2.8;
+        const orderLines = [
+          ['Order Code:', data.orderCode],
+          ['Date:', new Intl.DateTimeFormat('en-NG', { dateStyle: 'medium' }).format(data.date)],
+          ['Time:', new Intl.DateTimeFormat('en-NG', { timeStyle: 'short' }).format(data.date)],
+          ['Delivery:', data.deliveryLocation],
+        ];
+        orderLines.forEach((row, i) => {
+          const y = cursorY + i * 6;
+          doc.setFont('helvetica', 'bold');
+          doc.text(row[0], startX, y);
+          doc.setFont('helvetica', 'normal');
+          doc.text(row[1], startX + 22 + colGap, y);
+        });
+
+        // Customer column
+        const custLines = [
+          ['Name:', data.customerName],
+          ...(data.customerPhone ? [['Phone:', data.customerPhone]] : []),
+          ...(data.customerEmail ? [['Email:', data.customerEmail]] : []),
+          ...(data.customerWhatsapp ? [['WhatsApp:', data.customerWhatsapp]] : []),
+        ];
+        custLines.forEach((row, i) => {
+          const y = cursorY + i * 6;
+          doc.setFont('helvetica', 'bold');
+          doc.text(row[0], pageWidth / 2, y);
+          doc.setFont('helvetica', 'normal');
+          doc.text(row[1], pageWidth / 2 + 20 + colGap, y);
+        });
+
+        // return the Y after the taller column
+        const rowsCount = Math.max(orderLines.length, custLines.length);
+        return cursorY + rowsCount * 6 + 6;
+      };
+
+      // Build table rows
+      const rows = (data.items as AnyItem[]).map((item) => {
+        const unit = this.parsePrice(item.unitPriceSnap ?? '0');
+        const total = unit * (item.qty ?? 0);
+        return [
+          item.titleSnap ?? '',
+          String(item.qty ?? 0),
+          this.formatNGN(unit),
+          this.formatNGN(total),
+        ];
       });
-    } catch (error) {
-      console.error('Receipt generation error:', error);
+
+      // Draw everything via autoTable so header/wm/foot repeat on page breaks
+      let afterInfoY = 0;
+
+      autoTable(doc, {
+        // dummy first table just to render header/watermark/footer consistently
+        head: [],
+        body: [],
+        margin: { left: margin.left, right: margin.right, top: margin.top, bottom: margin.bottom },
+        didDrawPage: () => {
+          renderHeaderFooter(data);
+          if (!afterInfoY) {
+            afterInfoY = infoBlock();
+          }
+        },
+        // start below info
+        startY: margin.top + 2,
+        theme: 'plain',
+      } as UserOptions);
+
+      // ITEMS TABLE
+      autoTable(doc, {
+        head: [['Item', 'Qty', 'Unit Price', 'Total']],
+        body: rows,
+        startY: Math.max(afterInfoY, (doc as any).lastAutoTable?.finalY ?? margin.top + 8),
+        margin: { left: margin.left, right: margin.right, bottom: margin.bottom },
+        styles: {
+          font: 'helvetica',
+          fontSize: 10,
+          textColor: this.brand.ink as any,
+          cellPadding: 3.2,
+          lineColor: this.brand.border as any,
+          lineWidth: 0.2,
+        },
+        headStyles: {
+          fillColor: [249, 250, 251],
+          textColor: this.brand.ink as any,
+          lineColor: this.brand.border as any,
+          lineWidth: 0.4,
+          halign: 'left',
+          fontStyle: 'bold',
+        },
+        columnStyles: {
+          0: { cellWidth: 'auto', halign: 'left' },
+          1: { cellWidth: 18, halign: 'right' },
+          2: { cellWidth: 34, halign: 'right' },
+          3: { cellWidth: 34, halign: 'right' },
+        },
+        didDrawPage: () => {
+          // ensure header/footer/watermark on every page of this table too
+          renderHeaderFooter(data);
+        },
+      } as UserOptions);
+
+      // TOTALS PANEL
+      const y = Math.min(
+        doc.internal.pageSize.getHeight() - margin.bottom - 40,
+        ((doc as any).lastAutoTable?.finalY ?? margin.top) + 8
+      );
+
+      const boxX = pageWidth - margin.right - 80;
+      const boxY = y;
+      const boxW = 80;
+      const boxH = 30;
+
+      // Panel background
+      doc.setFillColor(249, 250, 251);
+      doc.setDrawColor(...this.brand.border);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(boxX, boxY, boxW, boxH, 2.5, 2.5, 'FD');
+
+      const lineY = (row: number) => boxY + 7 + row * 8;
+
+      // Subtotal
+      doc.setTextColor(...this.brand.muted);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Subtotal', boxX + 4, lineY(0));
+      doc.setTextColor(...this.brand.ink);
+      doc.setFont('helvetica', 'bold');
+      doc.text(this.formatNGN(data.subtotal), boxX + boxW - 4, lineY(0), { align: 'right' });
+
+      // Delivery
+      doc.setTextColor(...this.brand.muted);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Delivery Fee', boxX + 4, lineY(1));
+      doc.setTextColor(...this.brand.ink);
+      doc.setFont('helvetica', 'bold');
+      doc.text(this.formatNGN(data.deliveryFee), boxX + boxW - 4, lineY(1), { align: 'right' });
+
+      // Divider
+      doc.setDrawColor(...this.brand.border);
+      doc.setLineWidth(0.3);
+      doc.line(boxX + 4, lineY(1) + 2, boxX + boxW - 4, lineY(1) + 2);
+
+      // Total
+      doc.setTextColor(...this.brand.ink);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Total', boxX + 4, lineY(2) + 6);
+      doc.setTextColor(...this.brand.primary);
+      doc.setFontSize(14);
+      doc.text(this.formatNGN(data.total), boxX + boxW - 4, lineY(2) + 6, { align: 'right' });
+
+      // Save
+      doc.save(`receipt-${data.orderCode}.pdf`);
+      toast.success('Receipt downloaded');
+    } catch (err) {
+      console.error('Receipt generation error:', err);
       toast.error('Receipt generation failed');
     }
   }
 
-  private async applyWatermark(container: HTMLElement, logoUrl: string): Promise<void> {
+  /** Utils */
+
+  private async loadImage(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
-      try {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          try {
-            // Create a small pattern canvas
-            const tileWidth = 220; // adjust spacing horizontally
-            const tileHeight = 160; // adjust spacing vertically
-            const canvas = document.createElement('canvas');
-            canvas.width = tileWidth;
-            canvas.height = tileHeight;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) { resolve(undefined); return; }
-
-            // Clear & set transparency
-            ctx.clearRect(0, 0, tileWidth, tileHeight);
-
-            const targetLogoWidth = 140; // scale logo within tile
-            const aspect = img.width / img.height || 1;
-            const w = targetLogoWidth;
-            const h = w / aspect;
-            const x = (tileWidth - w) / 2;
-            const y = (tileHeight - h) / 2;
-
-            ctx.globalAlpha = 0.06; // very light so content readable
-            ctx.drawImage(img, x, y, w, h);
-            ctx.globalAlpha = 1;
-
-            const dataUrl = canvas.toDataURL('image/png');
-
-            // Apply as repeating background
-            container.style.backgroundImage = `url(${dataUrl})`;
-            container.style.backgroundRepeat = 'repeat';
-            container.style.backgroundPosition = '0 0';
-            container.style.backgroundSize = `${tileWidth}px ${tileHeight}px`;
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
-        };
-        img.onerror = (e) => reject(e);
-        img.src = logoUrl;
-      } catch (err) {
-        reject(err);
-      }
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
     });
   }
 
-  private createReceiptElement(data: ReceiptData): HTMLElement {
-    const div = document.createElement('div');
-    // make watermark background
-    div.style.backgroundColor = '#ffffff';
-    div.style.backgroundImage = 'url(/logo.png)';
-    div.style.backgroundRepeat = 'repeat';
-    div.style.backgroundPosition = 'center';
-    div.style.backgroundSize = 'contain';
-    div.style.opacity = '0.1';
-    div.style.pointerEvents = 'none';
-    div.style.cssText = `
-      position: absolute;
-      left: -9999px;
-      top: -9999px;
-      width: 800px;
-      padding: 40px;
-      font-family: Arial, sans-serif;
-      background: white;
-      color: black;
-    `;
-
-    div.innerHTML = `
-      <div style="max-width: 720px; margin: 0 auto; padding: 40px; border: 2px solid #e5e7eb; border-radius: 12px;">
-        <!-- Header -->
-        <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #6366f1; padding-bottom: 20px;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px;">
-            <img src="/logo.png" alt="GEOResinStore Logo" style="height: 64px; width: 64px; object-fit: contain;" />
-            <h1 style="margin: 0; font-size: 36px; font-weight: bold; color: #6366f1; letter-spacing: 0.5px;">GEOResinStore</h1>
-          </div>
-          <p style="margin: 0; color: #6b7280; font-size: 18px;">Order Receipt</p>
-        </div>
-
-        <!-- Order Details -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px;">
-          <div>
-            <h3 style="margin: 0 0 16px 0; font-size: 20px; font-weight: bold; color: #374151;">Order Information</h3>
-            <div style="line-height: 1.8; color: #6b7280;">
-              <div><strong>Order Code:</strong> ${data.orderCode}</div>
-              <div><strong>Date:</strong> ${data.date.toLocaleDateString('en-NG')}</div>
-              <div><strong>Time:</strong> ${data.date.toLocaleTimeString('en-NG')}</div>
-            </div>
-          </div>
-
-          <div>
-            <h3 style="margin: 0 0 16px 0; font-size: 20px; font-weight: bold; color: #374151;">Customer Details</h3>
-            <div style="line-height: 1.8; color: #6b7280;">
-              <div><strong>Name:</strong> ${data.customerName}</div>
-              ${data.customerPhone ? `<div><strong>Phone:</strong> ${data.customerPhone}</div>` : ''}
-              ${data.customerEmail ? `<div><strong>Email:</strong> ${data.customerEmail}</div>` : ''}
-              ${data.customerWhatsapp ? `<div><strong>WhatsApp:</strong> ${data.customerWhatsapp}</div>` : ''}
-              <div><strong>Delivery:</strong> ${data.deliveryLocation}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Items -->
-        <div style="margin-bottom: 40px;">
-          <h3 style="margin: 0 0 20px 0; font-size: 20px; font-weight: bold; color: #374151;">Order Items</h3>
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr style="background-color: #f9fafb; border-bottom: 2px solid #e5e7eb;">
-                <th style="padding: 12px; text-align: left; font-weight: bold; color: #374151;">Item</th>
-                <th style="padding: 12px; text-align: right; font-weight: bold; color: #374151;">Qty</th>
-                <th style="padding: 12px; text-align: right; font-weight: bold; color: #374151;">Unit Price</th>
-                <th style="padding: 12px; text-align: right; font-weight: bold; color: #374151;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.items.map(item => {
-      const unitPrice = this.parsePrice((item as any).unitPriceSnap || '0');
-      const total = unitPrice * item.qty;
-      return `
-                  <tr style="border-bottom: 1px solid #e5e7eb;">
-                    <td style="padding: 12px; color: #374151;">${item.titleSnap}</td>
-                    <td style="padding: 12px; text-align: right; color: #374151;">${item.qty}</td>
-                    <td style="padding: 12px; text-align: right; color: #374151;">₦${unitPrice.toLocaleString('en-NG', { minimumFractionDigits: 2 })}</td>
-                    <td style="padding: 12px; text-align: right; color: #374151;">₦${total.toLocaleString('en-NG', { minimumFractionDigits: 2 })}</td>
-                  </tr>
-                `;
-    }).join('')}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Totals -->
-        <div style="margin-bottom: 40px; padding: 24px; background-color: #f9fafb; border-radius: 8px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-            <span style="color: #6b7280;">Subtotal:</span>
-            <span style="color: #374151; font-weight: bold;">₦${data.subtotal.toLocaleString('en-NG', { minimumFractionDigits: 2 })}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-            <span style="color: #6b7280;">Delivery Fee:</span>
-            <span style="color: #374151; font-weight: bold;">₦${data.deliveryFee.toLocaleString('en-NG', { minimumFractionDigits: 2 })}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding-top: 12px; border-top: 2px solid #d1d5db;">
-            <span style="color: #374151; font-size: 20px; font-weight: bold;">Total:</span>
-            <span style="color: #6366f1; font-size: 24px; font-weight: bold;">₦${data.total.toLocaleString('en-NG', { minimumFractionDigits: 2 })}</span>
-          </div>
-        </div>
-
-        <!-- Footer -->
-        <div style="text-align: center; padding-top: 24px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
-          <p style="margin: 0 0 8px 0;"><strong>Thank you for shopping with Georesin Store!</strong></p>
-          <p style="margin: 0;">For inquiries, please contact us with your order code: ${data.orderCode}</p>
-        </div>
-      </div>
-    `;
-
-    return div;
+  private formatNGN(value: number): string {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+      .format(value)
+      // Ensure symbol is the standard Naira sign
+      .replace('NGN', '₦')
+      .replace(/\s/g, '');
   }
 
   private parsePrice(val: any): number {
@@ -239,15 +343,15 @@ export class ReceiptGeneratorService {
     let str = String(val).trim();
     if (!str) return 0;
     // Remove currency symbols & spaces
-    str = str.replace(/[₦$€£¥]/g, '').trim();
-    // Remove thousands separators
-    str = str.replace(/[,\s_](?=\d{3}(\D|$))/g, '');
+    str = str.replace(/[₦₵$€£¥]|NGN/gi, '').trim();
+    // Remove thousands separators (., space, underscore) when used as grouping
+    str = str.replace(/(?<=\d)[,\s_](?=\d{3}(\D|$))/g, '');
     // Keep only first decimal point
     const firstDot = str.indexOf('.');
     if (firstDot !== -1) {
       str = str.slice(0, firstDot + 1) + str.slice(firstDot + 1).replace(/\./g, '');
     }
     const num = parseFloat(str);
-    return isNaN(num) ? 0 : num;
+    return Number.isFinite(num) ? num : 0;
   }
 }

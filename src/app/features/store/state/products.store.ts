@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { catchError, of } from 'rxjs';
+import { catchError, of, finalize } from 'rxjs';
 import { PublicProductsService, ProductFilters } from '../../../api/public/products/products.service';
 import { Product } from '../../../types/api.types';
 
@@ -117,24 +117,22 @@ export class ProductsStore {
 
   private fetchProducts() {
     const filters = this._state().filters;
-    const isFirstPage = !filters.page || filters.page === 1;
-    if (isFirstPage) {
-      this.setLoading(true);
-    }
+    // Always reflect loading state (even for subsequent pages) so UI can react
+    this.setLoading(true);
     this.productsService.getProducts(filters).pipe(
       catchError(error => {
         const message = (error?.error?.message) || error.message || 'Failed to load products';
         this.setError(message);
         return of(null);
-      })
+      }),
+      finalize(() => this.setLoading(false))
     ).subscribe(response => {
       if (response) {
-        // Support legacy paginated response or new simple array response
         const isAppend = (filters.page || 1) > 1;
         if (Array.isArray(response)) {
           this.setProducts(response as any as Product[], isAppend);
           const total = (response as any).length || 0;
-          this.setPagination({ total, page: isAppend ? (filters.page || 1) : 1, limit: filters.limit || total });
+          this.setPagination({ total, page: filters.page || 1, limit: filters.limit || total });
         } else {
           this.setProducts(response.data, isAppend);
           this.setPagination({
@@ -143,9 +141,6 @@ export class ProductsStore {
             limit: response.limit
           });
         }
-      }
-      if (isFirstPage) {
-        this.setLoading(false);
       }
     });
   }

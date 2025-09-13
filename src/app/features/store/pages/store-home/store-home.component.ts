@@ -202,4 +202,14 @@ export class StoreHomeComponent implements OnInit {
     }
   }
 
+  scrollToNewArrivals(): void {
+    const element = document.getElementById('new-arrivals');
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }
+
 }

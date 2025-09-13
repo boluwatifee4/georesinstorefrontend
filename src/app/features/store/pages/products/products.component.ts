@@ -176,19 +176,16 @@ export class ProductsComponent implements OnInit {
 
   private loadMoreProducts(): void {
     if (!this.hasMoreData()) return;
-
-    const preCount = this.products().length;
     const { page, limit } = this.productsStore.pagination();
     const nextPage = (page || 1) + 1;
-
     this.loadingMore.set(true);
     this.productsStore.loadProducts({ page: nextPage, limit });
-
-    // Turn off the loading indicator once products length grows or loading ends
-    toObservable(this.products)
+    // Automatically clear when global loading ends
+    toObservable(this.productsStore.loading)
       .pipe(
-        filter(list => list.length > preCount),
-        take(1)
+        filter(l => !l),
+        take(1),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => this.loadingMore.set(false));
   }
