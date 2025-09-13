@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -53,10 +53,37 @@ export class OrdersListComponent implements OnInit {
   searchQuery = signal<string>('');
   fromDate = signal<string>('');
   toDate = signal<string>('');
+  currentPage = signal<number>(1);
+  totalPages = signal<number>(1);
+  totalItems = signal<number>(0);
+  itemsPerPage = signal<number>(12);
+
+  // All orders (unfiltered from store)
+  allOrders = computed(() => this.orders());
+
+  // Filtered orders (for client-side pagination)
+  filteredOrders = computed(() => {
+    const all = this.allOrders();
+    // Client-side filtering could be added here if needed
+    return all;
+  });
+
+  // Paginated orders for display
+  paginatedOrders = computed(() => {
+    const filtered = this.filteredOrders();
+    const start = (this.currentPage() - 1) * this.itemsPerPage();
+    const end = start + this.itemsPerPage();
+    return filtered.slice(start, end);
+  });
+
+  // Expose Math for template
+  Math = Math;
 
   constructor() {
     this.searchForm = this.fb.group({
-      search: ['']
+      search: [''],
+      fromDate: [''],
+      toDate: ['']
     });
   }
 
@@ -65,17 +92,69 @@ export class OrdersListComponent implements OnInit {
   }
 
   loadOrders(): void {
-    this.ordersStore.loadOrders(this.statusFilter(), this.searchQuery(), this.fromDate(), this.toDate()).subscribe();
+    const searchValue = this.searchQuery();
+    const statusValue = this.statusFilter();
+    const fromValue = this.fromDate();
+    const toValue = this.toDate();
+
+    this.ordersStore.loadOrders(
+      statusValue,  // status parameter
+      searchValue,  // q parameter (search query)
+      fromValue,    // from parameter
+      toValue       // to parameter
+    ).subscribe({
+      next: (orders) => {
+        // Update pagination based on all orders
+        this.totalItems.set(orders.length);
+        this.totalPages.set(Math.ceil(orders.length / this.itemsPerPage()));
+      },
+      error: (error) => {
+        console.error('Failed to load orders:', error);
+      }
+    });
   }
 
   onSearch(): void {
-    // Implement search functionality
+    const searchValue = this.searchForm.get('search')?.value || '';
+    this.searchQuery.set(searchValue);
+    this.currentPage.set(1); // Reset to first page when searching
     this.loadOrders();
   }
 
   onStatusFilterChange(status: string): void {
     this.statusFilter.set(status);
+    this.currentPage.set(1); // Reset to first page when filtering
     this.loadOrders();
+  }
+
+  onDateFilterChange(): void {
+    const fromValue = this.searchForm.get('fromDate')?.value || '';
+    const toValue = this.searchForm.get('toDate')?.value || '';
+    this.fromDate.set(fromValue);
+    this.toDate.set(toValue);
+    this.currentPage.set(1); // Reset to first page when filtering
+    this.loadOrders();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage.set(page);
+    this.loadOrders();
+  }
+
+  get pages(): number[] {
+    const totalPages = this.totalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+
+    // Show pages around current page
+    const start = Math.max(1, current - 2);
+    const end = Math.min(totalPages, current + 2);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   }
 
   onViewOrder(order: Order): void {

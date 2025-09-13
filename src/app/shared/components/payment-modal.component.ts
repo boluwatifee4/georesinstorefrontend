@@ -2,6 +2,7 @@ import { Component, inject, input, output, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { ConfigService, ConfigResponse } from '../../api/public/config/config.service';
 import { PublicOrdersService, DeclarePaymentResponse } from '../../api/public/orders/orders.service';
+import { TelegramNotificationService } from '../../core/services/telegram-notification.service';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -137,6 +138,7 @@ import { toast } from 'ngx-sonner';
 export class PaymentModalComponent implements OnInit {
   private readonly configService = inject(ConfigService);
   private readonly ordersService = inject(PublicOrdersService);
+  private readonly telegramService = inject(TelegramNotificationService);
 
   // Inputs
   // Inputs
@@ -213,6 +215,10 @@ export class PaymentModalComponent implements OnInit {
         this.orderResponse.set(res);
         this.declaring.set(false);
         toast.success('Payment declared');
+
+        // Send Telegram notification
+        this.sendTelegramNotification(res);
+
         this.onPaymentConfirmed.emit(res);
       },
       error: (err) => {
@@ -220,6 +226,27 @@ export class PaymentModalComponent implements OnInit {
         this.declareError.set(err.error?.message || 'Failed to declare payment');
         toast.error('Declare Payment failed');
         this.declaring.set(false);
+      }
+    });
+  }
+
+  private sendTelegramNotification(response: DeclarePaymentResponse): void {
+    const telegramMessage = {
+      orderCode: response.orderCode,
+      buyerName: this.buyerName(),
+      total: this.totalAmount(),
+      phone: this.phone(),
+      email: this.email(),
+      declaredAt: new Date().toISOString()
+    };
+
+    this.telegramService.sendPaymentDeclaredNotification(telegramMessage).subscribe({
+      next: () => {
+        console.log('Telegram notification sent successfully');
+      },
+      error: (error) => {
+        console.error('Failed to send Telegram notification:', error);
+        // Don't show error to user as this is not critical
       }
     });
   }

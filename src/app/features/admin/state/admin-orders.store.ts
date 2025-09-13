@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, map } from 'rxjs';
 import { Order, OrderCreateRequest, DeclarePaymentRequest } from '../../../types/api.types';
 import { AdminOrdersService, OrderListResponse } from '../../../api/admin/orders/orders.service';
 
@@ -31,12 +31,15 @@ export class AdminOrdersStore {
   readonly error = computed(() => this.state().error);
 
   // Actions
-  loadOrders(status?: string, q?: string, from?: string, to?: string): Observable<OrderListResponse> {
+  loadOrders(status?: string, q?: string, from?: string, to?: string): Observable<Order[]> {
     this.updateState({ loading: true, error: null });
 
-    const filters = Object.fromEntries(
-      Object.entries({ status, q, from, to }).filter(([, v]) => v != null && v !== '')
-    ) as Partial<Record<'status' | 'q' | 'from' | 'to', string>>;
+    const filters: Record<string, any> = {};
+    if (status) filters['status'] = status;
+    if (q) filters['q'] = q;
+    if (from) filters['from'] = from;
+    if (to) filters['to'] = to;
+
     return this.ordersService.getOrders(filters).pipe(
       tap((response) => {
         this.updateState({
@@ -44,12 +47,13 @@ export class AdminOrdersStore {
           loading: false
         });
       }),
+      map((response) => response.orders),
       catchError(error => {
         this.updateState({
           loading: false,
           error: error.error?.message || 'Failed to load orders'
         });
-        return of({ orders: [], total: 0, page: 1, limit: 10 });
+        return of([]);
       })
     );
   }
@@ -148,6 +152,19 @@ export class AdminOrdersStore {
         return of(null as any);
       })
     );
+  }
+
+  // Specific action methods for component convenience
+  setUnderReview(id: number): Observable<Order> {
+    return this.updateOrderStatus(id, 'under_review');
+  }
+
+  confirmOrder(id: number): Observable<Order> {
+    return this.updateOrderStatus(id, 'approved');
+  }
+
+  rejectOrder(id: number, reason: string): Observable<Order> {
+    return this.updateOrderStatus(id, 'rejected', reason);
   }
 
   private updateState(updates: Partial<OrdersState>): void {

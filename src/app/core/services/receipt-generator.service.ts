@@ -126,19 +126,23 @@ export class ReceiptGeneratorService {
   private createReceiptElement(data: ReceiptData): HTMLElement {
     const div = document.createElement('div');
     // make watermark background
-    div.style.background = 'url(/logo.png) repeat center';
+    div.style.backgroundColor = '#ffffff';
+    div.style.backgroundImage = 'url(/logo.png)';
+    div.style.backgroundRepeat = 'repeat';
+    div.style.backgroundPosition = 'center';
     div.style.backgroundSize = 'contain';
     div.style.opacity = '0.1';
     div.style.pointerEvents = 'none';
-    div.style.zIndex = '-1';
-    div.style.position = 'absolute';
-    div.style.left = '-9999px';
-    div.style.top = '-9999px';
-    div.style.width = '800px';
-    div.style.padding = '40px';
-    div.style.fontFamily = 'Arial, sans-serif';
-    div.style.background = 'white';
-    div.style.color = 'black';
+    div.style.cssText = `
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      width: 800px;
+      padding: 40px;
+      font-family: Arial, sans-serif;
+      background: white;
+      color: black;
+    `;
 
     div.innerHTML = `
       <div style="max-width: 720px; margin: 0 auto; padding: 40px; border: 2px solid #e5e7eb; border-radius: 12px;">

@@ -19,7 +19,7 @@
 <!-- Search and Filters -->
 <div class="mb-6">
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-    <div class="flex flex-col sm:flex-row gap-4">
+    <div class="flex flex-col gap-4">
       <!-- Search -->
       <div class="flex-1">
         <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="relative">
@@ -35,20 +35,45 @@
         </form>
       </div>
 
-      <!-- Status Filter -->
-      <div class="sm:w-48">
-        <select
-          [value]="statusFilter()"
-          (change)="onStatusFilterChange($any($event.target).value)"
-          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 bg-white"
-        >
-          <option value="">All Statuses</option>
-          <option value="SAVED">Saved</option>
-          <option value="DECLARED_PAID">Payment Declared</option>
-          <option value="UNDER_REVIEW">Under Review</option>
-          <option value="CONFIRMED">Confirmed</option>
-          <option value="REJECTED">Rejected</option>
-        </select>
+      <!-- Filters Row -->
+      <div class="flex flex-col sm:flex-row gap-4">
+        <!-- Status Filter -->
+        <div class="sm:w-48">
+          <select
+            [value]="statusFilter()"
+            (change)="onStatusFilterChange($any($event.target).value)"
+            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 bg-white"
+          >
+            <option value="">All Statuses</option>
+            <option value="SAVED">Saved</option>
+            <option value="DECLARED_PAID">Payment Declared</option>
+            <option value="UNDER_REVIEW">Under Review</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
+
+        <!-- Date Range Filters -->
+        <div class="flex gap-2">
+          <div class="sm:w-40">
+            <input
+              type="date"
+              formControlName="fromDate"
+              (change)="onDateFilterChange()"
+              placeholder="From Date"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 bg-white"
+            >
+          </div>
+          <div class="sm:w-40">
+            <input
+              type="date"
+              formControlName="toDate"
+              (change)="onDateFilterChange()"
+              placeholder="To Date"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 bg-white"
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -80,7 +105,7 @@
   <!-- Orders Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
     <div
-      *ngFor="let order of orders()"
+      *ngFor="let order of paginatedOrders()"
       class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200"
     >
       <!-- Order Header -->
@@ -144,11 +169,52 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!orders().length" class="text-center py-20">
+  <div *ngIf="!paginatedOrders().length && !loading()" class="text-center py-20">
     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
       <ng-icon name="lucidePackage" class="text-gray-400 text-2xl"></ng-icon>
     </div>
     <h3 class="text-lg font-semibold text-gray-900 mb-2">No orders found</h3>
     <p class="text-gray-600">Orders will appear here once customers place them.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="allOrders().length && totalPages() > 1" class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 px-6 py-6 bg-white rounded-2xl border border-gray-100">
+    <div class="text-sm text-gray-500">
+      Showing {{((currentPage() - 1) * itemsPerPage()) + 1}} to {{Math.min(currentPage() * itemsPerPage(), totalItems())}} of {{totalItems()}} results
+    </div>
+    
+    <div class="flex items-center gap-2">
+      <!-- Previous Button -->
+      <button
+        (click)="onPageChange(currentPage() - 1)"
+        [disabled]="currentPage() === 1"
+        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+      >
+        Previous
+      </button>
+
+      <!-- Page Numbers -->
+      <div class="flex items-center gap-1">
+        @for (page of pages; track page) {
+          <button
+            (click)="onPageChange(page)"
+            [class]="page === currentPage() 
+              ? 'px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg' 
+              : 'px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200'"
+          >
+            {{page}}
+          </button>
+        }
+      </div>
+
+      <!-- Next Button -->
+      <button
+        (click)="onPageChange(currentPage() + 1)"
+        [disabled]="currentPage() === totalPages()"
+        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+      >
+        Next
+      </button>
+    </div>
   </div>
 </div>

@@ -8,15 +8,10 @@ export interface OrderFilters {
   q?: string;
   from?: string;
   to?: string;
-  page?: number;
-  limit?: number;
 }
 
 export interface OrderListResponse {
   orders: Order[];
-  total: number;
-  page: number;
-  limit: number;
 }
 
 export interface RejectOrderRequest {
