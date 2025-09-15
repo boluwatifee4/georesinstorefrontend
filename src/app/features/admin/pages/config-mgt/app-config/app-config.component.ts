@@ -101,6 +101,7 @@ export class AppConfigComponent implements OnInit {
     return null;
   }
 
+
   private label(name: string): string {
     const map: Record<string, string> = {
       bankName: 'Bank Name',
