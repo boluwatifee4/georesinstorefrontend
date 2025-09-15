@@ -1,1 +1,23 @@
-{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/grs-frontend/browser",
+  "functions": {
+    "api/ssr.ts": {
+      "runtime": "nodejs20.x",
+      "memory": 512,
+      "maxDuration": 10,
+      "includeFiles": "dist/grs-frontend/server/**"
+    }
+  },
+  "routes": [
+    { "src": "/healthz", "dest": "/api/ssr" },
+    { "src": "/robots.txt", "dest": "/api/ssr" },
+    { "src": "/sitemap.xml", "dest": "/api/ssr" },
+    {
+      "src": "/(.*\\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|ico|txt|json|woff2?))",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "dest": "/$1"
+    },
+    { "src": "/(.*)", "dest": "/api/ssr" }
+  ]
+}

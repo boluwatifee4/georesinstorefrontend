@@ -9,8 +9,14 @@ const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 const indexHtml = join(serverDistFolder, 'index.server.html');
 
-const app = express();
+// Exported app instance for serverless usage
+export const app = express();
 const commonEngine = new CommonEngine();
+
+// Expose a factory in case a fresh instance is required (edge cases)
+export function createApp() {
+  return app;
+}
 
 // Basic health
 app.get('/healthz', (_req, res) => res.json({ ok: true }));
