@@ -3,8 +3,7 @@ import { CommonModule, NgOptimizedImage, isPlatformBrowser } from '@angular/comm
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+// Removed unused switchMap/of imports after resolver optimization
 import { ProductsStore } from '../../state/products.store';
 import { SeoService } from '../../../../core/services/seo.service';
 import { CartStore } from '../../state/cart.store';
@@ -164,24 +163,27 @@ export class ProductDetailComponent implements OnInit {
           this.selectedOptions.set(initialSelections);
         }
       }
+
+      const p = this.product();
+      if (p) this.applySeo(p);
     });
   }
 
   ngOnInit(): void {
-    // Resolver places product into store. If missing (client nav without resolver), fallback to load.
-    const slug = this.route.snapshot.paramMap.get('slug');
-    const existing = this.product();
-    if (!existing) {
-      if (slug) this.productsStore.loadProductBySlug(slug);
-    } else {
-      this.applySeo(existing);
+    // Prefer resolver data if present to avoid duplicate HTTP
+    const dataProduct = this.route.snapshot.data?.['product'] as Product | null;
+    if (dataProduct) {
+      // store already updated by resolver's tap
+      this.applySeo(dataProduct);
+      return;
     }
-
-    // Reactively update SEO when product signal changes (after async load or resolver)
-    effect(() => {
-      const p = this.product();
-      if (p) this.applySeo(p);
-    });
+    // Fallback: if store empty and slug exists (direct client navigation without resolver for some reason)
+    const slug = this.route.snapshot.paramMap.get('slug');
+    if (!this.product() && slug) {
+      this.productsStore.loadProductBySlug(slug);
+    } else if (this.product()) {
+      this.applySeo(this.product()!);
+    }
   }
 
   private applySeo(product: Product) {
