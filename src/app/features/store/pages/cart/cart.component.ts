@@ -21,6 +21,7 @@ export class CartComponent implements OnInit {
   // Cart state
   readonly cartItems = this.cartStore.items;
   readonly itemCount = this.cartStore.itemCount;
+  readonly cartId = this.cartStore.cartId;
   readonly subtotal = this.cartStore.subtotal;
   readonly loading = this.cartStore.loading;
   readonly error = this.cartStore.error;
@@ -29,7 +30,10 @@ export class CartComponent implements OnInit {
   readonly isUpdating = signal<{ [itemId: number]: boolean }>({});
 
   // Computed properties
-  readonly isEmpty = computed(() => this.cartItems().length === 0);
+  // Treat cart as empty only after we know which cart we're looking at (cartId) and not loading
+  readonly isEmpty = computed(() => !this.loading() && this.cartItems().length === 0 && !!this.cartId());
+  // Backward compatibility flag if template wants explicit check separate from loading
+  readonly showEmpty = this.isEmpty;
   readonly formattedSubtotal = computed(() =>
     `₦${this.subtotal().toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
   );

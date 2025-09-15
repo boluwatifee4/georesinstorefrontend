@@ -22,12 +22,12 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([adminAuthInterceptor]),
       withFetch() // Use fetch API for SSR compatibility
     ),
-    // provideClientHydration(
-    //   withEventReplay(),
-    //   withHttpTransferCacheOptions({
-    //     includePostRequests: true
-    //   })
-    // ),
+    provideClientHydration(
+      withEventReplay(),
+      withHttpTransferCacheOptions({
+        includePostRequests: false // keep GET-only for SSR cache consistency
+      })
+    ),
     // Use environment configuration
     { provide: BASE_API_URL, useValue: environment.apiUrl },
     { provide: ADMIN_API_BASE_URL, useExisting: BASE_API_URL },

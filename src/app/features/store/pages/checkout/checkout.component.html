@@ -193,7 +193,7 @@
                         We prepare your order and move it from our store to the designated park for a flat fee of ₦1,000. When the items arrive at the park, the onward delivery (park to your final destination) is negotiated directly between you and the driver.
                       </p>
                         <p *ngIf="checkoutForm.get('withinOgbomoso')?.value">
-                        Deliveries within Ogbomoso go directly to you—no ₦1,000 park transfer fee. You may only settle any small final hand‑off charge directly with the rider if required.
+                        Delivery fees within Ogbomoso vary depending on your location, typically ranging between ₦500 and ₦1,000. The rider will contact you directly to confirm the exact fee.
                         </p>
                     </div>
                   </div>
@@ -247,7 +247,7 @@
             </div>
             <div *ngIf="withinOgbomoso()" class="flex justify-between items-center">
               <span class="text-gray-600 dark:text-gray-400">Delivery</span>
-              <span class="font-semibold text-gray-900 dark:text-white">Included</span>
+              <span class="font-semibold text-gray-900 dark:text-white">Exclude</span>
             </div>
 
             <hr class="border-gray-200 dark:border-slate-600">

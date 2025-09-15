@@ -82,6 +82,15 @@ export class ProductsStore {
     });
   }
 
+  // Accept product prefetched via resolver (no duplicate call)
+  setPrefetchedProduct(product: Product) {
+    if (!product) return;
+    const current = this._state().currentProduct;
+    if (!current || current.id !== product.id) {
+      this._state.update(state => ({ ...state, currentProduct: product, error: null }));
+    }
+  }
+
   // Private state updaters
   private setProducts(products: Product[], append = false) {
     this._state.update(state => ({

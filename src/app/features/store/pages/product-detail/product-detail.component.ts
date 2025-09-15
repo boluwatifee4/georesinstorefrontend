@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ProductsStore } from '../../state/products.store';
+import { SeoService } from '../../../../core/services/seo.service';
 import { CartStore } from '../../state/cart.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 import { Product } from '../../../../types/api.types';
@@ -39,6 +40,7 @@ export class ProductDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly productsStore = inject(ProductsStore);
+  private readonly seo = inject(SeoService);
   private readonly cartStore = inject(CartStore);
   private readonly googleDriveService = inject(GoogleDriveUtilService);
 
@@ -166,24 +168,30 @@ export class ProductDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadProduct();
+    // Resolver places product into store. If missing (client nav without resolver), fallback to load.
+    const slug = this.route.snapshot.paramMap.get('slug');
+    const existing = this.product();
+    if (!existing) {
+      if (slug) this.productsStore.loadProductBySlug(slug);
+    } else {
+      this.applySeo(existing);
+    }
+
+    // Reactively update SEO when product signal changes (after async load or resolver)
+    effect(() => {
+      const p = this.product();
+      if (p) this.applySeo(p);
+    });
   }
 
-  private loadProduct(): void {
-    this.route.params
-      .pipe(
-        switchMap(params => {
-          const slug = params['slug'];
-          if (!slug) {
-            return of(null);
-          }
-          // Use the products store to load product by slug
-          this.productsStore.loadProductBySlug(slug);
-          return of(slug);
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
+  private applySeo(product: Product) {
+    const title = product.title + ' | Geo Resin Store';
+    const desc = product.description?.slice(0, 160) || 'Premium resin product';
+    const img = product.primaryImageUrl ? this.googleDriveService.convertGoogleDriveUrl(product.primaryImageUrl) : undefined;
+    const url = typeof location !== 'undefined' ? location.href : undefined;
+    this.seo.setOg({ title, description: desc, image: img, url, type: 'product' });
+    const price = product.basePrice || (product as any).minPrice;
+    this.seo.setProductStructuredData({ title: product.title, description: product.description || undefined, image: img, price, currency: 'NGN', slug: product.slug || undefined });
   }
 
   // UI Methods

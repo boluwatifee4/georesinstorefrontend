@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, computed, DestroyRef, signal, ChangeDetectorRef, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, computed, DestroyRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -11,6 +11,7 @@ import { CartStore } from '../../state/cart.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 import { Product } from '../../../../types/api.types';
 import { NgOptimizedImage } from '@angular/common';
+import { SeoService } from '../../../../core/services/seo.service';
 
 @Component({
   selector: 'app-store-home',
@@ -27,6 +28,7 @@ export class StoreHomeComponent implements OnInit {
   private readonly categoriesStore = inject(CategoriesStore);
   private readonly cartStore = inject(CartStore);
   private readonly googleDriveUtil = inject(GoogleDriveUtilService);
+  private readonly seo = inject(SeoService);
 
   readonly search = new FormControl('');
 
@@ -66,6 +68,13 @@ export class StoreHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Set default SEO for home page
+    this.seo.setDefault({
+      title: 'Resin Art Supplies & Premium Epoxy Materials',
+      description: 'Shop premium resin, pigments, molds and accessories at Geo Resin Store. Featured products, new arrivals and top categories curated for creators.',
+      image: 'https://www.georesinstore.com/hero-bg.png',
+      path: '/store'
+    });
 
 
     this.search.valueChanges.pipe(

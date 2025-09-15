@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed, DestroyRef, PLATFORM_ID, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed, DestroyRef, PLATFORM_ID, Inject, effect } from '@angular/core';
 import { CommonModule, NgOptimizedImage, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -9,6 +9,7 @@ import { ProductsStore } from '../../state/products.store';
 import { CategoriesStore } from '../../state/categories.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 import { Product } from '../../../../types/api.types';
+import { SeoService } from '../../../../core/services/seo.service';
 
 @Component({
   selector: 'app-products',
@@ -26,6 +27,7 @@ export class ProductsComponent implements OnInit {
   private readonly productsStore = inject(ProductsStore);
   private readonly categoriesStore = inject(CategoriesStore);
   private readonly googleDriveService = inject(GoogleDriveUtilService);
+  private readonly seo = inject(SeoService);
 
   // State
   readonly products = this.productsStore.products;
@@ -107,6 +109,24 @@ export class ProductsComponent implements OnInit {
     this.setupFilterHandling();
     this.handleQueryParams();
     this.loadInitialData();
+
+    // Reactive SEO updates based on filters/search
+    effect(() => {
+      const filters = this.filterForm.value;
+      const parts: string[] = [];
+      if (filters.search) parts.push(`Search: "${filters.search}"`);
+      if (filters.category) parts.push(`Category: ${filters.category}`);
+      const titleBase = parts.length ? `${parts.join(' • ')} Products` : 'Shop Products';
+      const desc = parts.length
+        ? `Browse products filtered by ${parts.join(', ')}. Discover quality resin materials, pigments, molds and tools.`
+        : 'Browse all premium resin materials, pigments, molds and tools. Find everything you need for epoxy and resin art projects.';
+      this.seo.setDefault({
+        title: titleBase,
+        description: desc,
+        image: 'https://www.georesinstore.com/hero-bg1.png',
+        path: '/store/products'
+      });
+    });
   }
 
   private loadInitialData(): void {
