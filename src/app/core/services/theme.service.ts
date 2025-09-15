@@ -1,6 +1,7 @@
 // src/app/core/services/theme.service.ts
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { isBrowser } from '../utils/platform.util';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -11,13 +12,13 @@ export class ThemeService {
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   init() {
-    if (isPlatformBrowser(this.platformId)) {
+    if (isBrowser()) {
       this.apply(this.get());
     }
   }
 
   get(): Theme {
-    if (!isPlatformBrowser(this.platformId)) {
+    if (!isBrowser()) {
       return 'light'; // Default for SSR
     }
 
@@ -30,9 +31,7 @@ export class ThemeService {
   }
 
   set(theme: Theme) {
-    if (!isPlatformBrowser(this.platformId)) {
-      return; // Skip on server
-    }
+    if (!isBrowser()) return;
 
     try {
       localStorage.setItem(this.key, theme);
@@ -43,9 +42,7 @@ export class ThemeService {
   }
 
   private apply(theme: Theme) {
-    if (!isPlatformBrowser(this.platformId)) {
-      return; // Skip on server
-    }
+    if (!isBrowser()) return;
 
     try {
       const el = document.documentElement; // <html>

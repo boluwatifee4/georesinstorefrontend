@@ -9,6 +9,7 @@ import { SeoService } from '../../../../core/services/seo.service';
 import { CartStore } from '../../state/cart.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 import { Product } from '../../../../types/api.types';
+import { isBrowser } from '../../../../core/utils/platform.util';
 
 // Type definitions for option groups from API response
 interface ProductOption {
@@ -190,7 +191,7 @@ export class ProductDetailComponent implements OnInit {
     const title = product.title + ' | Geo Resin Store';
     const desc = product.description?.slice(0, 160) || 'Premium resin product';
     const img = product.primaryImageUrl ? this.googleDriveService.convertGoogleDriveUrl(product.primaryImageUrl) : undefined;
-    const url = typeof location !== 'undefined' ? location.href : undefined;
+    const url = isBrowser() ? location.href : undefined;
     this.seo.setOg({ title, description: desc, image: img, url, type: 'product' });
     const price = product.basePrice || (product as any).minPrice;
     this.seo.setProductStructuredData({ title: product.title, description: product.description || undefined, image: img, price, currency: 'NGN', slug: product.slug || undefined });

@@ -12,6 +12,7 @@ import { GoogleDriveUtilService } from '../../../../core/services/google-drive-u
 import { Product } from '../../../../types/api.types';
 import { NgOptimizedImage } from '@angular/common';
 import { SeoService } from '../../../../core/services/seo.service';
+import { isBrowser } from '../../../../core/utils/platform.util';
 
 @Component({
   selector: 'app-store-home',
@@ -212,13 +213,9 @@ export class StoreHomeComponent implements OnInit {
   }
 
   scrollToNewArrivals(): void {
+    if (!isBrowser()) return;
     const element = document.getElementById('new-arrivals');
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
+    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
 }
