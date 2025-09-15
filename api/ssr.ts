@@ -2,7 +2,7 @@
 // This file is compiled by Vercel (ts-node like transpile) at deploy time.
 // It loads the built Express app from the dist server bundle.
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+// Avoid importing @vercel/node types locally; Vercel provides the runtime types at deploy.
 
 // The build places server output at dist/grs-frontend/server/server.mjs
 // We dynamically import so cold starts only pay parsing cost once.
@@ -21,7 +21,7 @@ async function getApp() {
   return cachedApp;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   try {
     const app = await getApp();
     // Express expects (req, res); Vercel provides Node's IncomingMessage/ServerResponse compatible objects
