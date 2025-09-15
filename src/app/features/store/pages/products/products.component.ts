@@ -105,6 +105,7 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+
   ngOnInit(): void {
     this.setupFilterHandling();
     this.handleQueryParams();
