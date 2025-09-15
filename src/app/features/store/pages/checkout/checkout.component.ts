@@ -34,7 +34,8 @@ export class CheckoutComponent implements OnInit {
     phone: ['', [Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
     email: ['', [Validators.email]],
     whatsapp: ['', [Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
-    locationLabel: ['', [Validators.required]]
+    locationLabel: ['', [Validators.required]],
+    withinOgbomoso: [false]
   });
 
   // State
@@ -51,12 +52,14 @@ export class CheckoutComponent implements OnInit {
   readonly showPaymentModal = signal(false);
   readonly config = signal<ConfigResponse | null>(null);
 
-  // Fixed delivery fee - 1k to park
+  // Fixed delivery fee (only when NOT within Ogbomoso)
   readonly DELIVERY_FEE = 1000;
 
   // Computed properties
   readonly isEmpty = computed(() => this.cartItems().length === 0);
-  readonly deliveryFee = computed(() => this.DELIVERY_FEE);
+  private readonly _withinOgbomoso = signal(false);
+  readonly withinOgbomoso = () => this._withinOgbomoso();
+  readonly deliveryFee = computed(() => this.withinOgbomoso() ? 0 : this.DELIVERY_FEE);
   readonly total = computed(() => this.subtotal() + this.deliveryFee());
 
   // Formatted values
@@ -76,6 +79,12 @@ export class CheckoutComponent implements OnInit {
       this.router.navigate(['/store/cart']);
       return;
     }
+
+    // Sync withinOgbomoso control to signal so computed updates reliably
+    const ctrl = this.checkoutForm.get('withinOgbomoso');
+    ctrl?.valueChanges.subscribe(val => this._withinOgbomoso.set(!!val));
+    // Initialize signal with initial control value
+    this._withinOgbomoso.set(!!ctrl?.value);
 
     // Load config for payment details
     this.configService.getConfig().subscribe({
