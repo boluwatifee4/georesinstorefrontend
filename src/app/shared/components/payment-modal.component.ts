@@ -52,6 +52,10 @@ import { toast } from 'ngx-sonner';
                   <span class="text-gray-600 dark:text-gray-400">Bank Name:</span>
                   <span class="font-medium text-gray-900 dark:text-white">{{ config()?.bankName }}</span>
                 </div>
+                <div class="flex justify-between items-center" *ngIf="config()?.accountName">
+                  <span class="text-gray-600 dark:text-gray-400">Account Name:</span>
+                  <span class="font-medium text-gray-900 dark:text-white">{{ config()?.accountName }}</span>
+                </div>
                 <div class="flex justify-between items-center">
                   <span class="text-gray-600 dark:text-gray-400">Account Number:</span>
                   <div class="flex items-center gap-2">

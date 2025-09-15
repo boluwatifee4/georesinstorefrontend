@@ -113,6 +113,7 @@ export interface Order {
   manualQuote: boolean;
   bankName: string | null;
   accountNumber: string | null;
+  accountName?: string | null;
   rejectReason: string | null;
   reviewedAt: string | null;
   createdAt: string;
@@ -123,6 +124,7 @@ export interface AppConfig {
   id: number;
   bankName: string | null;
   accountNumber: string | null;
+  accountName?: string | null;
   whatsappLink: string | null;
   checkoutNote: string | null;
 }

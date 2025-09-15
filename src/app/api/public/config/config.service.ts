@@ -6,6 +6,7 @@ export interface ConfigResponse {
   id: number;
   bankName: string;
   accountNumber: string;
+  accountName?: string;
   whatsappLink: string;
   checkoutNote: string;
 }

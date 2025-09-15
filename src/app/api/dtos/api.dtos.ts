@@ -136,6 +136,7 @@ export interface DeliveryQuoteResponse {
 export interface UpdateConfigDto {
   bankName?: string;
   accountNumber?: string;
+  accountName?: string;
   whatsappLink?: string;
   checkoutNote?: string;
 }

@@ -28,6 +28,7 @@ export interface DeclarePaymentResponse {
   orderCode: string;
   bankName: string;
   accountNumber: string;
+  accountName?: string;
   total: string;
 }
 

@@ -93,6 +93,29 @@
             </p>
           </div>
         </div>
+
+        <!-- Account Name -->
+        <div class="group">
+          <label for="accountName" class="inline-flex items-center text-sm font-medium text-gray-700">
+            Account Name
+            <span class="text-red-500 ml-1">*</span>
+          </label>
+          <div class="mt-1.5 relative">
+            <input id="accountName"
+                   type="text"
+                   formControlName="accountName"
+                   placeholder="e.g. GEO RESIN STORE LTD"
+                   class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg
+                          transition-all duration-200 ease-in-out
+                          focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+                          group-hover:border-gray-300"
+                   [class.border-red-300]="getFieldError('accountName')">
+            <p *ngIf="getFieldError('accountName')" class="mt-1.5 text-xs text-red-500 flex items-center">
+              <ng-icon name="lucideAlertCircle" size="12" class="mr-1"></ng-icon>
+              {{ getFieldError('accountName') }}
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Communication Section -->

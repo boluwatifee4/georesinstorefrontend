@@ -6,6 +6,7 @@ import { AppConfig } from '../../../types/api.types';
 export interface UpdateConfigRequest {
   bankName?: string;
   accountNumber?: string;
+  accountName?: string;
   whatsappLink?: string;
   checkoutNote?: string;
 }

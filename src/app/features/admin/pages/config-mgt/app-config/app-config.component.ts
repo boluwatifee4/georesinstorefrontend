@@ -36,6 +36,7 @@ export class AppConfigComponent implements OnInit {
   form: FormGroup = this.fb.group({
     bankName: ['', [Validators.required, Validators.minLength(2)]],
     accountNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+    accountName: ['', [Validators.required, Validators.minLength(2)]],
     whatsappLink: ['', [Validators.required, Validators.pattern(/^https:\/\/(wa\.me|api\.whatsapp\.com)/)]],
     checkoutNote: ['', [Validators.maxLength(500)]]
   });
@@ -51,6 +52,7 @@ export class AppConfigComponent implements OnInit {
           this.form.patchValue({
             bankName: config.bankName || '',
             accountNumber: config.accountNumber || '',
+            accountName: (config as any).accountName || '',
             whatsappLink: config.whatsappLink || '',
             checkoutNote: config.checkoutNote || ''
           });
@@ -103,6 +105,7 @@ export class AppConfigComponent implements OnInit {
     const map: Record<string, string> = {
       bankName: 'Bank Name',
       accountNumber: 'Account Number',
+      accountName: 'Account Name',
       whatsappLink: 'WhatsApp Link',
       checkoutNote: 'Checkout Note'
     };
