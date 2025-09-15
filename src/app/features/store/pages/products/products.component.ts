@@ -103,6 +103,13 @@ export class ProductsComponent implements OnInit {
       maxPrice: [null],
       sortBy: ['newest'] // newest, oldest, price-low, price-high, name
     });
+  }
+
+
+  ngOnInit(): void {
+    this.setupFilterHandling();
+    this.handleQueryParams();
+    this.loadInitialData();
 
     // Reactive SEO updates based on filters/search
     effect(() => {
@@ -121,12 +128,6 @@ export class ProductsComponent implements OnInit {
         path: '/store/products'
       });
     });
-  }
-
-  ngOnInit(): void {
-    this.setupFilterHandling();
-    this.handleQueryParams();
-    this.loadInitialData();
   }
 
   private loadInitialData(): void {
