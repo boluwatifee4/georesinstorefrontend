@@ -4,7 +4,7 @@
   "outputDirectory": "dist/grs-frontend/browser",
   "functions": {
     "api/ssr.ts": {
-      "runtime": "nodejs20.x",
+      "runtime": "@vercel/node@3.0.0",
       "memory": 512,
       "maxDuration": 10,
       "includeFiles": "dist/grs-frontend/server/**"
