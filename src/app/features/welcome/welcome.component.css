@@ -1,0 +1,203 @@
+/* Custom styles for the welcome component - All animations handled by GSAP */
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -10;
+  pointer-events: none;
+}
+
+.welcome-container {
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Categories grid helpers */
+.category-card {
+  will-change: transform, opacity;
+}
+
+/* Custom scrollbar */
+.welcome-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.welcome-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.welcome-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.welcome-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Elements start invisible for GSAP to animate in */
+.gsap-fade {
+  opacity: 0;
+}
+
+.gsap-slide-up {
+  opacity: 0;
+  transform: translateY(50px);
+}
+
+.gsap-slide-down {
+  opacity: 0;
+  transform: translateY(-50px);
+}
+
+.gsap-slide-left {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.gsap-slide-right {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+.gsap-scale {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Static styles only - no CSS animations */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.feature-card,
+button,
+input {
+  transition: none; /* Remove all CSS transitions - GSAP will handle */
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+    line-height: 1.1;
+  }
+
+  .hero-section {
+    padding-top: 6rem;
+    min-height: 100vh;
+  }
+
+  .countdown-number {
+    padding: 0.5rem;
+  }
+
+  .countdown-number div:first-child {
+    font-size: 1.5rem;
+  }
+
+  .countdown-number div:last-child {
+    font-size: 0.75rem;
+  }
+
+  .waitlist-form {
+    padding: 1rem;
+  }
+
+  .categories-section {
+    padding: 2rem 1rem;
+  }
+
+  .manifesto-section {
+    padding: 2rem 1rem;
+  }
+
+  /* Ensure no horizontal overflow */
+  .welcome-container {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Responsive background elements */
+  .floating-bg-1,
+  .floating-bg-2 {
+    width: 200px;
+    height: 200px;
+  }
+
+  /* Responsive parallax layers */
+  .parallax-layer {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .countdown-container {
+    margin-bottom: 1.5rem;
+  }
+
+  .nav {
+    padding: 1rem;
+  }
+
+  .social-icon div {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .social-icon svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Animated gradient for the word LAUNCHING */
+.moving-gradient {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #c084fc 25%,
+    #60a5fa 50%,
+    #c084fc 75%,
+    #ffffff 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-move 4s linear infinite;
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moving-gradient {
+    animation: none;
+  }
+}
+
+/* Parallax layers (moved outside keyframes) */
+.parallax-layer {
+  will-change: transform;
+  transform: translateZ(0);
+  pointer-events: none;
+}

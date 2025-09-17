@@ -2,6 +2,10 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
+    path: 'welcome',
+    loadComponent: () => import('./features/welcome/welcome.component').then(m => m.WelcomeComponent),
+  },
+  {
     path: 'admin-login',
     loadComponent: () => import('./features/admin/pages/admin-login.component').then(m => m.AdminLoginComponent),
   },
@@ -13,6 +17,6 @@ export const routes: Routes = [
     path: 'store',
     loadChildren: () => import('./features/store/routes/store.routes').then(m => m.STORE_ROUTES),
   },
-  { path: '', pathMatch: 'full', redirectTo: 'store' },
-  { path: '**', redirectTo: 'store' },
+  { path: '', pathMatch: 'full', redirectTo: 'welcome' },
+  { path: '**', redirectTo: 'welcome' },
 ];
