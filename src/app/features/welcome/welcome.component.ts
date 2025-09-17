@@ -50,8 +50,8 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private notificationsApi: PublicNotificationsService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    // Set target date to next Thursday
-    this.targetDate = this.getNextThursday();
+    // Set target date to next Monday
+    this.targetDate = this.getNextMonday();
   }
 
   ngOnInit() {
@@ -81,9 +81,9 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private getNextThursday(): Date {
-    // Set to September 25th, 2025 at noon
-    const launchDate = new Date(2025, 8, 25, 12, 0, 0, 0); // Month is 0-indexed, so 8 = September
+  private getNextMonday(): Date {
+    // Set to September 22nd, 2025 at noon
+    const launchDate = new Date(2025, 8, 22, 12, 0, 0, 0); // Month is 0-indexed, so 8 = September
     return launchDate;
   }
 
