@@ -297,7 +297,7 @@ export class ProductsDetailComponent implements OnInit {
     this.attachingOptionGroup.set(true);
     this.optionGroupsStore.attachToProduct(this.productId()!, attachData).subscribe({
       next: (result: any) => {
-        console.log('Attach Option Group Result:', result);
+        // console.log('Attach Option Group Result:', result);
         this.attachingOptionGroup.set(false);
         if (result !== null) {
           toast.success('Option group attached successfully');

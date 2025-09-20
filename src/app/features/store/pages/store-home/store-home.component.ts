@@ -172,7 +172,7 @@ export class StoreHomeComponent implements OnInit {
   private showAddToCartSuccess(productTitle: string): void {
     // Simple success feedback - could be replaced with toast notification
     // For now, we'll use a simple alert but this should be a toast
-    console.log(`Added ${productTitle} to cart!`);
+    // console.log(`Added ${productTitle} to cart!`);
 
     // Optional: Show a brief success indicator
     // This could be enhanced with a proper toast notification system

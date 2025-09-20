@@ -101,17 +101,17 @@ export class AdminLoginComponent implements OnInit {
   }
 
   onModalClose(): void {
-    console.log('Modal closed, checking API key validity...');
-    console.log('API key:', this.adminApiKeyService.getApiKey());
-    console.log('Is valid:', this.adminApiKeyService.isApiKeyValid());
+    // console.log('Modal closed, checking API key validity...');
+    // console.log('API key:', this.adminApiKeyService.getApiKey());
+    // console.log('Is valid:', this.adminApiKeyService.isApiKeyValid());
 
     // Check if API key was set successfully
     if (this.adminApiKeyService.isApiKeyValid()) {
-      console.log('API key is valid, hiding modal and redirecting...');
+      // console.log('API key is valid, hiding modal and redirecting...');
       this.showModal.set(false);
       this.redirectToIntendedRoute();
     } else {
-      console.log('API key is not valid, redirecting to store...');
+      // console.log('API key is not valid, redirecting to store...');
       // If no valid API key, redirect to store
       this.router.navigate(['/store']);
     }

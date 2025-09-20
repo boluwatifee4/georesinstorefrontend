@@ -63,6 +63,15 @@ export class ProductsStore {
     this.fetchProducts();
   }
 
+  // Load more products without triggering global loading state
+  loadMoreProducts(filters?: Partial<ProductFilters>) {
+    const prev = this._state().filters;
+    const merged = { ...prev, ...filters };
+    this.setFilters(merged);
+    // Don't reset products list and don't trigger global loading
+    return this.fetchProductsQuietly();
+  }
+
   reloadProducts() {
     this.fetchProducts();
   }
@@ -108,6 +117,10 @@ export class ProductsStore {
     this._state.update(state => ({ ...state, currentProduct: product, error: null }));
   }
 
+  clearCurrentProduct() {
+    this._state.update(state => ({ ...state, currentProduct: null }));
+  }
+
   private setLoading(loading: boolean) {
     this._state.update(state => ({ ...state, loading }));
   }
@@ -135,6 +148,35 @@ export class ProductsStore {
         return of(null);
       }),
       finalize(() => this.setLoading(false))
+    ).subscribe(response => {
+      if (response) {
+        const isAppend = (filters.page || 1) > 1;
+        if (Array.isArray(response)) {
+          this.setProducts(response as any as Product[], isAppend);
+          const total = (response as any).length || 0;
+          this.setPagination({ total, page: filters.page || 1, limit: filters.limit || total });
+        } else {
+          this.setProducts(response.data, isAppend);
+          this.setPagination({
+            total: response.total,
+            page: response.page,
+            limit: response.limit
+          });
+        }
+      }
+    });
+  }
+
+  // Fetch products without triggering global loading state (for pagination)
+  private fetchProductsQuietly() {
+    const filters = this._state().filters;
+    // Don't set loading to true for quiet fetch
+    return this.productsService.getProducts(filters).pipe(
+      catchError(error => {
+        const message = (error?.error?.message) || error.message || 'Failed to load products';
+        this.setError(message);
+        return of(null);
+      })
     ).subscribe(response => {
       if (response) {
         const isAppend = (filters.page || 1) > 1;

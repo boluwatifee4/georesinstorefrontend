@@ -301,18 +301,126 @@
         type="button"
         (mousedown)="$event.preventDefault()"
         (click)="onLoadMore($event)"
-        class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl hover:border-brand-600 transition-colors disabled:opacity-60"
+        class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl hover:border-brand-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
         [disabled]="loadingMore()"
       >
         <div *ngIf="loadingMore()" class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></div>
         <span>{{ loadingMore() ? 'Loading...' : 'Load More Products' }}</span>
       </button>
       <ng-template #endOfResults>
-        <div class="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-xl text-sm text-muted">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          You've seen all products
+        <div class="text-center space-y-6">
+          <div class="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-xl text-sm text-muted">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            You've seen all products
+          </div>
+
+          <!-- Product Request Section -->
+          <div class="max-w-lg mx-auto">
+            <div *ngIf="!showRequestForm()" class="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border border-violet-200 dark:border-violet-700 rounded-2xl p-6">
+              <div class="text-center space-y-4">
+                <div class="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mx-auto">
+                  <svg class="w-8 h-8 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-violet-900 dark:text-violet-100 mb-2">
+                    Can't find what you're looking for?
+                  </h3>
+                  <p class="text-sm text-violet-700 dark:text-violet-300 mb-4">
+                    Tell us what product you need and we'll help you find it or source it specially for you.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  (click)="showProductRequestForm()"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.975 8.975 0 01-2.347-.306c-.584.296-1.925.864-3.653.864-.5 0-1.126-.053-1.852-.109a4.017 4.017 0 01-.533-.055A8 8 0 0121 12z"></path>
+                  </svg>
+                  Request a Product
+                </button>
+              </div>
+            </div>
+
+            <!-- Product Request Form -->
+            <div *ngIf="showRequestForm()" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg">
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Request a Product</h3>
+                <button
+                  type="button"
+                  (click)="hideProductRequestForm()"
+                  class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <form [formGroup]="requestForm" (ngSubmit)="submitProductRequest()" class="space-y-4">
+                <!-- Phone Number -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    formControlName="phone"
+                    [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
+                      (isRequestFormFieldInvalid('phone') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
+                    placeholder="+234 8XX XXX XXXX"
+                  >
+                  <div *ngIf="getRequestFormFieldError('phone')" class="text-red-500 text-sm mt-1">
+                    {{ getRequestFormFieldError('phone') }}
+                  </div>
+                </div>
+
+                <!-- Product Request -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    What product are you looking for? *
+                  </label>
+                  <textarea
+                    formControlName="request"
+                    rows="4"
+                    [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 resize-none ' +
+                      (isRequestFormFieldInvalid('request') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
+                    placeholder="Describe the product you're looking for, including brand, color, size, or any specific requirements..."
+                  ></textarea>
+                  <div *ngIf="getRequestFormFieldError('request')" class="text-red-500 text-sm mt-1">
+                    {{ getRequestFormFieldError('request') }}
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex gap-3">
+                  <button
+                    type="button"
+                    (click)="hideProductRequestForm()"
+                    class="flex-1 py-3 px-4 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    [disabled]="requestForm.invalid || submittingRequest()"
+                    class="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-400 disabled:cursor-not-allowed text-white rounded-xl transition-colors font-medium flex items-center justify-center gap-2"
+                  >
+                    <div *ngIf="submittingRequest()" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>{{ submittingRequest() ? 'Submitting...' : 'Submit Request' }}</span>
+                  </button>
+                </div>
+              </form>
+
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 text-center">
+                We'll contact you within 24 hours about product availability and pricing.
+              </p>
+            </div>
+          </div>
         </div>
       </ng-template>
     </div>

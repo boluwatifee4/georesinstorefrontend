@@ -246,7 +246,7 @@ export class PaymentModalComponent implements OnInit {
 
     this.telegramService.sendPaymentDeclaredNotification(telegramMessage).subscribe({
       next: () => {
-        console.log('Telegram notification sent successfully');
+        // console.log('Telegram notification sent successfully');
       },
       error: (error) => {
         console.error('Failed to send Telegram notification:', error);

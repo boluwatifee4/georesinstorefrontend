@@ -30,7 +30,9 @@ export const productDetailResolver: ResolveFn<any> = (route: ActivatedRouteSnaps
     );
   }
 
-  // On the browser: kick off background fetch but resolve immediately so navigation is instant.
+  // On the browser: clear current product immediately to prevent previous item flash
+  store.clearCurrentProduct();
+  // Kick off background fetch
   service.getProductBySlug(slug).pipe(
     tap(product => store.setPrefetchedProduct(product as any)),
     catchError(err => {
@@ -38,5 +40,6 @@ export const productDetailResolver: ResolveFn<any> = (route: ActivatedRouteSnaps
       return of(null);
     })
   ).subscribe();
-  return of(current || null); // might be null; component shows its own loading state
+  // Return null so component can show loading skeleton
+  return of(null);
 };

@@ -36,7 +36,7 @@ function replaceInFile(filePath) {
         replacement
       );
       modified = true;
-      console.log(`Replaced ${key} in ${path.basename(filePath)}`);
+      // console.log(`Replaced ${key} in ${path.basename(filePath)}`);
     }
   });
 
@@ -47,7 +47,7 @@ function replaceInFile(filePath) {
 
 function processDirectory(dirPath) {
   if (!fs.existsSync(dirPath)) {
-    console.log("Dist directory not found. Please run `ng build` first.");
+    // console.log("Dist directory not found. Please run `ng build` first.");
     return;
   }
 
@@ -65,6 +65,6 @@ function processDirectory(dirPath) {
   });
 }
 
-console.log("Injecting environment variables into built files...");
+// console.log("Injecting environment variables into built files...");
 processDirectory(distPath);
-console.log("Environment variable injection complete!");
+// console.log("Environment variable injection complete!");

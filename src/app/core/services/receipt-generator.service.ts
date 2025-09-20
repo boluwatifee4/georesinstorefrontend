@@ -304,6 +304,68 @@ export class ReceiptGeneratorService {
       doc.setFontSize(14);
       doc.text(this.formatNGN(data.total), boxX + boxW - 4, lineY(2) + 6, { align: 'right' });
 
+      // PAYMENT STATUS & CONTACT INFORMATION
+      const statusY = Math.max(y + boxH + 12, pageHeight - margin.bottom - 50);
+
+      // Payment Status Panel
+      const statusBoxX = margin.left;
+      const statusBoxW = pageWidth - margin.left - margin.right;
+      const statusBoxH = 36;
+
+      // Status background with warning color
+      doc.setFillColor(255, 247, 237); // amber-50
+      doc.setDrawColor(251, 191, 36); // amber-400
+      doc.setLineWidth(0.5);
+      doc.roundedRect(statusBoxX, statusY, statusBoxW, statusBoxH, 3, 3, 'FD');
+
+      // Status icon and title
+      doc.setTextColor(217, 119, 6); // amber-600
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text('⚠️ PAYMENT STATUS: DECLARED - UNDER REVIEW', statusBoxX + 6, statusY + 8);
+
+      // Status description
+      doc.setTextColor(146, 64, 14); // amber-800
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      const statusLines = [
+        'Your payment has been declared but not yet confirmed. We are reviewing your payment details.',
+        'We will contact you as soon as we confirm your payment to proceed with your order.',
+        'If you have any questions, please contact us via our social media with your order code.'
+      ];
+
+      statusLines.forEach((line, i) => {
+        doc.text(line, statusBoxX + 6, statusY + 16 + (i * 4));
+      });
+
+      // Social Media Contact Information
+      const socialY = statusY + statusBoxH + 8;
+
+      doc.setTextColor(...this.brand.primary);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('📱 Contact Us on Social Media:', margin.left, socialY);
+
+      doc.setTextColor(...this.brand.ink);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+
+      const socialLines = [
+        '• Instagram: @geo_crafts08 - Share this receipt or quote your order code',
+        '• TikTok: @geo_crafts08 - Message us for quick updates',
+        '• Facebook: Geo Crafts - Upload this document for faster support',
+        '',
+        '💡 Pro Tip: Take a screenshot of this receipt for easy sharing on social media!'
+      ];
+
+      socialLines.forEach((line, i) => {
+        if (line) {
+          doc.text(line, margin.left + 3, socialY + 6 + (i * 4));
+        } else {
+          // Empty line for spacing
+        }
+      });
+
       // Save
       doc.save(`receipt-${data.orderCode}.pdf`);
       toast.success('Receipt downloaded');
@@ -327,15 +389,12 @@ export class ReceiptGeneratorService {
 
   private formatNGN(value: number): string {
     return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
       .format(value)
-      // Ensure symbol is the standard Naira sign
-      .replace('NGN', '₦')
-      .replace(/\s/g, '');
+      // Use NGN prefix instead of symbol for better PDF compatibility
+      .replace(/^/, 'NGN ');
   }
 
   private parsePrice(val: any): number {

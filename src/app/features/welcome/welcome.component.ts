@@ -519,7 +519,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.notificationsApi.sendTelegram(message).subscribe({
         next: () => {
-          console.log('Waitlist telegram notification sent');
+          // console.log('Waitlist telegram notification sent');
           const successText = this.contactMethod === 'email'
             ? `You're on the VIP list! We'll email early access to ${this.email}.`
             : `You're on the VIP list! We'll text early access to ${this.phone}.`;
@@ -547,6 +547,6 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   navigateToStore() {
     // Store navigation removed - launch page only
-    console.log('Store access coming soon...');
+    // console.log('Store access coming soon...');
   }
 }

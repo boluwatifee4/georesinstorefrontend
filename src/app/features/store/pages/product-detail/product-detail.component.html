@@ -1,7 +1,7 @@
 <!-- Luxury Product Detail Page -->
 <div class="min-h-screen bg-bg">
   <!-- Loading State -->
-  <div *ngIf="loading()" class="max-w-7xl mx-auto px-4 py-8">
+  <div *ngIf="showLoading()" class="max-w-7xl mx-auto px-4 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
       <!-- Image Skeleton -->
       <div class="space-y-4">
@@ -41,7 +41,7 @@
   </div>
 
   <!-- Product Content -->
-  <div *ngIf="!loading() && !error() && product()" class="max-w-7xl mx-auto px-4 py-6 md:py-12">
+  <div *ngIf="!showLoading() && !error() && product()" class="max-w-7xl mx-auto px-4 py-6 md:py-12">
 
     <!-- Back Navigation -->
     <button

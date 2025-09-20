@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed, DestroyRef, PLATFORM_ID, Inject, effect } from '@angular/core';
 import { CommonModule, NgOptimizedImage, isPlatformBrowser } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -10,6 +10,8 @@ import { CategoriesStore } from '../../state/categories.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 import { Product } from '../../../../types/api.types';
 import { SeoService } from '../../../../core/services/seo.service';
+import { PublicNotificationsService } from '../../../../api/public/notifications/notifications.service';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-products',
@@ -28,6 +30,7 @@ export class ProductsComponent implements OnInit {
   private readonly categoriesStore = inject(CategoriesStore);
   private readonly googleDriveService = inject(GoogleDriveUtilService);
   private readonly seo = inject(SeoService);
+  private readonly notificationsApi = inject(PublicNotificationsService);
 
   // State
   readonly products = this.productsStore.products;
@@ -39,6 +42,11 @@ export class ProductsComponent implements OnInit {
   // Pagination from store
   readonly hasMoreData = this.productsStore.hasMore;
   readonly loadingMore = signal(false);
+
+  // Product request form state
+  readonly showRequestForm = signal(false);
+  readonly submittingRequest = signal(false);
+  readonly requestForm: FormGroup;
 
   // Filter form
   readonly filterForm: FormGroup;
@@ -102,6 +110,11 @@ export class ProductsComponent implements OnInit {
       minPrice: [null],
       maxPrice: [null],
       sortBy: ['newest'] // newest, oldest, price-low, price-high, name
+    });
+
+    this.requestForm = this.fb.group({
+      phone: ['', [Validators.required, Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
+      request: ['', [Validators.required, Validators.minLength(10)]]
     });
 
     // Reactive SEO updates based on filters/search
@@ -195,27 +208,85 @@ export class ProductsComponent implements OnInit {
   }
 
   private loadMoreProducts(): void {
-    if (!this.hasMoreData()) return;
+    if (!this.hasMoreData() || this.loadingMore()) return;
+
     const { page, limit } = this.productsStore.pagination();
     const nextPage = (page || 1) + 1;
+
     this.loadingMore.set(true);
-    this.productsStore.loadProducts({ page: nextPage, limit });
-    // Automatically clear when global loading ends
-    toObservable(this.productsStore.loading)
-      .pipe(
-        filter(l => !l),
-        take(1),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(() => this.loadingMore.set(false));
+
+    // Store current scroll position to prevent jumping
+    const currentScrollY = isPlatformBrowser(this.platformId) ? window.scrollY : 0;
+
+    // Load products with current filters using the quiet method
+    const currentFilters = this.filterForm.value;
+    const apiFilters: any = { page: nextPage, limit: limit || 20 };
+
+    // Add current filters to the API call
+    if (currentFilters.search) apiFilters.q = currentFilters.search;
+    if (currentFilters.category) apiFilters.category = currentFilters.category;
+    if (currentFilters.isActive !== null) apiFilters.isActive = currentFilters.isActive;
+
+    // Use the new loadMoreProducts method that doesn't trigger global loading
+    const subscription = this.productsStore.loadMoreProducts(apiFilters);
+
+    if (subscription) {
+      subscription.add(() => {
+        this.loadingMore.set(false);
+
+        // Restore scroll position to prevent jumping
+        if (isPlatformBrowser(this.platformId)) {
+          setTimeout(() => {
+            window.scrollTo(0, currentScrollY);
+          }, 50);
+        }
+      });
+    } else {
+      // Fallback timeout
+      setTimeout(() => {
+        this.loadingMore.set(false);
+
+        // Restore scroll position to prevent jumping
+        if (isPlatformBrowser(this.platformId)) {
+          setTimeout(() => {
+            window.scrollTo(0, currentScrollY);
+          }, 50);
+        }
+      }, 2000);
+    }
   }
 
   // Expose for template button
   onLoadMore(event?: Event): void {
+    // Prevent default behavior and stop event bubbling
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
+
     // Avoid the button stealing focus and changing scroll position
     const target = event?.currentTarget as HTMLElement | undefined;
-    target?.blur?.();
+    if (target) {
+      target.blur();
+    }
+
     if (this.loadingMore() || !this.hasMoreData()) return;
+
+    // Store current scroll position before loading
+    if (isPlatformBrowser(this.platformId)) {
+      const currentScrollY = window.scrollY;
+      // Smooth scroll adjustment to account for new content
+      setTimeout(() => {
+        if (window.scrollY !== currentScrollY) {
+          window.scrollTo({
+            top: currentScrollY,
+            behavior: 'auto'
+          });
+        }
+      }, 100);
+    }
+
     this.loadMoreProducts();
   }
 
@@ -281,5 +352,70 @@ export class ProductsComponent implements OnInit {
 
   retryLoadProducts(): void {
     this.productsStore.loadProducts();
+  }
+
+  // Product request methods
+  showProductRequestForm(): void {
+    this.showRequestForm.set(true);
+  }
+
+  hideProductRequestForm(): void {
+    this.showRequestForm.set(false);
+    this.requestForm.reset();
+  }
+
+  submitProductRequest(): void {
+    if (this.requestForm.invalid || this.submittingRequest()) return;
+
+    this.submittingRequest.set(true);
+
+    const formValue = this.requestForm.value;
+    const now = new Date();
+
+    // Compose admin-facing Telegram message payload
+    const message = [
+      '🛍️ Product Request',
+      '',
+      `• Phone: ${formValue.phone}`,
+      `• Request: ${formValue.request}`,
+      `• Timestamp: ${now.toLocaleString()}`,
+      '',
+      'Action: Contact customer about requested product availability.'
+    ].join('\n');
+
+    this.notificationsApi.sendTelegram(message).subscribe({
+      next: () => {
+        // console.log('Product request telegram notification sent');
+        toast.success('Request submitted! We\'ll contact you soon about product availability.', { duration: 4000 });
+        this.hideProductRequestForm();
+        this.submittingRequest.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to send product request telegram:', err);
+        toast.error('Failed to submit request. Please try again.');
+        this.submittingRequest.set(false);
+      }
+    });
+  }
+
+  isRequestFormFieldInvalid(fieldName: string): boolean {
+    const field = this.requestForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getRequestFormFieldError(fieldName: string): string | null {
+    const field = this.requestForm.get(fieldName);
+    if (field && field.invalid && (field.dirty || field.touched)) {
+      if (field.errors?.['required']) {
+        switch (fieldName) {
+          case 'phone': return 'Phone number is required';
+          case 'request': return 'Product request is required';
+          default: return 'This field is required';
+        }
+      }
+      if (field.errors?.['minlength']) return 'Please provide more details (at least 10 characters)';
+      if (field.errors?.['pattern']) return 'Please enter a valid phone number';
+    }
+    return null;
   }
 }

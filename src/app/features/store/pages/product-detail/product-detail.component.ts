@@ -144,6 +144,11 @@ export class ProductDetailComponent implements OnInit {
     return images;
   });
 
+  readonly showLoading = computed(() => {
+    // Show loading if global loading true OR (no product yet and no error)
+    return this.loading() || (!this.product() && !this.error());
+  });
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     // Auto-select first available option for each group when product loads
     effect(() => {

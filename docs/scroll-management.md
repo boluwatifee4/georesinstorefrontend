@@ -44,13 +44,13 @@ export class MyComponent {
   // Get current scroll position
   getCurrentPosition() {
     const position = this.scrollService.getScrollPosition();
-    console.log(`Scrolled to: ${position.top}px`);
+    // console.log(`Scrolled to: ${position.top}px`);
   }
 
   // Check if scrolled past threshold
   checkScroll() {
     const hasScrolled = this.scrollService.hasScrolledPast(100);
-    console.log("Has scrolled past 100px:", hasScrolled);
+    // console.log("Has scrolled past 100px:", hasScrolled);
   }
 }
 ```
