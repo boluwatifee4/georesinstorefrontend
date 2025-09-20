@@ -31,12 +31,36 @@ export class CheckoutComponent implements OnInit {
   // Form
   readonly checkoutForm: FormGroup = this.fb.group({
     buyerName: ['', [Validators.required, Validators.minLength(2)]],
-    phone: ['', [Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
+    phone: ['', [Validators.required, Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
     email: ['', [Validators.email]],
     whatsapp: ['', [Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
     locationLabel: ['', [Validators.required]],
     withinOgbomoso: [false]
   });
+
+  // Helper methods for validation state
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.checkoutForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getFieldError(fieldName: string): string | null {
+    const field = this.checkoutForm.get(fieldName);
+    if (field && field.invalid && (field.dirty || field.touched)) {
+      if (field.errors?.['required']) {
+        switch (fieldName) {
+          case 'buyerName': return 'Full name is required';
+          case 'phone': return 'Phone number is required';
+          case 'locationLabel': return 'Delivery location is required';
+          default: return 'This field is required';
+        }
+      }
+      if (field.errors?.['minlength']) return 'Name must be at least 2 characters';
+      if (field.errors?.['email']) return 'Please enter a valid email address';
+      if (field.errors?.['pattern']) return 'Please enter a valid phone number';
+    }
+    return null;
+  }
 
   // State
   readonly cartItems = this.cartStore.items;
@@ -254,5 +278,89 @@ export class CheckoutComponent implements OnInit {
     const unit = parseFloat(item.unitPriceSnap);
     if (isNaN(unit)) return '0.00';
     return (unit * item.qty).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+  }
+
+  // NEW: click handlers replacing direct (click)="saveOrder()" / (click)="declarePayment()"
+  onClickSaveOrder() {
+    if (this.isSavingOrder() || this.isPlacingOrder()) return;
+
+    // Mark required fields as touched to show validation errors
+    this.markRequiredFieldsAsTouched(['buyerName', 'phone', 'locationLabel']);
+
+    const issues = this.getSaveOrderIssues();
+    if (issues.length) {
+      this.showInfoToast(issues);
+      return;
+    }
+    this.saveOrder();
+  }
+
+  onClickDeclarePayment() {
+    if (this.isSavingOrder() || this.isPlacingOrder()) return;
+
+    // Mark all fields as touched to show validation errors
+    this.checkoutForm.markAllAsTouched();
+
+    const issues = this.getDeclarePaymentIssues();
+    if (issues.length) {
+      this.showInfoToast(issues);
+      return;
+    }
+    this.declarePayment();
+  }
+
+  private markRequiredFieldsAsTouched(fieldNames: string[]) {
+    fieldNames.forEach(fieldName => {
+      const field = this.checkoutForm.get(fieldName);
+      if (field) {
+        field.markAsTouched();
+        field.markAsDirty();
+      }
+    });
+  }
+
+  private getSaveOrderIssues(): string[] {
+    const issues: string[] = [];
+    if (this.checkoutForm.get('buyerName')?.invalid)
+      issues.push('Enter your full name');
+    if (this.checkoutForm.get('phone')?.invalid)
+      issues.push('Enter your phone number');
+    if (this.checkoutForm.get('locationLabel')?.invalid)
+      issues.push('Enter your delivery location');
+    if (!this.acknowledgeDelivery())
+      issues.push('Acknowledge the delivery process');
+    return issues;
+  }
+
+  private getDeclarePaymentIssues(): string[] {
+    const issues: string[] = [];
+
+    if (this.checkoutForm.get('buyerName')?.invalid)
+      issues.push('Provide your full name');
+    if (this.checkoutForm.get('phone')?.invalid)
+      issues.push('Provide your phone number');
+    if (this.checkoutForm.get('locationLabel')?.invalid)
+      issues.push('Enter your delivery location');
+    if (!this.acknowledgeDelivery())
+      issues.push('Acknowledge the delivery process');
+
+    // Email validation if provided
+    const emailCtrl = this.checkoutForm.get('email');
+    if (emailCtrl?.value && emailCtrl?.invalid)
+      issues.push('Enter a valid email address');
+
+    // WhatsApp validation if provided
+    const whatsappCtrl = this.checkoutForm.get('whatsapp');
+    if (whatsappCtrl?.value && whatsappCtrl?.invalid)
+      issues.push('Enter a valid WhatsApp number');
+
+    return Array.from(new Set(issues));
+  }
+
+  private showInfoToast(issues: string[]) {
+    const msg = 'Complete before continuing:\n• ' + issues.join('\n• ');
+    toast.info(msg, {
+      duration: 4500,
+    });
   }
 }
