@@ -122,8 +122,8 @@ export class ProductsStore {
   }
 
   private setLoading(loading: boolean) {
-    this._state.update(state => ({ 
-      ...state, 
+    this._state.update(state => ({
+      ...state,
       loading,
       // Clear error when starting to load
       error: loading ? null : state.error
