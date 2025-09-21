@@ -80,7 +80,7 @@ export class ProductsStore {
     this.setLoading(true);
     this.productsService.getProductBySlug(slug).pipe(
       catchError(error => {
-        this.setError(error.message || 'Failed to load product');
+        this.setError('Unable to load product details. Please check your connection and try again.');
         return of(null);
       })
     ).subscribe(product => {
@@ -122,7 +122,12 @@ export class ProductsStore {
   }
 
   private setLoading(loading: boolean) {
-    this._state.update(state => ({ ...state, loading }));
+    this._state.update(state => ({ 
+      ...state, 
+      loading,
+      // Clear error when starting to load
+      error: loading ? null : state.error
+    }));
   }
 
   private setError(error: string | null) {
@@ -143,7 +148,8 @@ export class ProductsStore {
     this.setLoading(true);
     this.productsService.getProducts(filters).pipe(
       catchError(error => {
-        const message = (error?.error?.message) || error.message || 'Failed to load products';
+        // User-friendly error message instead of technical details
+        const message = 'Unable to load products right now. Please check your internet connection and try again.';
         this.setError(message);
         return of(null);
       }),
@@ -173,7 +179,7 @@ export class ProductsStore {
     // Don't set loading to true for quiet fetch
     return this.productsService.getProducts(filters).pipe(
       catchError(error => {
-        const message = (error?.error?.message) || error.message || 'Failed to load products';
+        const message = 'Unable to load more products. Please check your connection and try again.';
         this.setError(message);
         return of(null);
       })
@@ -199,7 +205,7 @@ export class ProductsStore {
   loadFeatured(limit?: number) {
     this.productsService.getFeaturedProducts(limit).pipe(
       catchError(error => {
-        this.setError(error.message || 'Failed to load featured products');
+        this.setError('Unable to load featured products. Please check your connection and try again.');
         return of(null);
       })
     ).subscribe(products => {
