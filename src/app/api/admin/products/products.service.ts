@@ -9,6 +9,7 @@ export interface CreateProductRequest {
   description?: string;
   isActive?: boolean;
   featured?: boolean;
+  isEmpty?: boolean;       // Indicates if product is out of stock
   metaTitle?: string;
   metaDescription?: string;
   basePrice?: number;      // Base price in kobo/cents
@@ -21,6 +22,7 @@ export interface UpdateProductRequest {
   description?: string;
   isActive?: boolean;
   featured?: boolean;
+  isEmpty?: boolean;       // Indicates if product is out of stock
   metaTitle?: string;
   metaDescription?: string;
   basePrice?: number;      // Base price in kobo/cents

@@ -89,6 +89,9 @@ export class ProductDetailComponent implements OnInit {
     const product = this.product();
     if (!product) return false;
 
+    // Check if product is marked as empty/out of stock
+    if (product.isEmpty) return false;
+
     const selected = this.selectedOptions();
     const optionGroups = (product as any).optionGroups as ProductOptionGroup[] || [];
 
@@ -105,6 +108,9 @@ export class ProductDetailComponent implements OnInit {
   readonly canAddToCart = computed(() => {
     const product = this.product();
     if (!product) return false;
+
+    // Can't add to cart if product is empty/out of stock
+    if (product.isEmpty) return false;
 
     const optionGroups = (product as any).optionGroups as ProductOptionGroup[] || [];
     const selected = this.selectedOptions();

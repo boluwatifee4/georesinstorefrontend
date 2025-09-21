@@ -26,7 +26,7 @@ export class PublicCartService {
    * POST /cart/{cartId}/items - Add item to cart (flexible: productId | productSlug | variantId + selectedOptions)
    */
   addItem(cartId: string, dto: AddCartItemDto): Observable<CartItem> {
-    return this.apiHttp.post<CartItem>(`cart/${cartId}/items`, dto);
+    return this.apiHttp.post<CartItem>(`cart/${cartId}/items/fast`, dto);
   }
 
   /**

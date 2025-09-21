@@ -15,6 +15,7 @@ export interface Product {
   description: string | null;
   isActive: boolean;
   featured: boolean;
+  isEmpty: boolean;          // Indicates if product is out of stock
   metaTitle: string | null;
   metaDescription: string | null;
   basePrice?: number;        // Base price in kobo/cents (optional)
