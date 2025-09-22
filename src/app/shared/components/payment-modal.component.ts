@@ -122,10 +122,10 @@ import { toast } from 'ngx-sonner';
               [disabled]="declaring() || !config()"
               class="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ng-container *ngIf="!declaring() && !orderResponse()">Declare Payment</ng-container>
+              <ng-container *ngIf="!declaring() && !orderResponse()">I Have Paid</ng-container>
               <span *ngIf="declaring()" class="flex items-center justify-center gap-2">
                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Declaring...
+                Processing...
               </span>
               <ng-container *ngIf="!declaring() && orderResponse()">Declared</ng-container>
             </button>
