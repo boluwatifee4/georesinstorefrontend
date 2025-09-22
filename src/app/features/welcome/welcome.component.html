@@ -1,5 +1,54 @@
 <!-- Sophisticated Landing Page (Luxury vibe aligned with store) -->
 <div class="welcome-container min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white overflow-hidden">
+
+<!-- Launch Celebration Screen -->
+@if (isLaunchTime) {
+  <div class="launch-celebration fixed inset-0 z-[10000] flex items-center justify-center bg-black">
+    <!-- Celebration Background with GIF -->
+    <div class="absolute inset-0 flex items-center justify-center overflow-hidden">
+      <img src="/launch-celebration.gif" alt="Launch Celebration" class="w-full h-full object-cover opacity-70" />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
+    </div>
+
+    <!-- Celebration Content -->
+    <div class="relative z-10 text-center px-6 max-w-2xl mx-auto">
+      <div class="celebration-content animate-pulse">
+        <!-- Logo -->
+        <div class="mb-8">
+          <img src="/logo.png" alt="GeoResin" class="h-20 md:h-24 w-auto mx-auto opacity-95 filter drop-shadow-2xl">
+        </div>
+
+        <!-- Main Message -->
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent drop-shadow-2xl">
+          WE ARE LIVE!
+        </h1>
+
+        <p class="text-xl md:text-2xl text-white/90 mb-8 font-medium drop-shadow-lg">
+          🎉 GeoResinStore is officially open! 🎉
+        </p>
+
+        <p class="text-lg text-white/80 mb-12 max-w-lg mx-auto">
+          Thank you for waiting! The store is now ready with premium resin supplies and everything you need to create amazing art.
+        </p>
+
+        <!-- Go to Store Button -->
+        <button
+          (click)="goToStore()"
+          class="group relative px-12 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl font-bold text-xl text-white transition-all duration-500 shadow-2xl hover:shadow-purple-500/50 transform hover:scale-105 hover:-translate-y-1"
+        >
+          <div class="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+          <div class="absolute inset-0 blur-xl bg-gradient-to-r from-purple-600/50 to-blue-600/50 group-hover:opacity-75 transition-opacity duration-500 opacity-0"></div>
+          <span class="relative flex items-center justify-center gap-3">
+            <span>GO TO STORE</span>
+            <svg class="w-6 h-6 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+} @else {
 <!-- Cinematic particle background -->
 <canvas id="particle-canvas" class="fixed inset-0 w-full h-full -z-10"></canvas>
 
@@ -111,6 +160,24 @@
             <div class="text-xs sm:text-sm text-white/80 uppercase tracking-wider font-medium mt-1">Seconds</div>
           </div>
         </div>
+
+        <!-- Demo Button for Recording (Hidden in production) -->
+        <!-- <div class="mt-6 text-center flex gap-3 justify-center">
+          <button
+            (click)="triggerLaunchCelebration()"
+            class="px-4 py-2 bg-red-600/80 hover:bg-red-600 rounded-lg text-sm font-medium text-white/90 transition-all duration-300 border border-red-500/50"
+            title="Demo: Trigger Launch Celebration"
+          >
+            🎬 Demo Launch
+          </button>
+          <button
+            (click)="setDemoCountdown()"
+            class="px-4 py-2 bg-orange-600/80 hover:bg-orange-600 rounded-lg text-sm font-medium text-white/90 transition-all duration-300 border border-orange-500/50"
+            title="Demo: 5 Second Countdown"
+          >
+            ⏱️ 5s Demo
+          </button>
+        </div> -->
       </div>
 
       <!-- Waitlist Form -->
@@ -370,5 +437,6 @@
       </p>
     </div>
   </footer>
+}
 </div>
 

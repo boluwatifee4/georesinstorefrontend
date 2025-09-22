@@ -12,6 +12,44 @@
   overflow-x: hidden;
 }
 
+/* Launch Celebration Styles */
+.launch-celebration {
+  animation: fadeInScale 1s ease-out;
+}
+
+.celebration-content {
+  animation: bounceIn 1.2s ease-out 0.3s both;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(50px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-10px);
+  }
+  70% {
+    transform: scale(0.95) translateY(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 /* Categories grid helpers */
 .category-card {
   will-change: transform, opacity;

@@ -28,6 +28,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   timeLeft: any = {};
   targetDate: Date;
   private countdownInterval: any;
+  isLaunchTime: boolean = false;
 
   // Waitlist form
   email: string = '';
@@ -107,6 +108,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
       };
     } else {
       this.timeLeft = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      this.isLaunchTime = true;
       clearInterval(this.countdownInterval);
     }
   }
@@ -546,7 +548,27 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   navigateToStore() {
-    // Store navigation removed - launch page only
-    // console.log('Store access coming soon...');
+    // Navigate to the store
+    this.router.navigate(['/store']);
+  }
+
+  goToStore() {
+    this.navigateToStore();
+  }
+
+  // Method to manually trigger launch celebration for demo purposes
+  triggerLaunchCelebration() {
+    this.isLaunchTime = true;
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+  }
+
+  // Method to set countdown to finish in 5 seconds for demo
+  setDemoCountdown() {
+    const now = new Date();
+    this.targetDate = new Date(now.getTime() + 5000); // 5 seconds from now
+    this.isLaunchTime = false;
+    this.startCountdown();
   }
 }
