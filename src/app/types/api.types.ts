@@ -119,6 +119,13 @@ export interface Order {
   reviewedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  items?: Array<{
+    id: number;
+    qty: number;
+    unitPriceSnap: string | number; // API may send number
+    skuSnap: string;
+    titleSnap: string;
+  }>;
 }
 
 export interface AppConfig {

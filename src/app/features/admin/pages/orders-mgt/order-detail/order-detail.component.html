@@ -56,6 +56,61 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Order Information -->
       <div class="lg:col-span-2 space-y-6">
+        <!-- Order Items -->
+        <div *ngIf="order()?.items?.length" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                <ng-icon name="lucidePackage" class="text-orange-600 text-lg"></ng-icon>
+              </div>
+              <h2 class="text-lg font-semibold text-gray-900">Items ({{ order()!.items!.length }})</h2>
+            </div>
+            <span class="text-sm text-gray-500">Subtotal: {{ formatCurrency(order()!.subTotal) }}</span>
+          </div>
+
+            <div class="overflow-hidden rounded-xl border border-gray-200">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-gray-50 text-xs uppercase tracking-wide text-gray-600">
+                    <th class="px-4 py-3 font-semibold">Item</th>
+                    <th class="px-4 py-3 font-semibold">SKU</th>
+                    <th class="px-4 py-3 font-semibold text-center">Qty</th>
+                    <th class="px-4 py-3 font-semibold text-right">Unit</th>
+                    <th class="px-4 py-3 font-semibold text-right">Line Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let it of order()!.items!; let i = index" class="border-t border-gray-100 hover:bg-gray-50">
+                    <td class="px-4 py-3">
+                      <div class="font-medium text-gray-900">{{ it.titleSnap || 'Item ' + (i+1) }}</div>
+                    </td>
+                    <td class="px-4 py-3 text-gray-600 text-sm">{{ it.skuSnap }}</td>
+                    <td class="px-4 py-3 text-center font-medium">{{ it.qty }}</td>
+                    <td class="px-4 py-3 text-right">{{ formatCurrency(it.unitPriceSnap.toString()) }}</td>
+                    <td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(( (+it.unitPriceSnap) * it.qty ).toString()) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div class="text-sm text-gray-500">
+                <span>Manual quote required: </span>
+                <span [class.text-green-600]="order()!.needsManualQuote" [class.text-gray-500]="!order()!.needsManualQuote">
+                  {{ order()!.needsManualQuote ? 'Yes' : 'No' }}
+                </span>
+              </div>
+              <div *ngIf="order()!.whatsappLink" class="text-right">
+                <a 
+                  [href]="order()!.whatsappLink" target="_blank" rel="noopener"
+                  class="inline-flex items-center gap-2 text-sm text-green-600 hover:text-green-700 font-medium">
+                  <ng-icon name="lucidePhone" class="text-base"></ng-icon>
+                  Contact via WhatsApp
+                </a>
+              </div>
+            </div>
+        </div>
+
         <!-- Customer Information -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <div class="flex items-center gap-3 mb-6">
