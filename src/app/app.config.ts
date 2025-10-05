@@ -24,9 +24,9 @@ export const appConfig: ApplicationConfig = {
     ),
     provideClientHydration(
       withEventReplay(),
-      withHttpTransferCacheOptions({
-        includePostRequests: false // keep GET-only for SSR cache consistency
-      })
+      // withHttpTransferCacheOptions({
+      //   includePostRequests: false // keep GET-only for SSR cache consistency
+      // })
     ),
     // Use environment configuration
     { provide: BASE_API_URL, useValue: environment.apiUrl },
