@@ -163,8 +163,8 @@
         </div>
       </div>
 
-      <!-- Error State -->
-      <div *ngIf="productsError()" class="text-center py-12">
+  <!-- Error State (only when list is empty) -->
+  <div *ngIf="productsError() && featuredProducts().length === 0 && newProducts().length === 0" class="text-center py-12">
         <div class="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
           <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
             <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

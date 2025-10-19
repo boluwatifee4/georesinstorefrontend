@@ -80,11 +80,11 @@
             <button
               *ngFor="let category of categories(); trackBy: trackById"
               type="button"
-              (click)="filterForm.patchValue({ category: category.id })"
+              (click)="filterForm.patchValue({ category: category.slug })"
               class="px-3 py-2 text-sm border border-border rounded-lg transition-all duration-300 text-left"
               [ngClass]="{
-                'bg-brand-600 text-white border-brand-600': filterForm.get('category')?.value === category.id,
-                'bg-bg text-text hover:border-brand-600': filterForm.get('category')?.value !== category.id
+                'bg-brand-600 text-white border-brand-600': filterForm.get('category')?.value === category.slug,
+                'bg-bg text-text hover:border-brand-600': filterForm.get('category')?.value !== category.slug
               }"
             >
               {{ category.name }}
@@ -143,8 +143,8 @@
     </div>
   </div>
 
-  <!-- Error State -->
-  <div *ngIf="!loadingProducts() && productsError()" class="max-w-7xl mx-auto px-4 py-16">
+  <!-- Error State (only when we truly have no products) -->
+  <div *ngIf="!loadingProducts() && productsError() && products().length === 0" class="max-w-7xl mx-auto px-4 py-16">
     <div class="text-center">
       <div class="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md mx-auto">
         <div class="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full">
@@ -159,7 +159,7 @@
           <a href="https://wa.me/2348023456789" target="_blank" class="underline hover:text-red-800">WhatsApp</a> or
           <a href="https://t.me/georesinsupport" target="_blank" class="underline hover:text-red-800">Telegram</a>
         </p>
-        <button
+            <button
           type="button"
           (click)="retryLoadProducts()"
           class="btn-primary px-6 py-3 rounded-lg"
@@ -183,7 +183,7 @@
         </div>
         <h3 class="text-xl font-semibold text-text mb-3">No Products Found</h3>
         <p class="text-muted mb-6">Try adjusting your filters or search terms</p>
-        <button
+            <button
           type="button"
           (click)="clearFilters()"
           class="btn-primary px-6 py-3 rounded-lg"
@@ -255,7 +255,7 @@
                       rounded-full text-xs font-medium">
             Featured
           </div>
-          
+
           <!-- Out of Stock Badge -->
           <div *ngIf="product.isEmpty"
                class="absolute top-3 left-3 bg-red-600/90 backdrop-blur-sm text-white px-2 py-1

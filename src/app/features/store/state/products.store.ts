@@ -46,7 +46,12 @@ export class ProductsStore {
   readonly hasProducts = computed(() => this._state().products.length > 0);
   readonly hasMore = computed(() => {
     const { page, limit, total } = this._state().pagination;
-    return page * limit < total;
+    if (total && total > 0) {
+      return (page * limit) < total;
+    }
+    // Fallback: if total is unknown, assume more pages exist when the last fetch returned a full page
+    const products = this._state().products;
+    return products.length > 0 && (products.length % (limit || 20) === 0);
   });
 
   constructor() { }
@@ -158,9 +163,13 @@ export class ProductsStore {
       if (response) {
         const isAppend = (filters.page || 1) > 1;
         if (Array.isArray(response)) {
-          this.setProducts(response as any as Product[], isAppend);
-          const total = (response as any).length || 0;
-          this.setPagination({ total, page: filters.page || 1, limit: filters.limit || total });
+          const list = response as any as Product[];
+          this.setProducts(list, isAppend);
+          // When backend doesn't return total, we can't know end of list; fallback logic
+          const page = filters.page || 1;
+          const limit = filters.limit || list.length || 20;
+          const total = 0; // unknown
+          this.setPagination({ total, page, limit });
         } else {
           this.setProducts(response.data, isAppend);
           this.setPagination({
@@ -187,9 +196,12 @@ export class ProductsStore {
       if (response) {
         const isAppend = (filters.page || 1) > 1;
         if (Array.isArray(response)) {
-          this.setProducts(response as any as Product[], isAppend);
-          const total = (response as any).length || 0;
-          this.setPagination({ total, page: filters.page || 1, limit: filters.limit || total });
+          const list = response as any as Product[];
+          this.setProducts(list, isAppend);
+          const page = filters.page || 1;
+          const limit = filters.limit || list.length || 20;
+          const total = 0; // unknown
+          this.setPagination({ total, page, limit });
         } else {
           this.setProducts(response.data, isAppend);
           this.setPagination({
@@ -204,9 +216,9 @@ export class ProductsStore {
 
   loadFeatured(limit?: number) {
     this.productsService.getFeaturedProducts(limit).pipe(
-      catchError(error => {
-        this.setError('Unable to load featured products. Please check your connection and try again.');
-        return of(null);
+      catchError(() => {
+        // Do not pollute the main error signal with featured errors; just return empty list
+        return of([] as Product[]);
       })
     ).subscribe(products => {
       if (products) {
