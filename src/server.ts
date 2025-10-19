@@ -12,6 +12,15 @@ const indexHtml = join(serverDistFolder, 'index.server.html');
 const app = express();
 const commonEngine = new CommonEngine();
 
+// Middleware to disable caching for all API routes
+app.use('/api/*', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Last-Modified', new Date().toUTCString());
+  next();
+});
+
 // Basic health
 app.get('/healthz', (_req, res) => res.json({ ok: true }));
 
@@ -23,7 +32,37 @@ app.get('/robots.txt', (req, res) => {
     'User-agent: *',
     'Allow: /',
     'Disallow: /admin',
-    `Sitemap: ${base}/sitemap.xml`
+    'Disallow: /admin-login',
+    'Disallow: /api/',
+    'Disallow: /*?_t=*',
+    '',
+    '# Crawl-delay for respectful crawling',
+    'Crawl-delay: 1',
+    '',
+    '# Sitemaps',
+    `Sitemap: ${base}/sitemap.xml`,
+    `Sitemap: ${base}/sitemap-products.xml`,
+    '',
+    '# Allow search engines to index main content',
+    'User-agent: Googlebot',
+    'Allow: /',
+    'Disallow: /admin',
+    'Disallow: /api/',
+    '',
+    'User-agent: Bingbot',
+    'Allow: /',
+    'Disallow: /admin',
+    'Disallow: /api/',
+    '',
+    '# Block AI training bots if desired',
+    'User-agent: CCBot',
+    'Disallow: /',
+    '',
+    'User-agent: GPTBot',
+    'Disallow: /',
+    '',
+    'User-agent: ChatGPT-User',
+    'Disallow: /'
   ].join('\n');
   res.setHeader('Content-Type', 'text/plain');
   res.send(content);
@@ -34,13 +73,27 @@ app.get('/sitemap.xml', async (req, res) => {
   try {
     const host = req.headers.host;
     const base = `https://${host}`;
-    // Core static routes
+    // Core static routes with SEO-optimized priorities
     const urls: { loc: string; changefreq?: string; priority?: number; lastmod?: string }[] = [
-      { loc: `${base}/`, priority: 1.0, changefreq: 'daily' },
-      { loc: `${base}/store`, priority: 0.9, changefreq: 'daily' },
-      { loc: `${base}/store/products`, priority: 0.8, changefreq: 'daily' },
+      { loc: `${base}/`, priority: 1.0, changefreq: 'daily', lastmod: new Date().toISOString() },
+      { loc: `${base}/store`, priority: 0.9, changefreq: 'daily', lastmod: new Date().toISOString() },
+      { loc: `${base}/store/products`, priority: 0.8, changefreq: 'daily', lastmod: new Date().toISOString() },
       { loc: `${base}/store/cart`, priority: 0.3, changefreq: 'weekly' },
-      { loc: `${base}/store/orders/lookup`, priority: 0.4, changefreq: 'weekly' }
+      { loc: `${base}/store/checkout`, priority: 0.4, changefreq: 'weekly' },
+      { loc: `${base}/store/orders/lookup`, priority: 0.4, changefreq: 'weekly' },
+
+      // SEO Landing Pages for Keywords
+      { loc: `${base}/resin-materials`, priority: 0.7, changefreq: 'weekly' },
+      { loc: `${base}/epoxy-resin`, priority: 0.7, changefreq: 'weekly' },
+      { loc: `${base}/uv-resin`, priority: 0.7, changefreq: 'weekly' },
+      { loc: `${base}/resin-pigments`, priority: 0.6, changefreq: 'weekly' },
+      { loc: `${base}/resin-molds`, priority: 0.6, changefreq: 'weekly' },
+      { loc: `${base}/art-supplies`, priority: 0.6, changefreq: 'weekly' },
+      { loc: `${base}/about`, priority: 0.5, changefreq: 'monthly' },
+      { loc: `${base}/contact`, priority: 0.5, changefreq: 'monthly' },
+      { loc: `${base}/shipping`, priority: 0.4, changefreq: 'monthly' },
+      { loc: `${base}/returns`, priority: 0.4, changefreq: 'monthly' },
+      { loc: `${base}/faq`, priority: 0.4, changefreq: 'monthly' }
     ];
 
     // Fetch product slugs from API (paginate until exhausted or max limit)
@@ -96,7 +149,15 @@ app.get(
   '**',
   express.static(browserDistFolder, {
     maxAge: '1y',
-    index: 'index.html'
+    index: 'index.html',
+    setHeaders: (res, path) => {
+      // Disable caching for API calls and dynamic content
+      if (path.includes('/api/') || path.includes('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      }
+    }
   }),
 );
 
@@ -105,6 +166,11 @@ app.get(
  */
 app.get('**', (req, res, next) => {
   const { protocol, originalUrl, baseUrl, headers } = req;
+
+  // Add no-cache headers for dynamic content
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 
   commonEngine
     .render({

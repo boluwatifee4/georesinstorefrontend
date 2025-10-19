@@ -31,7 +31,9 @@ export class ApiHttpService {
    * GET request for public endpoints
    */
   public get<T>(endpoint: string, options?: ApiRequestOptions): Observable<T> {
-    return this.http.get<T>(this.buildUrl(endpoint, false), this.buildHttpOptions(options));
+    // Add cache-busting timestamp for GET requests to ensure fresh data
+    const cacheBustingOptions = this.addCacheBusting(options);
+    return this.http.get<T>(this.buildUrl(endpoint, false), this.buildHttpOptions(cacheBustingOptions));
   }
 
   /**
@@ -59,7 +61,9 @@ export class ApiHttpService {
    * GET request for admin endpoints (auto-adds auth header via interceptor)
    */
   public adminGet<T>(endpoint: string, options?: ApiRequestOptions): Observable<T> {
-    return this.http.get<T>(this.buildUrl(endpoint, true), this.buildHttpOptions(options));
+    // Add cache-busting timestamp for admin GET requests to ensure fresh data
+    const cacheBustingOptions = this.addCacheBusting(options);
+    return this.http.get<T>(this.buildUrl(endpoint, true), this.buildHttpOptions(cacheBustingOptions));
   }
 
   /**
@@ -117,5 +121,24 @@ export class ApiHttpService {
     }
 
     return httpOptions;
+  }
+
+  /**
+   * Adds cache-busting timestamp to GET requests to prevent stale data
+   */
+  private addCacheBusting(options?: ApiRequestOptions): ApiRequestOptions {
+    const cacheBustingParam = { _t: Date.now().toString() };
+
+    if (!options) {
+      return { params: cacheBustingParam };
+    }
+
+    return {
+      ...options,
+      params: {
+        ...options.params,
+        ...cacheBustingParam
+      }
+    };
   }
 }

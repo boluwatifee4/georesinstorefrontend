@@ -1,0 +1,6 @@
+Contact: mailto:security@georesinstore.com
+Contact: mailto:info@georesinstore.com
+Expires: 2026-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://www.georesinstore.com/.well-known/security.txt
+Policy: https://www.georesinstore.com/security-policy

@@ -3,9 +3,10 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions } from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { ADMIN_API_BASE_URL, BASE_API_URL } from './config/tokens/api.tokens';
 import { adminAuthInterceptor } from './core/interceptors/admin-auth.interceptor';
+import { noCacheInterceptor } from './core/interceptors/no-cache.interceptor';
 import { ScrollService } from './core/services/scroll.service';
 import { environment } from '../environments/environment';
 import { ICON_PROVIDERS } from './shared/icon';
@@ -19,14 +20,12 @@ export const appConfig: ApplicationConfig = {
       anchorScrolling: 'enabled'
     })),
     provideHttpClient(
-      withInterceptors([adminAuthInterceptor]),
+      withInterceptors([adminAuthInterceptor, noCacheInterceptor]),
       withFetch() // Use fetch API for SSR compatibility
     ),
     provideClientHydration(
-      withEventReplay(),
-      // withHttpTransferCacheOptions({
-      //   includePostRequests: false // keep GET-only for SSR cache consistency
-      // })
+      withEventReplay()
+      // HTTP transfer cache is completely disabled to prevent stale data
     ),
     // Use environment configuration
     { provide: BASE_API_URL, useValue: environment.apiUrl },

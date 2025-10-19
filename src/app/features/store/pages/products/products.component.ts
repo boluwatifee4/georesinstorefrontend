@@ -123,16 +123,52 @@ export class ProductsComponent implements OnInit {
       const parts: string[] = [];
       if (filters.search) parts.push(`Search: "${filters.search}"`);
       if (filters.category) parts.push(`Category: ${filters.category}`);
-      const titleBase = parts.length ? `${parts.join(' • ')} Products` : 'Shop Products';
+      const titleBase = parts.length ? `${parts.join(' • ')} Products` : 'Premium Resin Materials & Art Supplies';
       const desc = parts.length
-        ? `Browse products filtered by ${parts.join(', ')}. Discover quality resin materials, pigments, molds and tools.`
-        : 'Browse all premium resin materials, pigments, molds and tools. Find everything you need for epoxy and resin art projects.';
+        ? `Browse ${parts.join(', ')} products. Quality resin materials, pigments, molds and tools with fast delivery across Nigeria.`
+        : 'Browse premium epoxy resin, UV resin, pigments, molds and art supplies. Nigeria\'s largest selection of quality resin materials with expert support.';
+
       this.seo.setDefault({
         title: titleBase,
         description: desc,
         image: 'https://www.georesinstore.com/hero-bg1.png',
         path: '/store/products'
       });
+
+      // Set relevant keywords based on filters
+      const keywords = [
+        'resin materials Nigeria',
+        'epoxy resin products',
+        'UV resin supplies',
+        'resin pigments Nigeria',
+        'resin molds',
+        'art supplies Lagos'
+      ];
+
+      if (filters.category) {
+        keywords.push(`${filters.category} Nigeria`, `${filters.category} Lagos`);
+      }
+      if (filters.search) {
+        keywords.push(`${filters.search} Nigeria`, `${filters.search} resin`);
+      }
+
+      this.seo.setKeywords(keywords);
+
+      // Set breadcrumb structured data
+      const breadcrumbs = [
+        { name: 'Home', url: 'https://www.georesinstore.com/' },
+        { name: 'Store', url: 'https://www.georesinstore.com/store' },
+        { name: 'Products', url: 'https://www.georesinstore.com/store/products' }
+      ];
+
+      if (filters.category) {
+        breadcrumbs.push({
+          name: filters.category,
+          url: `https://www.georesinstore.com/store/products?category=${encodeURIComponent(filters.category)}`
+        });
+      }
+
+      this.seo.setBreadcrumbStructuredData(breadcrumbs);
     });
   }
 

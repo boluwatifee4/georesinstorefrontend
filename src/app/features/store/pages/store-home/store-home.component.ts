@@ -68,13 +68,56 @@ export class StoreHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Set default SEO for home page
+    // Set comprehensive SEO for home page
     this.seo.setDefault({
-      title: 'Resin Art Supplies & Premium Epoxy Materials',
-      description: 'Shop premium resin, pigments, molds and accessories at Geo Resin Store. Featured products, new arrivals and top categories curated for creators.',
+      title: 'Premium Epoxy Resin, UV Resin & Art Supplies - Nigeria\'s #1 Resin Store',
+      description: 'Shop premium epoxy resin, UV resin, pigments, molds and art supplies at Geo Resin Store. Nigeria\'s leading destination for resin crafting materials with fast nationwide delivery.',
       image: 'https://www.georesinstore.com/hero-bg.png',
       path: '/store'
     });
+
+    // Set comprehensive keywords for home page
+    this.seo.setKeywords([
+      'resin materials Nigeria',
+      'epoxy resin Lagos',
+      'UV resin',
+      'resin pigments',
+      'resin molds',
+      'resin art supplies',
+      'craft materials Nigeria',
+      'woodworking resin',
+      'jewelry making supplies',
+      'art materials Lagos',
+      'epoxy resin store',
+      'resin crafting supplies',
+      'clear epoxy resin',
+      'colored resin pigments',
+      'silicone molds',
+      'resin starter kit'
+    ]);
+
+    // Set local business structured data
+    this.seo.setLocalBusinessStructuredData();
+
+    // Set FAQ structured data for home page
+    this.seo.setFAQStructuredData([
+      {
+        question: 'What types of resin do you sell?',
+        answer: 'We sell premium epoxy resin, UV resin, and specialized resin formulations for various applications including art, woodworking, and jewelry making.'
+      },
+      {
+        question: 'Do you deliver nationwide in Nigeria?',
+        answer: 'Yes, we provide fast and reliable delivery to all states in Nigeria with secure packaging to ensure your materials arrive safely.'
+      },
+      {
+        question: 'Are your resin materials suitable for beginners?',
+        answer: 'Absolutely! We offer starter kits and beginner-friendly products with detailed instructions to help you get started with resin crafting.'
+      },
+      {
+        question: 'What payment methods do you accept?',
+        answer: 'We accept bank transfers, card payments, and mobile money payments for your convenience.'
+      }
+    ]);
 
 
     this.search.valueChanges.pipe(

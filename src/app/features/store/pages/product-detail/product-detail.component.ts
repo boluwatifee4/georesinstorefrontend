@@ -198,13 +198,67 @@ export class ProductDetailComponent implements OnInit {
   }
 
   private applySeo(product: Product) {
-    const title = product.title + ' | Geo Resin Store';
-    const desc = product.description?.slice(0, 160) || 'Premium resin product';
+    const title = `${product.title} - Premium Resin Materials | Geo Resin Store`;
+    const desc = product.description?.slice(0, 150) + '... Available at Nigeria\'s premier resin store with fast delivery.' || 'Premium resin product available at Geo Resin Store Nigeria with fast delivery nationwide.';
     const img = product.primaryImageUrl ? this.googleDriveService.convertGoogleDriveUrl(product.primaryImageUrl) : undefined;
-    const url = typeof location !== 'undefined' ? location.href : undefined;
+    const url = typeof location !== 'undefined' ? location.href : `https://www.georesinstore.com/store/products/${product.slug}`;
+
     this.seo.setOg({ title, description: desc, image: img, url, type: 'product' });
+
     const price = product.basePrice || (product as any).minPrice;
-    this.seo.setProductStructuredData({ title: product.title, description: product.description || undefined, image: img, price, currency: 'NGN', slug: product.slug || undefined });
+    const categoryName = product.categories?.[0]?.name || 'Resin Materials';
+
+    this.seo.setProductStructuredData({
+      title: product.title,
+      description: product.description || undefined,
+      image: img,
+      price,
+      currency: 'NGN',
+      slug: product.slug || undefined,
+      category: categoryName,
+      brand: 'Geo Resin Store',
+      sku: product.id?.toString() || product.slug || undefined
+    });
+
+    // Set product-specific keywords
+    const keywords = [
+      product.title,
+      'resin materials Nigeria',
+      'epoxy resin Lagos',
+      categoryName,
+      `${product.title} Nigeria`,
+      'resin crafting supplies',
+      'art materials Lagos'
+    ];
+
+    if (product.categories && product.categories.length > 0) {
+      product.categories.forEach(cat => {
+        keywords.push(`${cat.name} Nigeria`, `${cat.name} Lagos`);
+      });
+    }
+
+    this.seo.setKeywords(keywords);
+
+    // Set breadcrumb for product
+    const breadcrumbs = [
+      { name: 'Home', url: 'https://www.georesinstore.com/' },
+      { name: 'Store', url: 'https://www.georesinstore.com/store' },
+      { name: 'Products', url: 'https://www.georesinstore.com/store/products' }
+    ];
+
+    if (product.categories?.[0]) {
+      breadcrumbs.push({
+        name: product.categories[0].name,
+        url: `https://www.georesinstore.com/store/products?category=${encodeURIComponent(product.categories[0].name)}`
+      });
+    }
+
+    breadcrumbs.push({
+      name: product.title,
+      url: `https://www.georesinstore.com/store/products/${product.slug}`
+    });
+
+    this.seo.setBreadcrumbStructuredData(breadcrumbs);
   }
 
   // UI Methods

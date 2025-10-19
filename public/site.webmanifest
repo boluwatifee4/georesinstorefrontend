@@ -1,0 +1,22 @@
+{
+  "name": "Geo Resin Store",
+  "short_name": "GeoResin",
+  "description": "Nigeria's premier destination for premium epoxy resin, UV resin, pigments, molds and art supplies",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "categories": ["shopping", "arts", "crafts"],
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

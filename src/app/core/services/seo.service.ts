@@ -29,7 +29,7 @@ export class SeoService {
   private defaults: SiteDefaults = {
     siteName: 'Geo Resin Store',
     baseUrl: 'https://www.georesinstore.com',
-    defaultDescription: 'Premium resin materials, pigments, molds and artisan supplies. Discover quality products for epoxy and resin art projects.',
+    defaultDescription: 'Nigeria\'s premier destination for premium epoxy resin, UV resin, pigments, molds and art supplies. Quality materials for resin art, jewelry making, woodworking and crafts. Fast delivery nationwide.',
     defaultImage: 'https://www.georesinstore.com/hero-bg.png',
     twitterHandle: '@georesinstore'
   };
@@ -96,7 +96,7 @@ export class SeoService {
     this.setWebSiteStructuredData();
   }
 
-  setProductStructuredData(product: { title: string; description?: string; image?: string; price?: number; currency?: string; slug?: string; }) {
+  setProductStructuredData(product: { title: string; description?: string; image?: string; price?: number; currency?: string; slug?: string; category?: string; brand?: string; sku?: string; }) {
     if (!isPlatformBrowser(this.platformId)) return;
     const id = 'structured-data-product';
     let script = document.getElementById(id) as HTMLScriptElement | null;
@@ -111,14 +111,27 @@ export class SeoService {
       '@type': 'Product',
       name: product.title,
       description: product.description || '',
+      brand: {
+        '@type': 'Brand',
+        name: product.brand || 'Geo Resin Store'
+      },
+      category: product.category || 'Resin Materials',
+      sku: product.sku || product.slug || ''
     };
-    if (product.image) data.image = product.image;
+    if (product.image) {
+      data.image = [product.image];
+    }
     if (product.price) {
       data.offers = {
         '@type': 'Offer',
         price: product.price,
         priceCurrency: product.currency || 'NGN',
-        availability: 'https://schema.org/InStock'
+        availability: 'https://schema.org/InStock',
+        url: `${this.defaults.baseUrl}/store/products/${product.slug}`,
+        seller: {
+          '@type': 'Organization',
+          name: 'Geo Resin Store'
+        }
       };
     }
     script.textContent = JSON.stringify(data);
@@ -138,14 +151,149 @@ export class SeoService {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: this.defaults.siteName,
+      alternateName: 'GeoResinStore',
       url: this.defaults.baseUrl,
+      description: this.defaults.defaultDescription,
+      inLanguage: 'en-NG',
       potentialAction: {
         '@type': 'SearchAction',
         target: `${this.defaults.baseUrl}/store/products?q={search_term_string}`,
         'query-input': 'required name=search_term_string'
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: this.defaults.siteName,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${this.defaults.baseUrl}/logo.png`
+        }
       }
     };
     script.textContent = JSON.stringify(data);
+  }
+
+  setLocalBusinessStructuredData() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const id = 'structured-data-local-business';
+    let script = document.getElementById(id) as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = id;
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    const data = {
+      '@context': 'https://schema.org',
+      '@type': 'Store',
+      name: this.defaults.siteName,
+      description: this.defaults.defaultDescription,
+      url: this.defaults.baseUrl,
+      telephone: '+234-XXX-XXX-XXXX',
+      email: 'info@georesinstore.com',
+      address: {
+        '@type': 'PostalAddress',
+        addressCountry: 'Nigeria',
+        addressRegion: 'Lagos'
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: '6.5244',
+        longitude: '3.3792'
+      },
+      openingHours: ['Mo-Fr 09:00-18:00', 'Sa 09:00-16:00'],
+      paymentAccepted: ['Cash', 'Credit Card', 'Bank Transfer'],
+      currenciesAccepted: 'NGN',
+      priceRange: '$$',
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Resin Materials Catalog',
+        itemListElement: [
+          {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Product',
+              name: 'Epoxy Resin',
+              category: 'Resin Materials'
+            }
+          },
+          {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Product',
+              name: 'UV Resin',
+              category: 'Resin Materials'
+            }
+          },
+          {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Product',
+              name: 'Resin Pigments',
+              category: 'Art Supplies'
+            }
+          }
+        ]
+      }
+    };
+    script.textContent = JSON.stringify(data);
+  }
+
+  setBreadcrumbStructuredData(breadcrumbs: { name: string; url: string }[]) {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const id = 'structured-data-breadcrumb';
+    let script = document.getElementById(id) as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = id;
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    const data = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumbs.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: item.url
+      }))
+    };
+    script.textContent = JSON.stringify(data);
+  }
+
+  setFAQStructuredData(faqs: { question: string; answer: string }[]) {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const id = 'structured-data-faq';
+    let script = document.getElementById(id) as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = id;
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    const data = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map(faq => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: faq.answer
+        }
+      }))
+    };
+    script.textContent = JSON.stringify(data);
+  }
+
+  setKeywords(keywords: string[]) {
+    const keywordString = keywords.join(', ');
+    this.setTag({ name: 'keywords', content: keywordString });
+  }
+
+  setRobots(robots: string = 'index, follow') {
+    this.setTag({ name: 'robots', content: robots });
+    this.setTag({ name: 'googlebot', content: robots });
   }
 
   private setTag(def: MetaDefinition & { property?: string }) {
