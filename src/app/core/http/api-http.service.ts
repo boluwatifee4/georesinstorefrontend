@@ -61,9 +61,8 @@ export class ApiHttpService {
    * GET request for admin endpoints (auto-adds auth header via interceptor)
    */
   public adminGet<T>(endpoint: string, options?: ApiRequestOptions): Observable<T> {
-    // Add cache-busting timestamp for admin GET requests to ensure fresh data
-    const cacheBustingOptions = this.addCacheBusting(options);
-    return this.http.get<T>(this.buildUrl(endpoint, true), this.buildHttpOptions(cacheBustingOptions));
+    // Do NOT add cache-busting params for admin endpoints - some admin APIs do not expect unknown query params
+    return this.http.get<T>(this.buildUrl(endpoint, true), this.buildHttpOptions(options));
   }
 
   /**
