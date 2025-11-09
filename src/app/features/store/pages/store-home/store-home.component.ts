@@ -12,11 +12,12 @@ import { GoogleDriveUtilService } from '../../../../core/services/google-drive-u
 import { Product } from '../../../../types/api.types';
 import { NgOptimizedImage } from '@angular/common';
 import { SeoService } from '../../../../core/services/seo.service';
+import { TikTokEmbedComponent } from '../../../../shared/components/tiktok-embed.component';
 
 @Component({
   selector: 'app-store-home',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgOptimizedImage],
+  imports: [CommonModule, ReactiveFormsModule, NgOptimizedImage, TikTokEmbedComponent],
   templateUrl: './store-home.component.html',
   styleUrls: ['./store-home.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -60,6 +61,15 @@ export class StoreHomeComponent implements OnInit {
 
   // Header scroll state (transparent -> solid)
   readonly scrolled = signal(false);
+
+  // TikTok hero background mosaic videos
+  readonly tiktokHeroVideos: string[] = [
+    'https://www.tiktok.com/@geo_crafts08/video/7555856725232880903',
+    'https://www.tiktok.com/@geo_crafts08/video/7555457313277070599',
+    'https://www.tiktok.com/@geo_crafts08/video/7554325402085346567',
+    'https://www.tiktok.com/@geo_crafts08/video/7553574142402940167',
+    'https://www.tiktok.com/@geo_crafts08/video/7558450552271555847'
+  ];
 
   constructor() {
     // effect(() => {
@@ -157,7 +167,7 @@ export class StoreHomeComponent implements OnInit {
   goToCart() { this.router.navigate(['/store/cart']); }
   goToHome() { this.router.navigate(['/store']); }
   goToOrderLookup() { this.router.navigate(['/store/orders/lookup']); }
-  trackById(_: number, item: any) { return item.id || item.slug; }
+  trackById(_: number, item: any) { return item?.id || item?.slug || item; }
 
   viewProduct(product: Product): void {
     // Navigate using product slug for SEO-friendly URLs

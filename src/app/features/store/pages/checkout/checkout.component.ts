@@ -118,6 +118,9 @@ export class CheckoutComponent implements OnInit {
         toast.error('Load Config failed');
       }
     });
+
+    // Attempt to prefill previously saved customer profile
+    this.loadSavedProfile();
   }
 
   declarePayment(): void {
@@ -292,6 +295,8 @@ export class CheckoutComponent implements OnInit {
       this.showInfoToast(issues);
       return;
     }
+    // Persist profile before saving order
+    this.persistProfile();
     this.saveOrder();
   }
 
@@ -306,6 +311,8 @@ export class CheckoutComponent implements OnInit {
       this.showInfoToast(issues);
       return;
     }
+    // Persist profile before declaring payment
+    this.persistProfile();
     this.declarePayment();
   }
 
@@ -362,5 +369,63 @@ export class CheckoutComponent implements OnInit {
     toast.info(msg, {
       duration: 4500,
     });
+  }
+
+  /**
+   * Persist the current customer profile fields to localStorage so next visit is prefilled.
+   */
+  private persistProfile(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      const raw = this.checkoutForm.value;
+      const profile = {
+        buyerName: raw.buyerName || '',
+        phone: raw.phone || '',
+        email: raw.email || '',
+        whatsapp: raw.whatsapp || '',
+        locationLabel: raw.locationLabel || '',
+        withinOgbomoso: !!raw.withinOgbomoso,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem('grs_customer_profile', JSON.stringify(profile));
+    } catch (e) {
+      // Non-critical; ignore
+      console.warn('Persist profile failed', e);
+    }
+  }
+
+  /**
+   * Load saved profile and patch form (mark pristine) but require user to confirm accuracy before proceeding.
+   */
+  private loadSavedProfile(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      const raw = localStorage.getItem('grs_customer_profile');
+      if (!raw) return;
+      const profile = JSON.parse(raw);
+      // Only patch if key fields exist
+      if (profile && (profile.buyerName || profile.phone || profile.locationLabel)) {
+        this.checkoutForm.patchValue({
+          buyerName: profile.buyerName || '',
+          phone: profile.phone || '',
+          email: profile.email || '',
+          whatsapp: profile.whatsapp || '',
+          locationLabel: profile.locationLabel || '',
+          withinOgbomoso: !!profile.withinOgbomoso
+        }, { emitEvent: true });
+        // Mark as untouched so validation errors don't show immediately
+        Object.keys(this.checkoutForm.controls).forEach(key => {
+          const ctrl = this.checkoutForm.get(key);
+          ctrl?.markAsPristine();
+          ctrl?.markAsUntouched();
+        });
+        // Require re-acknowledgement of delivery each visit
+        this.acknowledgeDelivery.set(false);
+        // Show gentle toast asking for confirmation
+        toast.info('We prefilled details from your last visit. Please review & confirm before proceeding.', { duration: 5000 });
+      }
+    } catch (e) {
+      console.warn('Load profile failed', e);
+    }
   }
 }

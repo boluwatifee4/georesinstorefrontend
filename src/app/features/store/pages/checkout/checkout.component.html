@@ -1,33 +1,33 @@
 <div class="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 dark:from-violet-950 dark:via-slate-900 dark:to-purple-950">
-  <div class="container mx-auto px-4 py-8 max-w-6xl">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-7xl">
 
     <!-- Success State: Order Saved (NOT Payment Declared) -->
-    <div *ngIf="saveOrderResult() && !orderResult()" class="max-w-2xl mx-auto">
+    <div *ngIf="saveOrderResult() && !orderResult()" class="max-w-2xl mx-auto px-4 sm:px-0">
       <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
-        <div class="bg-gradient-to-r from-violet-600 to-purple-600 p-8 text-center">
-          <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-gradient-to-r from-violet-600 to-purple-600 p-6 sm:p-8 text-center">
+          <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 class="text-2xl font-bold text-white mb-2">Order Saved!</h1>
-          <p class="text-violet-100">You can declare your payment later using the order code</p>
+          <h1 class="text-xl sm:text-2xl font-bold text-white mb-2">Order Saved!</h1>
+          <p class="text-violet-100 text-sm sm:text-base">You can declare your payment later using the order code</p>
         </div>
-        <div class="p-8 space-y-6">
-          <div class="bg-gray-50 dark:bg-slate-700 rounded-xl p-6 flex justify-between items-center">
-            <div>
-              <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Order Code</h3>
-              <p class="text-2xl font-mono font-bold text-violet-600 dark:text-violet-400">{{ saveOrderResult()?.orderCode }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Keep this code to declare payment later</p>
+        <div class="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+          <div class="bg-gray-50 dark:bg-slate-700 rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 dark:text-white mb-2 text-sm sm:text-base">Order Code</h3>
+              <p class="text-xl sm:text-2xl font-mono font-bold text-violet-600 dark:text-violet-400 break-all">{{ saveOrderResult()?.orderCode }}</p>
+              <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 sm:mt-2">Keep this code to declare payment later</p>
             </div>
-            <button (click)="copyOrderCode()" class="p-3 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button (click)="copyOrderCode()" class="p-2.5 sm:p-3 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors flex-shrink-0">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
               </svg>
             </button>
           </div>
 
-          <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6 text-sm text-amber-700 dark:text-amber-300">
+          <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 sm:p-6 text-xs sm:text-sm text-amber-700 dark:text-amber-300">
             <p class="mb-2 font-medium">Next Steps</p>
             <ul class="list-disc list-inside space-y-1">
               <li>When ready, go to Declare Payment page and use your order code</li>
@@ -35,28 +35,28 @@
             </ul>
           </div>
 
-          <div class="flex gap-4">
-            <button (click)="startNewOrder()" class="flex-1 py-3 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-600 transition-all duration-200 font-medium">Continue Shopping</button>
-            <button routerLink="/store/orders/lookup" class="flex-1 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg">Declare Payment Later</button>
+          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <button (click)="startNewOrder()" class="flex-1 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-600 transition-all duration-200 font-medium">Continue Shopping</button>
+            <button routerLink="/store/orders/lookup" class="flex-1 py-2.5 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg">Declare Payment Later</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Checkout Form -->
-    <div *ngIf="!orderResult() && !saveOrderResult()" class="grid lg:grid-cols-3 gap-8">
+    <div *ngIf="!orderResult() && !saveOrderResult()" class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
 
       <!-- Checkout Form -->
-      <div class="lg:col-span-2">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+      <div class="xl:col-span-2 order-1">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 sm:p-6 lg:p-8">
 
           <!-- Header -->
-          <div class="flex items-center justify-between mb-8">
-            <div>
-              <h1 class="text-3xl font-bold bg-gradient-to-r from-violet-700 to-purple-600 bg-clip-text text-transparent">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+            <div class="flex-1">
+              <h1 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-700 to-purple-600 bg-clip-text text-transparent">
                 Checkout
               </h1>
-              <p class="text-gray-600 dark:text-gray-400 mt-2">
+              <p class="text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">
                 Complete your order details
               </p>
             </div>
@@ -81,21 +81,35 @@
           </div>
 
           <!-- Form -->
-          <form [formGroup]="checkoutForm" (ngSubmit)="declarePayment()" class="space-y-6">
+          <form [formGroup]="checkoutForm" (ngSubmit)="declarePayment()" class="space-y-6 sm:space-y-8">
+            <!-- Prefill Confirmation Banner -->
+            <div *ngIf="checkoutForm.get('buyerName')?.pristine && checkoutForm.get('buyerName')?.value" class="rounded-xl border bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-700 p-4 flex items-start gap-3">
+              <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div class="text-xs sm:text-sm flex-1">
+                <p class="font-medium text-indigo-800 dark:text-indigo-200 mb-1">Prefilled Details</p>
+                <p class="text-indigo-700 dark:text-indigo-300 mb-2">We loaded your last checkout details. Please confirm they are still correct or update as needed.</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <button type="button" (click)="checkoutForm.markAllAsTouched();" class="px-3 py-2 text-xs sm:text-sm rounded-lg bg-white dark:bg-slate-700 border border-indigo-300 dark:border-indigo-600 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-slate-600 transition">Edit / Update</button>
+                  <button type="button" (click)="acknowledgeDelivery.set(true)" class="px-3 py-2 text-xs sm:text-sm rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 transition">Confirm Details</button>
+                </div>
+              </div>
+            </div>
 
             <!-- Personal Information -->
             <div>
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Personal Information</h2>
+              <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">Personal Information</h2>
 
-              <div class="grid sm:grid-cols-2 gap-4">
-                <div class="sm:col-span-2">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div class="md:col-span-2">
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Full Name *
                   </label>
                   <input
                     type="text"
                     formControlName="buyerName"
-                    [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
+                    [class]="'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
                       (isFieldInvalid('buyerName') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
                     placeholder="Enter your full name"
                   >
@@ -111,7 +125,7 @@
                   <input
                     type="tel"
                     formControlName="phone"
-                    [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
+                    [class]="'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
                       (isFieldInvalid('phone') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
                     placeholder="+234 8XX XXX XXXX"
                   >
@@ -127,7 +141,7 @@
                   <input
                     type="email"
                     formControlName="email"
-                    [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
+                    [class]="'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
                       (isFieldInvalid('email') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
                     placeholder="your@email.com"
                   >
@@ -136,14 +150,14 @@
                   </div>
                 </div>
 
-                <div class="sm:col-span-2">
+                <div class="md:col-span-2">
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     WhatsApp Number
                   </label>
                   <input
                     type="tel"
                     formControlName="whatsapp"
-                    [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
+                    [class]="'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
                       (isFieldInvalid('whatsapp') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
                     placeholder="+234 8XX XXX XXXX"
                   >
@@ -159,7 +173,7 @@
 
             <!-- Delivery Information -->
             <div>
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Delivery Information</h2>
+              <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4">Delivery Information</h2>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -168,7 +182,7 @@
                 <input
                   type="text"
                   formControlName="locationLabel"
-                  [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
+                  [class]="'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
                     (isFieldInvalid('locationLabel') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
                   placeholder="Enter your city, state, or full address"
                 >
@@ -218,29 +232,29 @@
       </div>
 
       <!-- Order Summary -->
-      <div class="lg:col-span-1">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 sticky top-6">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Order Summary</h2>
+      <div class="xl:col-span-1 order-2">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 sm:p-6 xl:sticky xl:top-6">
+          <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Order Summary</h2>
 
           <!-- Cart Items Summary -->
-          <div class="space-y-3 mb-6 max-h-60 overflow-y-auto">
+          <div class="space-y-3 mb-4 sm:mb-6 max-h-48 sm:max-h-60 overflow-y-auto">
             <div
               *ngFor="let item of cartItems(); trackBy: trackByItemId"
-              class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg"
+              class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-50 dark:bg-slate-700 rounded-lg"
             >
-              <div class="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
-                <svg class="w-6 h-6 text-violet-500 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-500 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m2 2a9 9 0 11-9-9 9 9 0 019 9z" />
                 </svg>
               </div>
 
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-gray-900 dark:text-white text-sm truncate">{{ item.titleSnap }}</p>
+                <p class="font-medium text-gray-900 dark:text-white text-xs sm:text-sm truncate">{{ item.titleSnap }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Qty: {{ item.qty }}</p>
               </div>
 
               <div class="text-right">
-                <p class="font-semibold text-gray-900 dark:text-white text-sm">
+                <p class="font-semibold text-gray-900 dark:text-white text-xs sm:text-sm">
                   ₦{{ lineItemTotal(item) }}
                 </p>
               </div>
@@ -274,16 +288,16 @@
           </div>
 
           <!-- Delivery Fee Acknowledgment -->
-          <div class="mb-5">
+          <div class="mb-4 sm:mb-5">
             <div
-              class="p-4 rounded-xl border text-sm transition-all duration-300 relative"
+              class="p-3 sm:p-4 rounded-xl border text-xs sm:text-sm transition-all duration-300 relative"
               [ngClass]="acknowledgeDelivery()
                 ? 'bg-violet-50 border-violet-300 dark:bg-violet-900/20 dark:border-violet-700'
                 : 'bg-amber-50 border-amber-400 dark:bg-amber-900/30 dark:border-amber-600'">
 
-              <div class="absolute -top-3 right-4">
+              <div class="absolute -top-2.5 right-3 sm:right-4">
                 <span
-                  class="px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase"
+                  class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold tracking-wide uppercase"
                   [ngClass]="acknowledgeDelivery()
                     ? 'bg-violet-600 text-white dark:bg-violet-500'
                     : 'bg-amber-500 text-white'">
@@ -291,19 +305,19 @@
                 </span>
               </div>
 
-              <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 flex-shrink-0"
+              <div class="flex items-start gap-2 sm:gap-3">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5"
                      [ngClass]="acknowledgeDelivery() ? 'text-violet-500 dark:text-violet-300' : 'text-amber-500 dark:text-amber-300'"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div>
-                  <p class="font-medium mb-2"
+                <div class="flex-1">
+                  <p class="font-medium mb-1 sm:mb-2 text-xs sm:text-sm"
                      [ngClass]="acknowledgeDelivery() ? 'text-violet-800 dark:text-violet-200' : 'text-amber-800 dark:text-amber-200'">
                     Delivery Information
                   </p>
-                  <ul class="text-xs space-y-1 mb-3">
+                  <ul class="text-xs space-y-1 mb-2 sm:mb-3">
                     <li *ngIf="!withinOgbomoso()">• ₦1,000 covers moving your items from our store to the park</li>
                     <li *ngIf="!withinOgbomoso()">• You negotiate the park-to-final-location cost directly with the rider</li>
                     <li *ngIf="withinOgbomoso()">• Delivery within Ogbomoso doesn't include park transfer fee</li>
@@ -311,11 +325,11 @@
                     <li>After confirmation, we'll contact you with coordination details</li>
                   </ul>
 
-                  <label class="flex items-start gap-3 cursor-pointer mt-2 group">
+                  <label class="flex items-start gap-2 sm:gap-3 cursor-pointer mt-2 group">
                     <input type="checkbox"
-                      class="mt-1 h-5 w-5 rounded border-gray-300 text-violet-600 focus:ring-violet-500 focus:ring-2 transition"
+                      class="mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 rounded border-gray-300 text-violet-600 focus:ring-violet-500 focus:ring-2 transition"
                       (change)="onAcknowledgeChange($event)" />
-                    <span class="text-sm leading-relaxed"
+                    <span class="text-xs sm:text-sm leading-relaxed"
                           [ngClass]="acknowledgeDelivery() ? 'text-gray-700 dark:text-gray-300' : 'font-medium text-amber-800 dark:text-amber-200'">
                       Check this box to confirm you understand the delivery process and agree to pickup from the designated park location.
                     </span>
@@ -326,12 +340,12 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="space-y-3">
+          <div class="space-y-2 sm:space-y-3">
             <button
               type="button"
               (click)="onClickSaveOrder()"
               [disabled]="isSavingOrder() || isPlacingOrder()"
-              class="w-full py-3 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-600 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+              class="w-full py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-600 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
               <span *ngIf="!isSavingOrder()">Save Order (Pay Later)</span>
               <span *ngIf="isSavingOrder()" class="flex items-center justify-center gap-2">
                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
@@ -343,7 +357,7 @@
               type="button"
               (click)="onClickDeclarePayment()"
               [disabled]="isPlacingOrder() || isSavingOrder()"
-              class="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+              class="w-full py-3 sm:py-4 text-sm sm:text-base bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
               <span *ngIf="!isPlacingOrder()">Declare Payment</span>
               <span *ngIf="isPlacingOrder()" class="flex items-center justify-center gap-2">
                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -351,9 +365,9 @@
               </span>
             </button>
 
-            <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-              Save Order: Get order code and pay later<br>
-              Declare Payment: Get bank details immediately and confirm payment
+            <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-1 sm:mt-2">
+              Save Order: Get order code and pay later<br class="hidden sm:block">
+              <span class="sm:hidden"> • </span>Declare Payment: Get bank details immediately and confirm payment
             </p>
           </div>
         </div>

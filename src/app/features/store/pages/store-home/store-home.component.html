@@ -1,16 +1,18 @@
-<!-- Hero Section -->
+<!-- Hero Section with TikTok Background Video -->
 <section class="relative overflow-hidden">
   <div class="relative min-h-[80vh] md:h-screen flex items-center">
-    <div class="absolute inset-0">
-      <img
-        ngSrc="/hero-bg.png"
-        alt="Premium Resin Collection"
-        class="w-full h-full object-cover"
-        priority
-        width="1920"
-        height="1080"
-      >
-      <div class="absolute inset-0 bg-gradient-to-r from-brand-900/80 via-brand-900/60 to-brand-700/40"></div>
+    <!-- Rotating TikTok background (single iframe rotates through all URLs) -->
+    <div class="absolute inset-0 -z-10">
+      <app-tiktok-embed
+        class="block w-full h-full"
+        mode="background"
+        [url]="tiktokHeroVideos"
+        [autoplay]="true"
+        [rotateInterval]="9000"
+      ></app-tiktok-embed>
+      <!-- Unified gradient overlay for readable hero text -->
+      <div class="absolute inset-0 z-[150] pointer-events-none bg-gradient-to-r from-brand-900/80 via-brand-900/60 to-brand-700/40"></div>
+      <div class="absolute inset-0 z-[160] pointer-events-none bg-black/30 mix-blend-multiply"></div>
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4">
