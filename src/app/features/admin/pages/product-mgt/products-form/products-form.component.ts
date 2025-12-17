@@ -146,6 +146,7 @@ export class ProductsFormComponent implements OnInit {
         metaTitle: formData.metaTitle || undefined,
         metaDescription: formData.metaDescription || undefined,
         basePrice: formData.basePrice || undefined,
+        compareAtPrice: formData.compareAtPrice || undefined,
         baseInventory: formData.baseInventory || undefined,
       };
 
@@ -180,6 +181,7 @@ export class ProductsFormComponent implements OnInit {
         metaTitle: formData.metaTitle || undefined,
         metaDescription: formData.metaDescription || undefined,
         basePrice: formData.basePrice || undefined,
+        compareAtPrice: formData.compareAtPrice || undefined,
         baseInventory: formData.baseInventory || undefined,
       };
 
