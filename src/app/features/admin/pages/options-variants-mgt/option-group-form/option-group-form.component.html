@@ -90,10 +90,21 @@
   <div *ngIf="isEditMode()" class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
     <h2 class="text-lg font-semibold text-gray-900 mb-4">Manage Options</h2>
 
-    <!-- Add New Option Form -->
-    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-      <h3 class="text-sm font-medium text-gray-900 mb-3">Add New Option</h3>
-      <form [formGroup]="optionForm" (ngSubmit)="onAddOption()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <!-- Add/Edit Option Form -->
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg" id="optionFormCard">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-medium text-gray-900">
+          {{ editingOptionId() ? 'Edit Option' : 'Add New Option' }}
+        </h3>
+        <button
+          *ngIf="editingOptionId()"
+          (click)="onCancelEditOption()"
+          class="text-xs text-gray-500 hover:text-gray-700 underline"
+        >
+          Cancel Edit
+        </button>
+      </div>
+      <form [formGroup]="optionForm" (ngSubmit)="onSaveOption()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
           <label for="optionValue" class="block text-xs font-medium text-gray-700 mb-1">
             Option Value *
@@ -135,6 +146,27 @@
         </div>
 
         <div>
+           <label for="compareAtPrice" class="block text-xs font-medium text-gray-700 mb-1">
+             Original Price (₦)
+           </label>
+           <input
+             id="compareAtPrice"
+             type="number"
+             formControlName="compareAtPrice"
+             placeholder="0"
+             min="0"
+             step="0.01"
+             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors text-sm"
+             [class.border-red-300]="getFieldError('compareAtPrice', optionForm)"
+             [class.focus:ring-red-500]="getFieldError('compareAtPrice', optionForm)"
+             [class.focus:border-red-500]="getFieldError('compareAtPrice', optionForm)"
+           >
+           <div *ngIf="getFieldError('compareAtPrice', optionForm)" class="mt-1 text-xs text-red-600">
+             {{ getFieldError('compareAtPrice', optionForm) }}
+           </div>
+         </div>
+
+        <div>
           <label for="inventory" class="block text-xs font-medium text-gray-700 mb-1">
             Inventory *
           </label>
@@ -167,14 +199,24 @@
             >
           </div>
 
-          <button
-            type="submit"
-            [disabled]="optionForm.invalid"
-            class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 whitespace-nowrap text-sm"
-          >
-            <ng-icon name="lucidePlus" class="text-lg"></ng-icon>
-            <span>Add</span>
-          </button>
+          <div class="flex gap-2">
+             <button
+              *ngIf="editingOptionId()"
+              type="button"
+              (click)="onCancelEditOption()"
+              class="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200 whitespace-nowrap text-sm"
+            >
+              <span>Cancel</span>
+            </button>
+            <button
+               type="submit"
+               [disabled]="optionForm.invalid"
+               class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 whitespace-nowrap text-sm"
+             >
+               <ng-icon [name]="editingOptionId() ? 'lucideSave' : 'lucidePlus'" class="text-lg"></ng-icon>
+               <span>{{ editingOptionId() ? 'Update' : 'Add' }}</span>
+             </button>
+          </div>
         </div>
       </form>
     </div>
@@ -184,21 +226,37 @@
       <h3 class="text-sm font-medium text-gray-900">Current Options</h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div *ngFor="let option of currentOptions()"
-             class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+             class="p-3 bg-gray-50 rounded-lg border border-gray-200"
+             [class.ring-2]="editingOptionId() === option.id"
+             [class.ring-purple-500]="editingOptionId() === option.id">
           <div class="flex items-start justify-between mb-2">
             <span class="text-sm font-medium text-gray-900">{{ option.value }}</span>
-            <button
-              (click)="onDeleteOption(option)"
-              class="inline-flex items-center justify-center w-6 h-6 text-red-600 hover:text-red-700 hover:bg-red-100 rounded-full transition-colors duration-200"
-              [attr.aria-label]="'Delete option ' + option.value"
-            >
-              <ng-icon name="lucideTrash2" class="text-xs"></ng-icon>
-            </button>
+            <div class="flex items-center gap-1">
+              <button
+                (click)="onEditOption(option)"
+                class="inline-flex items-center justify-center w-6 h-6 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-full transition-colors duration-200"
+                [attr.aria-label]="'Edit option ' + option.value"
+              >
+                <ng-icon name="lucidePencil" class="text-xs"></ng-icon>
+              </button>
+              <button
+                (click)="onDeleteOption(option)"
+                class="inline-flex items-center justify-center w-6 h-6 text-red-600 hover:text-red-700 hover:bg-red-100 rounded-full transition-colors duration-200"
+                [attr.aria-label]="'Delete option ' + option.value"
+              >
+                <ng-icon name="lucideTrash2" class="text-xs"></ng-icon>
+              </button>
+            </div>
           </div>
           <div class="space-y-1 text-xs text-gray-600">
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center">
               <span>Price:</span>
-              <span class="font-medium">₦{{ option.priceModifier | number:'1.2-2' }}</span>
+              <div class="flex items-center gap-2">
+                 <span *ngIf="option.compareAtPrice && option.compareAtPrice > option.priceModifier" class="line-through text-gray-400">
+                   ₦{{ option.compareAtPrice | number:'1.2-2' }}
+                 </span>
+                 <span class="font-medium">₦{{ option.priceModifier | number:'1.2-2' }}</span>
+              </div>
             </div>
             <div class="flex justify-between">
               <span>Inventory:</span>

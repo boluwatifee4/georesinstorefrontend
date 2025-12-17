@@ -1,6 +1,8 @@
 <!-- Form Header -->
 <div class="mb-6 sm:mb-8">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+  >
     <div class="flex items-center gap-4">
       <button
         (click)="onCancel()"
@@ -11,10 +13,14 @@
       </button>
       <div>
         <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
-          {{ isEditMode() ? 'Edit Product' : 'Create Product' }}
+          {{ isEditMode() ? "Edit Product" : "Create Product" }}
         </h1>
         <p class="mt-1 text-sm text-gray-600">
-          {{ isEditMode() ? 'Update product details and settings' : 'Create a new product for your store' }}
+          {{
+            isEditMode()
+              ? "Update product details and settings"
+              : "Create a new product for your store"
+          }}
         </p>
       </div>
     </div>
@@ -23,14 +29,24 @@
 
 <!-- Loading State -->
 <div *ngIf="loading()" class="flex items-center justify-center py-12">
-  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-  <span class="ml-3 text-gray-600">{{ isEditMode() ? 'Loading product...' : 'Processing...' }}</span>
+  <div
+    class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"
+  ></div>
+  <span class="ml-3 text-gray-600">{{
+    isEditMode() ? "Loading product..." : "Processing..."
+  }}</span>
 </div>
 
 <!-- Error State -->
-<div *ngIf="error() && !loading()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+<div
+  *ngIf="error() && !loading()"
+  class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+>
   <div class="flex items-center">
-    <ng-icon name="lucideTriangleAlert" class="text-red-600 text-lg mr-2"></ng-icon>
+    <ng-icon
+      name="lucideTriangleAlert"
+      class="text-red-600 text-lg mr-2"
+    ></ng-icon>
     <p class="text-red-800">{{ error() }}</p>
   </div>
 </div>
@@ -40,7 +56,9 @@
   <form [formGroup]="productForm" (ngSubmit)="onSave()" class="space-y-4">
     <!-- Basic Information Card -->
     <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">
+        Basic Information
+      </h2>
 
       <!-- Title Field -->
       <div>
@@ -56,16 +74,21 @@
           [class.border-red-300]="getFieldError('title')"
           [class.focus:ring-red-500]="getFieldError('title')"
           [class.focus:border-red-500]="getFieldError('title')"
-        >
+        />
         <div *ngIf="getFieldError('title')" class="mt-1 text-sm text-red-600">
-          {{ getFieldError('title') }}
+          {{ getFieldError("title") }}
         </div>
-        <p class="mt-1 text-xs text-gray-500">Choose a descriptive title that clearly identifies your product</p>
+        <p class="mt-1 text-xs text-gray-500">
+          Choose a descriptive title that clearly identifies your product
+        </p>
       </div>
 
       <!-- Description Field -->
       <div>
-        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          for="description"
+          class="block text-sm font-medium text-gray-700 mb-2"
+        >
           Description
         </label>
         <textarea
@@ -78,21 +101,31 @@
           [class.focus:ring-red-500]="getFieldError('description')"
           [class.focus:border-red-500]="getFieldError('description')"
         ></textarea>
-        <div *ngIf="getFieldError('description')" class="mt-1 text-sm text-red-600">
-          {{ getFieldError('description') }}
+        <div
+          *ngIf="getFieldError('description')"
+          class="mt-1 text-sm text-red-600"
+        >
+          {{ getFieldError("description") }}
         </div>
-        <p class="mt-1 text-xs text-gray-500">Provide detailed information about your product (max 2000 characters)</p>
+        <p class="mt-1 text-xs text-gray-500">
+          Provide detailed information about your product (max 2000 characters)
+        </p>
       </div>
     </div>
 
     <!-- Pricing & Inventory Card -->
     <div class="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Pricing & Inventory</h2>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">
+        Pricing & Inventory
+      </h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <!-- Base Price Field -->
         <div>
-          <label for="basePrice" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="basePrice"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
             Base Price (₦)
           </label>
           <input
@@ -106,16 +139,56 @@
             [class.border-red-300]="getFieldError('basePrice')"
             [class.focus:ring-red-500]="getFieldError('basePrice')"
             [class.focus:border-red-500]="getFieldError('basePrice')"
+          />
+          <div
+            *ngIf="getFieldError('basePrice')"
+            class="mt-1 text-sm text-red-600"
           >
-          <div *ngIf="getFieldError('basePrice')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('basePrice') }}
+            {{ getFieldError("basePrice") }}
           </div>
-          <p class="mt-1 text-xs text-gray-500">Base price in kobo/cents (e.g., 2500 = ₦25.00). Leave empty if not applicable.</p>
+          <p class="mt-1 text-xs text-gray-500">
+            Base price in kobo/cents (e.g., 2500 = ₦25.00). Leave empty if not
+            applicable.
+          </p>
+        </div>
+
+        <!-- Compare At Price Field -->
+        <div>
+          <label
+            for="compareAtPrice"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Original Price (₦)
+          </label>
+          <input
+            id="compareAtPrice"
+            type="number"
+            formControlName="compareAtPrice"
+            placeholder="0"
+            min="0"
+            step="0.01"
+            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+            [class.border-red-300]="getFieldError('compareAtPrice')"
+            [class.focus:ring-red-500]="getFieldError('compareAtPrice')"
+            [class.focus:border-red-500]="getFieldError('compareAtPrice')"
+          />
+          <div
+            *ngIf="getFieldError('compareAtPrice')"
+            class="mt-1 text-sm text-red-600"
+          >
+            {{ getFieldError("compareAtPrice") }}
+          </div>
+          <p class="mt-1 text-xs text-gray-500">
+            The original price before discount. Shows as struck-through.
+          </p>
         </div>
 
         <!-- Base Inventory Field -->
         <div>
-          <label for="baseInventory" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="baseInventory"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
             Base Inventory
           </label>
           <input
@@ -128,11 +201,16 @@
             [class.border-red-300]="getFieldError('baseInventory')"
             [class.focus:ring-red-500]="getFieldError('baseInventory')"
             [class.focus:border-red-500]="getFieldError('baseInventory')"
+          />
+          <div
+            *ngIf="getFieldError('baseInventory')"
+            class="mt-1 text-sm text-red-600"
           >
-          <div *ngIf="getFieldError('baseInventory')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('baseInventory') }}
+            {{ getFieldError("baseInventory") }}
           </div>
-          <p class="mt-1 text-xs text-gray-500">Total available stock quantity. Leave empty if not applicable.</p>
+          <p class="mt-1 text-xs text-gray-500">
+            Total available stock quantity. Leave empty if not applicable.
+          </p>
         </div>
       </div>
     </div>
@@ -150,8 +228,11 @@
               type="checkbox"
               formControlName="isActive"
               class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            />
+            <label
+              for="isActive"
+              class="ml-2 text-sm font-medium text-gray-700"
             >
-            <label for="isActive" class="ml-2 text-sm font-medium text-gray-700">
               Active
             </label>
           </div>
@@ -162,8 +243,11 @@
               type="checkbox"
               formControlName="featured"
               class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            />
+            <label
+              for="featured"
+              class="ml-2 text-sm font-medium text-gray-700"
             >
-            <label for="featured" class="ml-2 text-sm font-medium text-gray-700">
               Featured Product
             </label>
           </div>
@@ -174,7 +258,7 @@
               type="checkbox"
               formControlName="isEmpty"
               class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2"
-            >
+            />
             <label for="isEmpty" class="ml-2 text-sm font-medium text-gray-700">
               Out of Stock
             </label>
@@ -183,7 +267,10 @@
 
         <!-- Meta Title Field -->
         <div>
-          <label for="metaTitle" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="metaTitle"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
             Meta Title
           </label>
           <input
@@ -195,16 +282,24 @@
             [class.border-red-300]="getFieldError('metaTitle')"
             [class.focus:ring-red-500]="getFieldError('metaTitle')"
             [class.focus:border-red-500]="getFieldError('metaTitle')"
+          />
+          <div
+            *ngIf="getFieldError('metaTitle')"
+            class="mt-1 text-sm text-red-600"
           >
-          <div *ngIf="getFieldError('metaTitle')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('metaTitle') }}
+            {{ getFieldError("metaTitle") }}
           </div>
-          <p class="mt-1 text-xs text-gray-500">Title shown in search engine results (max 200 characters)</p>
+          <p class="mt-1 text-xs text-gray-500">
+            Title shown in search engine results (max 200 characters)
+          </p>
         </div>
 
         <!-- Meta Description Field -->
         <div>
-          <label for="metaDescription" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="metaDescription"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
             Meta Description
           </label>
           <textarea
@@ -217,10 +312,15 @@
             [class.focus:ring-red-500]="getFieldError('metaDescription')"
             [class.focus:border-red-500]="getFieldError('metaDescription')"
           ></textarea>
-          <div *ngIf="getFieldError('metaDescription')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('metaDescription') }}
+          <div
+            *ngIf="getFieldError('metaDescription')"
+            class="mt-1 text-sm text-red-600"
+          >
+            {{ getFieldError("metaDescription") }}
           </div>
-          <p class="mt-1 text-xs text-gray-500">Description shown in search engine results (max 500 characters)</p>
+          <p class="mt-1 text-xs text-gray-500">
+            Description shown in search engine results (max 500 characters)
+          </p>
         </div>
       </div>
     </div>
@@ -239,9 +339,17 @@
         [disabled]="productForm.invalid || isLoading()"
         class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
       >
-        <ng-icon *ngIf="isLoading()" name="lucideLoader" class="text-lg animate-spin"></ng-icon>
-        <ng-icon *ngIf="!isLoading()" name="lucideSave" class="text-lg"></ng-icon>
-        <span>{{ isEditMode() ? 'Update' : 'Create' }} Product</span>
+        <ng-icon
+          *ngIf="isLoading()"
+          name="lucideLoader"
+          class="text-lg animate-spin"
+        ></ng-icon>
+        <ng-icon
+          *ngIf="!isLoading()"
+          name="lucideSave"
+          class="text-lg"
+        ></ng-icon>
+        <span>{{ isEditMode() ? "Update" : "Create" }} Product</span>
       </button>
     </div>
   </form>

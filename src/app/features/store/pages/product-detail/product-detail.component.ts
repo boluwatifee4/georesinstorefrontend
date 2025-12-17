@@ -1,6 +1,26 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed, DestroyRef, PLATFORM_ID, Inject, effect } from '@angular/core';
-import { CommonModule, NgOptimizedImage, isPlatformBrowser } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  DestroyRef,
+  PLATFORM_ID,
+  Inject,
+  effect,
+} from '@angular/core';
+import {
+  CommonModule,
+  NgOptimizedImage,
+  isPlatformBrowser,
+} from '@angular/common';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  FormControl,
+} from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 // Removed unused switchMap/of imports after resolver optimization
@@ -15,6 +35,7 @@ interface ProductOption {
   id: number;
   value: string;
   priceModifier: number;
+  compareAtPrice?: number; // Added
   inventory: number;
   isActive: boolean;
 }
@@ -32,7 +53,7 @@ interface ProductOptionGroup {
   imports: [CommonModule, ReactiveFormsModule, NgOptimizedImage],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductDetailComponent implements OnInit {
   private readonly router = inject(Router);
@@ -52,7 +73,10 @@ export class ProductDetailComponent implements OnInit {
   readonly showImageModal = signal(false);
   readonly selectedOptions = signal<Record<number, ProductOption>>({}); // groupId -> selected option
   // Inline feedback (instead of window alert/confirm)
-  readonly feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
+  readonly feedback = signal<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
   readonly showPostAddActions = signal(false);
   readonly addInProgress = signal(false);
 
@@ -62,7 +86,8 @@ export class ProductDetailComponent implements OnInit {
     if (!product) return 0;
 
     const selected = this.selectedOptions();
-    const optionGroups = (product as any).optionGroups as ProductOptionGroup[] || [];
+    const optionGroups =
+      ((product as any).optionGroups as ProductOptionGroup[]) || [];
 
     // If there are option groups and at least one option is selected, use the option price
     if (optionGroups.length > 0) {
@@ -81,6 +106,27 @@ export class ProductDetailComponent implements OnInit {
     return this.unitPrice();
   });
 
+  readonly currentCompareAtPrice = computed(() => {
+    const product = this.product();
+    if (!product) return undefined;
+
+    const selected = this.selectedOptions();
+    const optionGroups =
+      ((product as any).optionGroups as ProductOptionGroup[]) || [];
+
+    // If option is selected, try to use its compareAtPrice
+    if (optionGroups.length > 0) {
+      const selectedValues = Object.values(selected);
+      if (selectedValues.length > 0 && selectedValues[0]) {
+        // Return option's compareAtPrice (undefined if not set)
+        return selectedValues[0].compareAtPrice;
+      }
+    }
+
+    // Fallback to product level compareAtPrice
+    return product.compareAtPrice;
+  });
+
   readonly totalPrice = computed(() => {
     return this.unitPrice() * this.quantity();
   });
@@ -93,13 +139,15 @@ export class ProductDetailComponent implements OnInit {
     if (product.isEmpty) return false;
 
     const selected = this.selectedOptions();
-    const optionGroups = (product as any).optionGroups as ProductOptionGroup[] || [];
+    const optionGroups =
+      ((product as any).optionGroups as ProductOptionGroup[]) || [];
 
     // Check if all required option groups have selections
     for (const group of optionGroups) {
       const selectedOption = selected[group.id];
       if (!selectedOption) return false; // No option selected for this group
-      if (!selectedOption.isActive || selectedOption.inventory <= 0) return false;
+      if (!selectedOption.isActive || selectedOption.inventory <= 0)
+        return false;
     }
 
     return true;
@@ -112,12 +160,15 @@ export class ProductDetailComponent implements OnInit {
     // Can't add to cart if product is empty/out of stock
     if (product.isEmpty) return false;
 
-    const optionGroups = (product as any).optionGroups as ProductOptionGroup[] || [];
+    const optionGroups =
+      ((product as any).optionGroups as ProductOptionGroup[]) || [];
     const selected = this.selectedOptions();
 
     // If there are option groups, all must be selected
     if (optionGroups.length > 0) {
-      return optionGroups.every(group => selected[group.id]) && this.quantity() > 0;
+      return (
+        optionGroups.every((group) => selected[group.id]) && this.quantity() > 0
+      );
     }
 
     return this.quantity() > 0;
@@ -126,7 +177,9 @@ export class ProductDetailComponent implements OnInit {
   readonly optionGroups = computed(() => {
     const product = this.product();
     if (!product) return [];
-    return ((product as any).optionGroups as ProductOptionGroup[] || []).sort((a, b) => a.position - b.position);
+    return (((product as any).optionGroups as ProductOptionGroup[]) || []).sort(
+      (a, b) => a.position - b.position
+    );
   });
 
   readonly allImages = computed(() => {
@@ -141,7 +194,7 @@ export class ProductDetailComponent implements OnInit {
     }
 
     // TODO: Add media images when media field is available
-    product.media?.forEach(m => {
+    product.media?.forEach((m) => {
       if (!images.includes(m.url)) {
         images.push(m.url);
       }
@@ -160,11 +213,14 @@ export class ProductDetailComponent implements OnInit {
     effect(() => {
       const product = this.product();
       if (product && (product as any).optionGroups) {
-        const optionGroups = (product as any).optionGroups as ProductOptionGroup[];
+        const optionGroups = (product as any)
+          .optionGroups as ProductOptionGroup[];
         const initialSelections: Record<number, ProductOption> = {};
 
-        optionGroups.forEach(group => {
-          const firstAvailableOption = group.options.find(opt => opt.isActive && opt.inventory > 0);
+        optionGroups.forEach((group) => {
+          const firstAvailableOption = group.options.find(
+            (opt) => opt.isActive && opt.inventory > 0
+          );
           if (firstAvailableOption) {
             initialSelections[group.id] = firstAvailableOption;
           }
@@ -199,11 +255,25 @@ export class ProductDetailComponent implements OnInit {
 
   private applySeo(product: Product) {
     const title = `${product.title} - Premium Resin Materials | Geo Resin Store`;
-    const desc = product.description?.slice(0, 150) + '... Available at Nigeria\'s premier resin store with fast delivery.' || 'Premium resin product available at Geo Resin Store Nigeria with fast delivery nationwide.';
-    const img = product.primaryImageUrl ? this.googleDriveService.convertGoogleDriveUrl(product.primaryImageUrl) : undefined;
-    const url = typeof location !== 'undefined' ? location.href : `https://www.georesinstore.com/store/products/${product.slug}`;
+    const desc =
+      product.description?.slice(0, 150) +
+        "... Available at Nigeria's premier resin store with fast delivery." ||
+      'Premium resin product available at Geo Resin Store Nigeria with fast delivery nationwide.';
+    const img = product.primaryImageUrl
+      ? this.googleDriveService.convertGoogleDriveUrl(product.primaryImageUrl)
+      : undefined;
+    const url =
+      typeof location !== 'undefined'
+        ? location.href
+        : `https://www.georesinstore.com/store/products/${product.slug}`;
 
-    this.seo.setOg({ title, description: desc, image: img, url, type: 'product' });
+    this.seo.setOg({
+      title,
+      description: desc,
+      image: img,
+      url,
+      type: 'product',
+    });
 
     const price = product.basePrice || (product as any).minPrice;
     const categoryName = product.categories?.[0]?.name || 'Resin Materials';
@@ -217,7 +287,7 @@ export class ProductDetailComponent implements OnInit {
       slug: product.slug || undefined,
       category: categoryName,
       brand: 'Geo Resin Store',
-      sku: product.id?.toString() || product.slug || undefined
+      sku: product.id?.toString() || product.slug || undefined,
     });
 
     // Set product-specific keywords
@@ -228,11 +298,11 @@ export class ProductDetailComponent implements OnInit {
       categoryName,
       `${product.title} Nigeria`,
       'resin crafting supplies',
-      'art materials Lagos'
+      'art materials Lagos',
     ];
 
     if (product.categories && product.categories.length > 0) {
-      product.categories.forEach(cat => {
+      product.categories.forEach((cat) => {
         keywords.push(`${cat.name} Nigeria`, `${cat.name} Lagos`);
       });
     }
@@ -243,19 +313,21 @@ export class ProductDetailComponent implements OnInit {
     const breadcrumbs = [
       { name: 'Home', url: 'https://www.georesinstore.com/' },
       { name: 'Store', url: 'https://www.georesinstore.com/store' },
-      { name: 'Products', url: 'https://www.georesinstore.com/store/products' }
+      { name: 'Products', url: 'https://www.georesinstore.com/store/products' },
     ];
 
     if (product.categories?.[0]) {
       breadcrumbs.push({
         name: product.categories[0].name,
-        url: `https://www.georesinstore.com/store/products?category=${encodeURIComponent(product.categories[0].name)}`
+        url: `https://www.georesinstore.com/store/products?category=${encodeURIComponent(
+          product.categories[0].name
+        )}`,
       });
     }
 
     breadcrumbs.push({
       name: product.title,
-      url: `https://www.georesinstore.com/store/products/${product.slug}`
+      url: `https://www.georesinstore.com/store/products/${product.slug}`,
     });
 
     this.seo.setBreadcrumbStructuredData(breadcrumbs);
@@ -267,9 +339,9 @@ export class ProductDetailComponent implements OnInit {
   }
 
   selectOption(groupId: number, option: ProductOption): void {
-    this.selectedOptions.update(selected => ({
+    this.selectedOptions.update((selected) => ({
       ...selected,
-      [groupId]: option
+      [groupId]: option,
     }));
   }
 
@@ -301,9 +373,13 @@ export class ProductDetailComponent implements OnInit {
     if (!product || !this.canAddToCart()) return;
 
     // For products with option groups, ensure all are selected
-    const optionGroups = (product as any).optionGroups as ProductOptionGroup[] || [];
-    if (optionGroups.length && !optionGroups.every(g => !!selected[g.id])) {
-      this.showFeedback('error', 'Please select all required options before adding to cart.');
+    const optionGroups =
+      ((product as any).optionGroups as ProductOptionGroup[]) || [];
+    if (optionGroups.length && !optionGroups.every((g) => !!selected[g.id])) {
+      this.showFeedback(
+        'error',
+        'Please select all required options before adding to cart.'
+      );
       return;
     }
 
@@ -324,14 +400,19 @@ export class ProductDetailComponent implements OnInit {
 
     // At this point variantId should always be valid
     if (!variantId) {
-      this.showFeedback('error', 'Unable to add product to cart. Please try again.');
+      this.showFeedback(
+        'error',
+        'Unable to add product to cart. Please try again.'
+      );
       return;
     }
 
     // Build flexible DTO: only include variantId if real variants exist; only include selectedOptions if any selected
     const variants = (product as any).variants || [];
     const selectedOptionEntries = optionGroups.length
-      ? Object.entries(selected).map(([gId, opt]) => [gId, (opt as any)?.id]).filter(([_, id]) => !!id)
+      ? Object.entries(selected)
+          .map(([gId, opt]) => [gId, (opt as any)?.id])
+          .filter(([_, id]) => !!id)
       : [];
 
     // If product truly has no variants, ignore the earlier fallback variantId (which may equal product.id)
@@ -342,7 +423,7 @@ export class ProductDetailComponent implements OnInit {
 
     const dto: any = {
       productId: product.id,
-      qty
+      qty,
     };
     if (hasRealVariants && variantId) {
       dto.variantId = variantId;
@@ -376,13 +457,14 @@ export class ProductDetailComponent implements OnInit {
     if (!product) return null;
     const variants = (product as any).variants || [];
     const selected = this.selectedOptions();
-    const optionGroups = (product as any).optionGroups as ProductOptionGroup[] || [];
+    const optionGroups =
+      ((product as any).optionGroups as ProductOptionGroup[]) || [];
 
     // No variants available at all
     if (!variants.length) return null;
 
     // Single variant shortcut (covers simple product and most fallback cases)
-    if (variants.length === 1 && (!optionGroups.length)) {
+    if (variants.length === 1 && !optionGroups.length) {
       return variants[0].id;
     }
 
@@ -393,8 +475,8 @@ export class ProductDetailComponent implements OnInit {
 
     // All selected option ids (sorted for deterministic comparison)
     const selectedOptionIds = optionGroups
-      .map(g => selected[g.id]?.id)
-      .filter(id => !!id) // remove undefined
+      .map((g) => selected[g.id]?.id)
+      .filter((id) => !!id) // remove undefined
       .map(Number)
       .sort((a, b) => a - b);
 
@@ -403,30 +485,41 @@ export class ProductDetailComponent implements OnInit {
     }
 
     // Detect if backend includes combination metadata
-    const anyHasCombinations = variants.some((v: any) => Array.isArray(v.optionCombination) && v.optionCombination.length);
+    const anyHasCombinations = variants.some(
+      (v: any) =>
+        Array.isArray(v.optionCombination) && v.optionCombination.length
+    );
 
     if (anyHasCombinations) {
       // Strict exact-match pass
       for (const variant of variants) {
-        const combo = (variant.optionCombination || []).map((oc: any) => Number(oc.option.id)).sort((a: number, b: number) => a - b);
+        const combo = (variant.optionCombination || [])
+          .map((oc: any) => Number(oc.option.id))
+          .sort((a: number, b: number) => a - b);
         if (
           combo.length === selectedOptionIds.length &&
-          combo.every((id: number, idx: number) => id === selectedOptionIds[idx])
+          combo.every(
+            (id: number, idx: number) => id === selectedOptionIds[idx]
+          )
         ) {
           return variant.id;
         }
       }
       // Relaxed superset match (if variant combo is a superset including all selected)
       for (const variant of variants) {
-        const combo = (variant.optionCombination || []).map((oc: any) => Number(oc.option.id));
-        if (selectedOptionIds.every(id => combo.includes(id))) {
+        const combo = (variant.optionCombination || []).map((oc: any) =>
+          Number(oc.option.id)
+        );
+        if (selectedOptionIds.every((id) => combo.includes(id))) {
           return variant.id;
         }
       }
     } else {
       // No combination metadata at all: attempt heuristic by price match
       const current = this.currentPrice();
-      const priceMatched = variants.find((v: any) => parseFloat(v.price) === current);
+      const priceMatched = variants.find(
+        (v: any) => parseFloat(v.price) === current
+      );
       if (priceMatched) return priceMatched.id;
       // Fallback to first variant
       return variants[0]?.id ?? null;
@@ -436,11 +529,22 @@ export class ProductDetailComponent implements OnInit {
     return variants[0]?.id ?? null;
   }
 
-  private finalizeAddToCart(variantId: number | null, product: any, qty: number, selected: Record<number, ProductOption>) {
-    const optionDetails = Object.values(selected).map(opt => opt.value).join(', ');
+  private finalizeAddToCart(
+    variantId: number | null,
+    product: any,
+    qty: number,
+    selected: Record<number, ProductOption>
+  ) {
+    const optionDetails = Object.values(selected)
+      .map((opt) => opt.value)
+      .join(', ');
     const message = optionDetails
-      ? `Added ${qty} × ${product.title} (${optionDetails}) – ₦${this.totalPrice().toLocaleString('en-NG')}`
-      : `Added ${qty} × ${product.title} – ₦${this.totalPrice().toLocaleString('en-NG')}`;
+      ? `Added ${qty} × ${
+          product.title
+        } (${optionDetails}) – ₦${this.totalPrice().toLocaleString('en-NG')}`
+      : `Added ${qty} × ${product.title} – ₦${this.totalPrice().toLocaleString(
+          'en-NG'
+        )}`;
 
     // Reset quantity & show inline feedback/actions
     this.quantity.set(1);

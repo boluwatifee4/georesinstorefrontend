@@ -15,18 +15,19 @@ export interface Product {
   description: string | null;
   isActive: boolean;
   featured: boolean;
-  isEmpty: boolean;          // Indicates if product is out of stock
+  isEmpty: boolean; // Indicates if product is out of stock
   metaTitle: string | null;
   metaDescription: string | null;
-  basePrice?: number;        // Base price in kobo/cents (optional)
-  baseInventory?: number;    // Base inventory count (optional)
-  minPrice?: number;         // Minimum variant/option computed price
-  maxPrice?: number;         // Maximum variant/option computed price
+  basePrice?: number; // Base price in kobo/cents (optional)
+  compareAtPrice?: number; // Original/Strikethrough price in kobo/cents (optional)
+  baseInventory?: number; // Base inventory count (optional)
+  minPrice?: number; // Minimum variant/option computed price
+  maxPrice?: number; // Maximum variant/option computed price
   createdAt: string;
   updatedAt: string;
   primaryImageUrl?: string | null; // URL of the primary image (optional)
-  media?: ProductMedia[];    // Product media/images
-  categories?: Category[];   // Assigned categories
+  media?: ProductMedia[]; // Product media/images
+  categories?: Category[]; // Assigned categories
   optionGroups?: OptionGroup[]; // Attached option groups
 }
 
@@ -51,9 +52,10 @@ export interface Option {
   id: number;
   groupId: number;
   value: string;
-  priceModifier: number;   // Price addition in kobo/cents
-  inventory: number;       // Option-specific inventory
-  isActive: boolean;       // Option availability
+  priceModifier: number; // Price addition in kobo/cents
+  compareAtPrice?: number; // Original/Strikethrough price modifier
+  inventory: number; // Option-specific inventory
+  isActive: boolean; // Option availability
 }
 
 export interface ProductVariant {
@@ -61,6 +63,7 @@ export interface ProductVariant {
   productId: number;
   sku: string;
   price: string; // Decimal as string
+  compareAtPrice?: number; // Original/Strikethrough price
   inventory: number;
   isActive: boolean;
   imageUrl: string | null;

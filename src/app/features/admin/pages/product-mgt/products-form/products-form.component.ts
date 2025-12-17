@@ -1,7 +1,19 @@
-import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  computed,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { toast } from 'ngx-sonner';
 import {
@@ -11,28 +23,33 @@ import {
   lucideTriangleAlert,
   lucidePackage,
   lucideTag,
-  lucideDollarSign
+  lucideDollarSign,
 } from '@ng-icons/lucide';
 
 import { AdminProductsStore } from '../../../state/admin-products.store';
 import { Product } from '../../../../../types/api.types';
-import { CreateProductRequest, UpdateProductRequest } from '../../../../../api/admin/products/products.service';
+import {
+  CreateProductRequest,
+  UpdateProductRequest,
+} from '../../../../../api/admin/products/products.service';
 
 @Component({
   selector: 'app-products-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgIcon],
-  providers: [provideIcons({
-    lucideArrowLeft,
-    lucideSave,
-    lucideLoader,
-    lucideTriangleAlert,
-    lucidePackage,
-    lucideTag,
-    lucideDollarSign
-  })],
+  providers: [
+    provideIcons({
+      lucideArrowLeft,
+      lucideSave,
+      lucideLoader,
+      lucideTriangleAlert,
+      lucidePackage,
+      lucideTag,
+      lucideDollarSign,
+    }),
+  ],
   templateUrl: './products-form.component.html',
-  styleUrl: './products-form.component.css'
+  styleUrl: './products-form.component.css',
 })
 export class ProductsFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -56,7 +73,14 @@ export class ProductsFormComponent implements OnInit {
   constructor() {
     // Initialize product form
     this.productForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
+      title: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(200),
+        ],
+      ],
       description: ['', [Validators.maxLength(2000)]],
       isActive: [true],
       featured: [false],
@@ -64,7 +88,8 @@ export class ProductsFormComponent implements OnInit {
       metaTitle: ['', [Validators.maxLength(200)]],
       metaDescription: ['', [Validators.maxLength(500)]],
       basePrice: [null, [Validators.min(0)]],
-      baseInventory: [null, [Validators.min(0)]]
+      compareAtPrice: [null, [Validators.min(0)]],
+      baseInventory: [null, [Validators.min(0)]],
     });
 
     // Effect to watch for currentProduct changes and update form
@@ -80,7 +105,8 @@ export class ProductsFormComponent implements OnInit {
           metaTitle: product.metaTitle || '',
           metaDescription: product.metaDescription || '',
           basePrice: product.basePrice || null,
-          baseInventory: product.baseInventory || null
+          compareAtPrice: product.compareAtPrice || null,
+          baseInventory: product.baseInventory || null,
         });
       }
     });
@@ -120,25 +146,29 @@ export class ProductsFormComponent implements OnInit {
         metaTitle: formData.metaTitle || undefined,
         metaDescription: formData.metaDescription || undefined,
         basePrice: formData.basePrice || undefined,
-        baseInventory: formData.baseInventory || undefined
+        baseInventory: formData.baseInventory || undefined,
       };
 
-      this.productsStore.updateProduct(this.productId()!, updateData).subscribe({
-        next: (result) => {
-          this.isLoading.set(false);
-          if (result) {
-            toast.success(`Product "${result.title}" updated successfully`);
-            this.router.navigate(['/admin/products', result.id]);
-          } else {
-            toast.error('Failed to update product');
-          }
-        },
-        error: (error) => {
-          this.isLoading.set(false);
-          console.error('Failed to update product:', error);
-          toast.error(`Failed to update product: ${error.message || 'Unknown error'}`);
-        }
-      });
+      this.productsStore
+        .updateProduct(this.productId()!, updateData)
+        .subscribe({
+          next: (result) => {
+            this.isLoading.set(false);
+            if (result) {
+              toast.success(`Product "${result.title}" updated successfully`);
+              this.router.navigate(['/admin/products', result.id]);
+            } else {
+              toast.error('Failed to update product');
+            }
+          },
+          error: (error) => {
+            this.isLoading.set(false);
+            console.error('Failed to update product:', error);
+            toast.error(
+              `Failed to update product: ${error.message || 'Unknown error'}`
+            );
+          },
+        });
     } else {
       // Create new product
       const createData: CreateProductRequest = {
@@ -150,7 +180,7 @@ export class ProductsFormComponent implements OnInit {
         metaTitle: formData.metaTitle || undefined,
         metaDescription: formData.metaDescription || undefined,
         basePrice: formData.basePrice || undefined,
-        baseInventory: formData.baseInventory || undefined
+        baseInventory: formData.baseInventory || undefined,
       };
 
       this.productsStore.createProduct(createData).subscribe({
@@ -166,8 +196,10 @@ export class ProductsFormComponent implements OnInit {
         error: (error) => {
           this.isLoading.set(false);
           console.error('Failed to create product:', error);
-          toast.error(`Failed to create product: ${error.message || 'Unknown error'}`);
-        }
+          toast.error(
+            `Failed to create product: ${error.message || 'Unknown error'}`
+          );
+        },
       });
     }
   }
@@ -180,11 +212,24 @@ export class ProductsFormComponent implements OnInit {
   getFieldError(fieldName: string): string | null {
     const field = this.productForm.get(fieldName);
     if (field?.errors && field.touched) {
-      if (field.errors['required']) return `${this.getFieldLabel(fieldName)} is required`;
-      if (field.errors['minlength']) return `${this.getFieldLabel(fieldName)} must be at least ${field.errors['minlength'].requiredLength} characters`;
-      if (field.errors['maxlength']) return `${this.getFieldLabel(fieldName)} must not exceed ${field.errors['maxlength'].requiredLength} characters`;
-      if (field.errors['min']) return `${this.getFieldLabel(fieldName)} must be at least ${field.errors['min'].min}`;
-      if (field.errors['pattern']) return `${this.getFieldLabel(fieldName)} can only contain lowercase letters, numbers, and hyphens`;
+      if (field.errors['required'])
+        return `${this.getFieldLabel(fieldName)} is required`;
+      if (field.errors['minlength'])
+        return `${this.getFieldLabel(fieldName)} must be at least ${
+          field.errors['minlength'].requiredLength
+        } characters`;
+      if (field.errors['maxlength'])
+        return `${this.getFieldLabel(fieldName)} must not exceed ${
+          field.errors['maxlength'].requiredLength
+        } characters`;
+      if (field.errors['min'])
+        return `${this.getFieldLabel(fieldName)} must be at least ${
+          field.errors['min'].min
+        }`;
+      if (field.errors['pattern'])
+        return `${this.getFieldLabel(
+          fieldName
+        )} can only contain lowercase letters, numbers, and hyphens`;
     }
     return null;
   }
@@ -196,7 +241,8 @@ export class ProductsFormComponent implements OnInit {
       metaTitle: 'Meta title',
       metaDescription: 'Meta description',
       basePrice: 'Base price',
-      baseInventory: 'Base inventory'
+      compareAtPrice: 'Compare at price',
+      baseInventory: 'Base inventory',
     };
     return labels[fieldName] || fieldName;
   }

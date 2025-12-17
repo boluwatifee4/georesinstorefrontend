@@ -151,10 +151,16 @@
             <span class="text-3xl md:text-4xl font-light text-text tracking-wide">
               ₦{{ currentPrice() | number:'1.0-0' }}
             </span>
-            <span *ngIf="currentPrice() !== product()?.basePrice" class="text-lg text-muted line-through">
-              ₦{{ product()?.basePrice | number:'1.0-0' }}
+            <span *ngIf="currentCompareAtPrice() as cap" class="text-lg text-muted line-through">
+              <ng-container *ngIf="cap > currentPrice()">
+                ₦{{ cap | number:'1.0-0' }}
+              </ng-container>
             </span>
-            <!-- SKU will be added when variants are implemented -->
+            <span *ngIf="currentCompareAtPrice() as cap" class="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">
+              <ng-container *ngIf="cap > currentPrice()">
+                {{ (1 - (currentPrice() / cap)) | percent:'1.0-0' }} OFF
+              </ng-container>
+            </span>
           </div>
           <div *ngIf="quantity() > 1" class="text-sm text-muted">
             Unit price • Total: ₦{{ totalPrice() | number:'1.0-0' }} for {{ quantity() }} {{ quantity() === 1 ? 'item' : 'items' }}
@@ -214,12 +220,22 @@
                   <div class="font-medium text-text">{{ option.value }}</div>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                      <span class="text-sm text-brand-600 font-medium">
-                        ₦{{ option.priceModifier | number:'1.0-0' }}
-                      </span>
-                      <span *ngIf="option.priceModifier === product()?.basePrice" class="text-xs text-muted">
-                        (Base price)
-                      </span>
+                      <div class="flex flex-col items-start leading-tight">
+                        <div class="flex items-center gap-2">
+                          <span
+                            *ngIf="option.compareAtPrice && option.compareAtPrice > option.priceModifier"
+                            class="text-xs text-muted line-through"
+                          >
+                            ₦{{ option.compareAtPrice | number:'1.0-0' }}
+                          </span>
+                          <span class="text-sm text-brand-600 font-medium">
+                            ₦{{ option.priceModifier | number:'1.0-0' }}
+                          </span>
+                        </div>
+                        <span *ngIf="option.priceModifier === product()?.basePrice" class="text-[10px] text-muted">
+                          (Base price)
+                        </span>
+                      </div>
                     </div>
                     <div class="text-xs text-muted">
                       <!-- <span *ngIf="option.inventory > 0">{{ option.inventory }} available</span> -->

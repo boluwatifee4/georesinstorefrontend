@@ -126,7 +126,15 @@
               ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
             </ng-container>
             <ng-template #singleNA>
-              ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}
+              <div class="flex flex-col">
+                <div *ngIf="p.compareAtPrice && p.compareAtPrice > (p.basePrice || 0)" class="flex items-center gap-2 mb-1">
+                  <span class="text-xs text-muted line-through">₦{{ p.compareAtPrice | number:'1.0-0' }}</span>
+                   <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
+                     {{ (1 - ((p.basePrice || 0) / p.compareAtPrice)) | percent:'1.0-0' }} OFF
+                   </span>
+                </div>
+                <span>₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}</span>
+              </div>
             </ng-template>
           </p>
         </div>
@@ -271,7 +279,15 @@
                     ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
                   </ng-container>
                   <ng-template #singleFP>
-                    ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}
+                    <div class="flex flex-col">
+                      <div *ngIf="p.compareAtPrice && p.compareAtPrice > (p.basePrice || 0)" class="flex items-center gap-2 mb-1">
+                        <span class="text-xs text-muted line-through">₦{{ p.compareAtPrice | number:'1.0-0' }}</span>
+                         <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
+                           {{ (1 - ((p.basePrice || 0) / p.compareAtPrice)) | percent:'1.0-0' }} OFF
+                         </span>
+                      </div>
+                      <span>₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}</span>
+                    </div>
                   </ng-template>
                 </span>
               </div>

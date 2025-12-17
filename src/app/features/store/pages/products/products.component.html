@@ -282,6 +282,15 @@
           <div class="flex flex-col gap-2 mt-auto">
             <!-- Price -->
             <div class="flex flex-col">
+              <!-- Discount Badge & Original Price (only for single price items) -->
+              <div *ngIf="product.compareAtPrice && product.compareAtPrice > (product.basePrice || product.minPrice || 0) && (!product.maxPrice || product.maxPrice === product.basePrice)"
+                   class="flex items-center gap-2 mb-1">
+                 <span class="text-xs text-muted line-through">₦{{ product.compareAtPrice | number:'1.0-0' }}</span>
+                 <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
+                   {{ (1 - ((product.basePrice || 0) / product.compareAtPrice)) | percent:'1.0-0' }} OFF
+                 </span>
+              </div>
+
               <span class="text-sm sm:text-lg font-semibold text-text">
                 <ng-container *ngIf="product.maxPrice && product.maxPrice !== product.basePrice; else singlePrice">
                   ₦{{ (product.basePrice || product.minPrice || 0) | number:'1.0-0' }} - ₦{{ (product.maxPrice || 0) | number:'1.0-0' }}

@@ -9,11 +9,12 @@ export interface CreateProductRequest {
   description?: string;
   isActive?: boolean;
   featured?: boolean;
-  isEmpty?: boolean;       // Indicates if product is out of stock
+  isEmpty?: boolean; // Indicates if product is out of stock
   metaTitle?: string;
   metaDescription?: string;
-  basePrice?: number;      // Base price in kobo/cents
-  baseInventory?: number;  // Base inventory quantity
+  basePrice?: number; // Base price in kobo/cents
+  compareAtPrice?: number; // Original/Strikethrough price
+  baseInventory?: number; // Base inventory quantity
 }
 
 export interface UpdateProductRequest {
@@ -22,11 +23,12 @@ export interface UpdateProductRequest {
   description?: string;
   isActive?: boolean;
   featured?: boolean;
-  isEmpty?: boolean;       // Indicates if product is out of stock
+  isEmpty?: boolean; // Indicates if product is out of stock
   metaTitle?: string;
   metaDescription?: string;
-  basePrice?: number;      // Base price in kobo/cents
-  baseInventory?: number;  // Base inventory quantity
+  basePrice?: number; // Base price in kobo/cents
+  compareAtPrice?: number; // Original/Strikethrough price
+  baseInventory?: number; // Base inventory quantity
 }
 
 export interface AddMediaRequest {
@@ -51,9 +53,12 @@ export class AdminProductsService {
    * Get all products (admin view)
    */
   getProducts(filters?: any): Observable<AdminListResponse<Product>> {
-    return this.apiHttp.adminGet<AdminListResponse<Product>>('/admin/products', {
-      params: filters
-    });
+    return this.apiHttp.adminGet<AdminListResponse<Product>>(
+      '/admin/products',
+      {
+        params: filters,
+      }
+    );
   }
 
   /**
@@ -66,7 +71,10 @@ export class AdminProductsService {
   /**
    * Update product
    */
-  updateProduct(id: number, request: UpdateProductRequest): Observable<Product> {
+  updateProduct(
+    id: number,
+    request: UpdateProductRequest
+  ): Observable<Product> {
     return this.apiHttp.adminPatch<Product>(`/admin/products/${id}`, request);
   }
 
@@ -80,28 +88,41 @@ export class AdminProductsService {
   /**
    * Add media to product
    */
-  addMedia(productId: number, request: AddMediaRequest): Observable<ProductMedia> {
-    return this.apiHttp.adminPost<ProductMedia>(`/admin/products/${productId}/media`, request);
+  addMedia(
+    productId: number,
+    request: AddMediaRequest
+  ): Observable<ProductMedia> {
+    return this.apiHttp.adminPost<ProductMedia>(
+      `/admin/products/${productId}/media`,
+      request
+    );
   }
 
   /**
    * Remove media from product
    */
   removeMedia(productId: number, mediaId: number): Observable<void> {
-    return this.apiHttp.adminDelete<void>(`/admin/products/${productId}/media/${mediaId}`);
+    return this.apiHttp.adminDelete<void>(
+      `/admin/products/${productId}/media/${mediaId}`
+    );
   }
 
   /**
    * Assign product to category
    */
   assignToCategory(productId: number, categoryId: number): Observable<void> {
-    return this.apiHttp.adminPost<void>(`/admin/products/${productId}/categories/${categoryId}`, {});
+    return this.apiHttp.adminPost<void>(
+      `/admin/products/${productId}/categories/${categoryId}`,
+      {}
+    );
   }
 
   /**
    * Remove product from category
    */
   removeFromCategory(productId: number, categoryId: number): Observable<void> {
-    return this.apiHttp.adminDelete<void>(`/admin/products/${productId}/categories/${categoryId}`);
+    return this.apiHttp.adminDelete<void>(
+      `/admin/products/${productId}/categories/${categoryId}`
+    );
   }
 }

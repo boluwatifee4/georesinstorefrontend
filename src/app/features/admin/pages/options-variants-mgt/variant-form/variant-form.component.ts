@@ -1,7 +1,12 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { toast } from 'ngx-sonner';
 import {
@@ -9,7 +14,7 @@ import {
   lucideSave,
   lucideLoader,
   lucideTriangleAlert,
-  lucidePackage
+  lucidePackage,
 } from '@ng-icons/lucide';
 
 import { ProductVariant } from '../../../../../types/api.types';
@@ -18,15 +23,17 @@ import { ProductVariant } from '../../../../../types/api.types';
   selector: 'app-variant-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgIcon],
-  providers: [provideIcons({
-    lucideArrowLeft,
-    lucideSave,
-    lucideLoader,
-    lucideTriangleAlert,
-    lucidePackage
-  })],
+  providers: [
+    provideIcons({
+      lucideArrowLeft,
+      lucideSave,
+      lucideLoader,
+      lucideTriangleAlert,
+      lucidePackage,
+    }),
+  ],
   templateUrl: './variant-form.component.html',
-  styleUrl: './variant-form.component.css'
+  styleUrl: './variant-form.component.css',
 })
 export class VariantFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -49,11 +56,19 @@ export class VariantFormComponent implements OnInit {
     // Initialize variant form
     this.variantForm = this.fb.group({
       productId: [1, [Validators.required, Validators.min(1)]], // Default to product 1, should be selectable
-      sku: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      sku: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(50),
+        ],
+      ],
       price: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{2})?$/)]],
+      compareAtPrice: [null],
       inventory: [0, [Validators.required, Validators.min(0)]],
       isActive: [true],
-      imageUrl: ['']
+      imageUrl: [''],
     });
   }
 
@@ -80,7 +95,7 @@ export class VariantFormComponent implements OnInit {
         price: '29.99',
         inventory: 15,
         isActive: true,
-        imageUrl: null
+        imageUrl: null,
       },
       {
         id: 2,
@@ -89,7 +104,7 @@ export class VariantFormComponent implements OnInit {
         price: '29.99',
         inventory: 8,
         isActive: true,
-        imageUrl: null
+        imageUrl: null,
       },
       {
         id: 3,
@@ -98,21 +113,22 @@ export class VariantFormComponent implements OnInit {
         price: '79.99',
         inventory: 5,
         isActive: true,
-        imageUrl: null
-      }
+        imageUrl: null,
+      },
     ];
 
     setTimeout(() => {
-      const variant = mockVariants.find(v => v.id === id);
+      const variant = mockVariants.find((v) => v.id === id);
       if (variant) {
         this.currentVariant.set(variant);
         this.variantForm.patchValue({
           productId: variant.productId,
           sku: variant.sku,
           price: variant.price,
+          compareAtPrice: variant.compareAtPrice || null,
           inventory: variant.inventory,
           isActive: variant.isActive,
-          imageUrl: variant.imageUrl || ''
+          imageUrl: variant.imageUrl || '',
         });
       } else {
         this.error.set('Variant not found');
@@ -151,12 +167,23 @@ export class VariantFormComponent implements OnInit {
   getFieldError(fieldName: string): string | null {
     const field = this.variantForm.get(fieldName);
     if (field?.errors && field.touched) {
-      if (field.errors['required']) return `${this.getFieldLabel(fieldName)} is required`;
-      if (field.errors['minlength']) return `${this.getFieldLabel(fieldName)} must be at least ${field.errors['minlength'].requiredLength} characters`;
-      if (field.errors['maxlength']) return `${this.getFieldLabel(fieldName)} must not exceed ${field.errors['maxlength'].requiredLength} characters`;
-      if (field.errors['min']) return `${this.getFieldLabel(fieldName)} must be at least ${field.errors['min'].min}`;
+      if (field.errors['required'])
+        return `${this.getFieldLabel(fieldName)} is required`;
+      if (field.errors['minlength'])
+        return `${this.getFieldLabel(fieldName)} must be at least ${
+          field.errors['minlength'].requiredLength
+        } characters`;
+      if (field.errors['maxlength'])
+        return `${this.getFieldLabel(fieldName)} must not exceed ${
+          field.errors['maxlength'].requiredLength
+        } characters`;
+      if (field.errors['min'])
+        return `${this.getFieldLabel(fieldName)} must be at least ${
+          field.errors['min'].min
+        }`;
       if (field.errors['pattern']) {
-        if (fieldName === 'price') return 'Price must be a valid number (e.g., 29.99)';
+        if (fieldName === 'price')
+          return 'Price must be a valid number (e.g., 29.99)';
         return `${this.getFieldLabel(fieldName)} format is invalid`;
       }
     }
@@ -168,8 +195,9 @@ export class VariantFormComponent implements OnInit {
       productId: 'Product ID',
       sku: 'SKU',
       price: 'Price',
+      compareAtPrice: 'Compare at price',
       inventory: 'Inventory',
-      imageUrl: 'Image URL'
+      imageUrl: 'Image URL',
     };
     return labels[fieldName] || fieldName;
   }
