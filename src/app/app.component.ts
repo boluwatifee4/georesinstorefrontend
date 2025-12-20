@@ -8,7 +8,7 @@ import { ScrollService } from './core/services/scroll.service';
   selector: 'app-root',
   imports: [RouterOutlet, NgxSonnerToaster],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
   title = 'grs-frontend';

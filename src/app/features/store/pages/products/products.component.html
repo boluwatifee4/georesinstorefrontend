@@ -1,8 +1,7 @@
-<!-- Mobile-First Products Page with Luxury Design -->
 <div class="min-h-screen bg-bg">
   <!-- Search & Filter Header -->
   <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-xl border-b border-border shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 overflow-visible">
 
       <!-- Search Bar -->
       <div class="relative mb-4">
@@ -197,13 +196,16 @@
     <div *ngIf="filteredProducts().length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
       <div
         *ngFor="let product of filteredProducts(); trackBy: trackById"
-        class="group relative cursor-pointer bg-surface border border-border rounded-xl overflow-hidden
+        class="group relative cursor-pointer bg-surface border border-border rounded-xl overflow-visible
                md:hover:shadow-xl md:hover:border-brand-600/30 transition-all duration-500
-               md:hover:-translate-y-1 active:scale-[0.98] touch-manipulation"
+               md:hover:-translate-y-1 active:scale-[0.98] touch-manipulation flex flex-col h-full"
         (click)="viewProduct(product)"
       >
+        <!-- Christmas Ribbon -->
+        <div class="festive-ribbon"></div>
+
         <!-- Product Image -->
-        <div class="relative aspect-square overflow-hidden">
+        <div class="relative aspect-square overflow-hidden rounded-xl">
           <div *ngIf="product.primaryImageUrl; else placeholderImage" class="w-full h-full">
             <img
               [ngSrc]="getImageUrl(product.primaryImageUrl)"
@@ -265,15 +267,15 @@
         </div>
 
         <!-- Product Info -->
-        <div class="p-3 sm:p-4 flex flex-col h-40 sm:h-40">
+        <div class="p-3 sm:p-4 flex flex-col flex-grow">
           <!-- Title -->
-          <h3 class="text-sm sm:text-base font-medium text-text leading-tight line-clamp-2 group-hover:text-brand-600 transition-colors min-h-[2rem] sm:min-h-[2.5rem] mb-2">
+          <h3 class="text-sm sm:text-base font-medium text-text leading-tight line-clamp-2 group-hover:text-brand-600 transition-colors min-h-[2.5rem] sm:min-h-[3rem] mb-1 sm:mb-2 text-ellipsis overflow-hidden">
             {{ product.title }}
           </h3>
 
-          <!-- Description with fixed height -->
-          <div class="flex-1 min-h-[1rem] sm:min-h-[1.5rem] mb-2">
-            <p *ngIf="product.description" class="text-xs sm:text-sm text-muted line-clamp-1 sm:line-clamp-2 leading-relaxed">
+          <!-- Description -->
+          <div class="mb-3 sm:mb-4">
+            <p *ngIf="product.description" class="text-xs sm:text-sm text-muted line-clamp-2 leading-relaxed">
               {{ product.description }}
             </p>
           </div>

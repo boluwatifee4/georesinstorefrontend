@@ -1,5 +1,5 @@
 <!-- Hero Section with TikTok Background Video -->
-<section class="relative overflow-hidden">
+<section class="relative overflow-visible">
   <div class="relative min-h-[80vh] md:h-screen flex items-center">
     <!-- Rotating TikTok background (single iframe rotates through all URLs) -->
     <div class="absolute inset-0 -z-10">
@@ -66,11 +66,10 @@
         <div *ngIf="!loadingProducts()" class="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-4 px-4">
         <div
           *ngFor="let p of newProducts(); trackBy: trackById"
-          class="flex-shrink-0 w-44 sm:w-48 md:w-56 lg:w-64 group cursor-pointer snap-start active:scale-[0.97] transition-transform"
+          class="flex-shrink-0 w-44 sm:w-48 md:w-56 lg:w-64 group relative cursor-pointer snap-start active:scale-[0.97] transition-transform"
           (click)="viewProduct(p)"
         >
-          <div class="aspect-square rounded-lg bg-gray-100 mb-3 md:mb-4 overflow-hidden
-                shadow-md md:group-hover:shadow-lg transition-all duration-300">
+          <div class="aspect-square rounded-lg bg-gray-100 mb-3 md:mb-4 overflow-visible shadow-md md:group-hover:shadow-lg transition-all duration-300">
             <!-- Product Image with Fallback -->
             <div *ngIf="p.primaryImageUrl; else newProductPlaceholder"
                  class="w-full h-full relative overflow-hidden">
@@ -114,12 +113,10 @@
               </div>
             </ng-template>
 
-            <!-- New Badge -->
-            <div class="absolute top-2 right-2 bg-brand-600 text-white px-2 py-1
-                      rounded-full text-xs font-medium tracking-wider">
-              New
-            </div>
           </div>
+          <!-- Christmas Ribbon -->
+          <div class="festive-ribbon"></div>
+
           <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 md:mb-2 tracking-wide line-clamp-2">{{ p.title }}</h3>
           <p class="text-sm sm:text-base md:text-lg font-light text-gray-800 tracking-wide">
             <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleNA">
@@ -198,7 +195,7 @@
           (click)="viewProduct(p)"
         >
           <!-- Product Image Container -->
-          <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 mb-4 md:mb-6 overflow-hidden
+          <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 mb-4 md:mb-6 overflow-visible
                       shadow-lg md:group-hover:shadow-2xl transition-all duration-500 border border-gray-100/50">
 
             <!-- Premium Image Display -->
@@ -244,25 +241,21 @@
               </div>
             </ng-template>
 
-            <!-- Premium Badge if product is featured -->
-            <div *ngIf="p.featured"
-                 class="absolute top-3 right-3 bg-black/80 backdrop-blur-sm text-white px-3 py-1
-                        rounded-full text-xs font-medium tracking-wider uppercase">
-              Featured
-            </div>
           </div>
+          <!-- Christmas Ribbon -->
+          <div class="festive-ribbon"></div>
+
 
           <!-- Product Info Container with consistent height -->
           <div class="flex flex-col flex-1 min-h-[140px] sm:min-h-[160px]">
-            <!-- Product Title - Fixed height -->
             <h3 class="text-sm sm:text-base font-medium text-gray-900 dark:text-white leading-tight tracking-wide
                        md:group-hover:text-black dark:md:group-hover:text-gray-100 transition-colors duration-300 line-clamp-2
-                       min-h-[2.5rem] sm:min-h-[3rem] mb-2 sm:mb-3">
+                       min-h-[3rem] mb-2 sm:mb-3">
               {{ p.title }}
             </h3>
 
-            <!-- Product Description - Fixed height with consistent spacing -->
-            <div class="min-h-[2rem] sm:min-h-[2.5rem] mb-3 sm:mb-4 flex-1">
+            <!-- Product Description -->
+            <div class="mb-4 sm:mb-5">
               <p *ngIf="p.description"
                  class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-light leading-relaxed line-clamp-2
                         md:group-hover:text-gray-700 dark:md:group-hover:text-gray-200 transition-colors duration-300">

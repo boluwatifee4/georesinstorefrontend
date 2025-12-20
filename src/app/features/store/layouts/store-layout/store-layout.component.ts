@@ -1,20 +1,47 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, DestroyRef, effect, PLATFORM_ID, Inject } from '@angular/core';
-import { CommonModule, NgOptimizedImage, isPlatformBrowser } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+  DestroyRef,
+  effect,
+  PLATFORM_ID,
+  Inject,
+} from '@angular/core';
+import {
+  CommonModule,
+  NgOptimizedImage,
+  isPlatformBrowser,
+} from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, throttleTime, map, filter as rxFilter } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  throttleTime,
+  map,
+  filter as rxFilter,
+} from 'rxjs/operators';
 import { fromEvent, animationFrameScheduler, EMPTY } from 'rxjs';
 import { CartStore } from '../../state/cart.store';
 import { ThemeService } from '../../../../core/services/theme.service';
+import { ChristmasOverlayComponent } from '../../../../shared/components/christmas-overlay/christmas-overlay.component';
 
 @Component({
   selector: 'app-store-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, ReactiveFormsModule, NgOptimizedImage],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    ReactiveFormsModule,
+    NgOptimizedImage,
+    ChristmasOverlayComponent,
+  ],
   templateUrl: './store-layout.component.html',
   styleUrls: ['./store-layout.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StoreLayoutComponent implements OnInit {
   private readonly router = inject(Router);
@@ -33,7 +60,7 @@ export class StoreLayoutComponent implements OnInit {
   readonly showThemeMenu = signal(false);
   private readonly themeService = inject(ThemeService);
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
     this.setupScrollDetection();
@@ -59,7 +86,8 @@ export class StoreLayoutComponent implements OnInit {
           this.closeThemeMenu();
         }
       });
-  } private setupScrollDetection(): void {
+  }
+  private setupScrollDetection(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return; // Skip scroll detection on server
     }
@@ -77,26 +105,26 @@ export class StoreLayoutComponent implements OnInit {
   private setupSearchHandling(): void {
     this.search.valueChanges
       .pipe(
-        map(v => (v || '').toString().trim()),
+        map((v) => (v || '').toString().trim()),
         debounceTime(600), // slower to strongly limit requests
         distinctUntilChanged(),
         // Allow empty (to clear) or 2+ chars to search
-        rxFilter(v => v.length === 0 || v.length >= 2),
+        rxFilter((v) => v.length === 0 || v.length >= 2),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(q => {
+      .subscribe((q) => {
         const navigatingTo = '/store/products';
         const onProducts = this.router.url.startsWith(navigatingTo);
 
         if (q.length > 0) {
           this.router.navigate([navigatingTo], {
             queryParams: { q, page: 1 }, // reset page when new search
-            queryParamsHandling: 'merge'
+            queryParamsHandling: 'merge',
           });
         } else if (onProducts) {
           this.router.navigate([navigatingTo], {
             queryParams: { q: null, page: 1 },
-            queryParamsHandling: 'merge'
+            queryParamsHandling: 'merge',
           });
         }
       });
@@ -105,14 +133,15 @@ export class StoreLayoutComponent implements OnInit {
   private syncSearchFromUrl(): void {
     // Initial sync
     const initialTree = this.router.parseUrl(this.router.url);
-    const initialQ = (initialTree.queryParams && initialTree.queryParams['q']) || '';
+    const initialQ =
+      (initialTree.queryParams && initialTree.queryParams['q']) || '';
     if (initialQ !== this.search.value) {
       this.search.setValue(initialQ, { emitEvent: false });
     }
 
     this.router.events
       .pipe(
-        rxFilter(e => e instanceof NavigationEnd),
+        rxFilter((e) => e instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((e: any) => {
@@ -139,7 +168,7 @@ export class StoreLayoutComponent implements OnInit {
 
   // Theme controls
   toggleThemeMenu(): void {
-    this.showThemeMenu.update(show => !show);
+    this.showThemeMenu.update((show) => !show);
   }
 
   closeThemeMenu(): void {
@@ -160,10 +189,14 @@ export class StoreLayoutComponent implements OnInit {
   getThemeLabel(): string {
     const t = this.theme();
     switch (t) {
-      case 'light': return 'Light';
-      case 'dark': return 'Dark';
-      case 'system': return 'System';
-      default: return 'Light';
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+      case 'system':
+        return 'System';
+      default:
+        return 'Light';
     }
   }
 
