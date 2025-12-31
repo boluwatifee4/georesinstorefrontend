@@ -1,6 +1,9 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, of, finalize } from 'rxjs';
-import { PublicProductsService, ProductFilters } from '../../../api/public/products/products.service';
+import {
+  PublicProductsService,
+  ProductFilters,
+} from '../../../api/public/products/products.service';
 import { Product } from '../../../types/api.types';
 
 export interface ProductsState {
@@ -29,7 +32,7 @@ export class ProductsStore {
     loading: false,
     error: null,
     filters: { page: 1, limit: 20 },
-    pagination: { total: 0, page: 1, limit: 20 }
+    pagination: { total: 0, page: 1, limit: 20 },
   });
 
   // Public read-only signals
@@ -47,14 +50,14 @@ export class ProductsStore {
   readonly hasMore = computed(() => {
     const { page, limit, total } = this._state().pagination;
     if (total && total > 0) {
-      return (page * limit) < total;
+      return page * limit < total;
     }
     // Fallback: if total is unknown, assume more pages exist when the last fetch returned a full page
     const products = this._state().products;
-    return products.length > 0 && (products.length % (limit || 20) === 0);
+    return products.length > 0 && products.length % (limit || 20) === 0;
   });
 
-  constructor() { }
+  constructor() {}
 
   // Actions
   loadProducts(filters?: Partial<ProductFilters>) {
@@ -63,7 +66,7 @@ export class ProductsStore {
     this.setFilters(merged);
     // If requesting the first page, reset the list before fetching
     if (!merged.page || merged.page === 1) {
-      this._state.update(state => ({ ...state, products: [] }));
+      this._state.update((state) => ({ ...state, products: [] }));
     }
     this.fetchProducts();
   }
@@ -83,17 +86,22 @@ export class ProductsStore {
 
   loadProductBySlug(slug: string) {
     this.setLoading(true);
-    this.productsService.getProductBySlug(slug).pipe(
-      catchError(error => {
-        this.setError('Unable to load product details. Please check your connection and try again.');
-        return of(null);
-      })
-    ).subscribe(product => {
-      if (product) {
-        this.setCurrentProduct(product);
-      }
-      this.setLoading(false);
-    });
+    this.productsService
+      .getProductBySlug(slug)
+      .pipe(
+        catchError((error) => {
+          this.setError(
+            'Unable to load product details. Please check your connection and try again.'
+          );
+          return of(null);
+        })
+      )
+      .subscribe((product) => {
+        if (product) {
+          this.setCurrentProduct(product);
+        }
+        this.setLoading(false);
+      });
   }
 
   // Accept product prefetched via resolver (no duplicate call)
@@ -101,129 +109,154 @@ export class ProductsStore {
     if (!product) return;
     const current = this._state().currentProduct;
     if (!current || current.id !== product.id) {
-      this._state.update(state => ({ ...state, currentProduct: product, error: null }));
+      this._state.update((state) => ({
+        ...state,
+        currentProduct: product,
+        error: null,
+      }));
     }
   }
 
   // Private state updaters
   private setProducts(products: Product[], append = false) {
-    this._state.update(state => ({
+    this._state.update((state) => ({
       ...state,
       products: append ? [...state.products, ...products] : products,
-      error: null
+      error: null,
     }));
   }
 
   private setFeatured(products: Product[]) {
-    this._state.update(state => ({ ...state, featured: products }));
+    this._state.update((state) => ({ ...state, featured: products }));
   }
 
   private setCurrentProduct(product: Product) {
-    this._state.update(state => ({ ...state, currentProduct: product, error: null }));
+    this._state.update((state) => ({
+      ...state,
+      currentProduct: product,
+      error: null,
+    }));
   }
 
   clearCurrentProduct() {
-    this._state.update(state => ({ ...state, currentProduct: null }));
+    this._state.update((state) => ({ ...state, currentProduct: null }));
   }
 
   private setLoading(loading: boolean) {
-    this._state.update(state => ({
+    this._state.update((state) => ({
       ...state,
       loading,
       // Clear error when starting to load
-      error: loading ? null : state.error
+      error: loading ? null : state.error,
     }));
   }
 
   private setError(error: string | null) {
-    this._state.update(state => ({ ...state, error }));
+    this._state.update((state) => ({ ...state, error }));
   }
 
   private setFilters(filters: ProductFilters) {
-    this._state.update(state => ({ ...state, filters }));
+    this._state.update((state) => ({ ...state, filters }));
   }
 
-  private setPagination(pagination: { total: number; page: number; limit: number }) {
-    this._state.update(state => ({ ...state, pagination }));
+  private setPagination(pagination: {
+    total: number;
+    page: number;
+    limit: number;
+  }) {
+    this._state.update((state) => ({ ...state, pagination }));
   }
 
   private fetchProducts() {
     const filters = this._state().filters;
     // Always reflect loading state (even for subsequent pages) so UI can react
     this.setLoading(true);
-    this.productsService.getProducts(filters).pipe(
-      catchError(error => {
-        // User-friendly error message instead of technical details
-        const message = 'Unable to load products right now. Please check your internet connection and try again.';
-        this.setError(message);
-        return of(null);
-      }),
-      finalize(() => this.setLoading(false))
-    ).subscribe(response => {
-      if (response) {
-        const isAppend = (filters.page || 1) > 1;
-        if (Array.isArray(response)) {
-          const list = response as any as Product[];
-          this.setProducts(list, isAppend);
-          // When backend doesn't return total, we can't know end of list; fallback logic
-          const page = filters.page || 1;
-          const limit = filters.limit || list.length || 20;
-          const total = 0; // unknown
-          this.setPagination({ total, page, limit });
-        } else {
-          this.setProducts(response.data, isAppend);
-          this.setPagination({
-            total: response.total,
-            page: response.page,
-            limit: response.limit
-          });
+    this.productsService
+      .getProducts(filters)
+      .pipe(
+        catchError((error) => {
+          // Log the full error for debugging (especially SSR)
+          console.error('Error fetching products:', error);
+          // User-friendly error message instead of technical details
+          const message =
+            'Unable to load products right now. Please check your internet connection and try again.';
+          this.setError(message);
+          return of(null);
+        }),
+        finalize(() => this.setLoading(false))
+      )
+      .subscribe((response) => {
+        if (response) {
+          const isAppend = (filters.page || 1) > 1;
+          if (Array.isArray(response)) {
+            const list = response as any as Product[];
+            this.setProducts(list, isAppend);
+            // When backend doesn't return total, we can't know end of list; fallback logic
+            const page = filters.page || 1;
+            const limit = filters.limit || list.length || 20;
+            const total = 0; // unknown
+            this.setPagination({ total, page, limit });
+          } else {
+            this.setProducts(response.data, isAppend);
+            this.setPagination({
+              total: response.total,
+              page: response.page,
+              limit: response.limit,
+            });
+          }
         }
-      }
-    });
+      });
   }
 
   // Fetch products without triggering global loading state (for pagination)
   private fetchProductsQuietly() {
     const filters = this._state().filters;
     // Don't set loading to true for quiet fetch
-    return this.productsService.getProducts(filters).pipe(
-      catchError(error => {
-        const message = 'Unable to load more products. Please check your connection and try again.';
-        this.setError(message);
-        return of(null);
-      })
-    ).subscribe(response => {
-      if (response) {
-        const isAppend = (filters.page || 1) > 1;
-        if (Array.isArray(response)) {
-          const list = response as any as Product[];
-          this.setProducts(list, isAppend);
-          const page = filters.page || 1;
-          const limit = filters.limit || list.length || 20;
-          const total = 0; // unknown
-          this.setPagination({ total, page, limit });
-        } else {
-          this.setProducts(response.data, isAppend);
-          this.setPagination({
-            total: response.total,
-            page: response.page,
-            limit: response.limit
-          });
+    return this.productsService
+      .getProducts(filters)
+      .pipe(
+        catchError((error) => {
+          const message =
+            'Unable to load more products. Please check your connection and try again.';
+          this.setError(message);
+          return of(null);
+        })
+      )
+      .subscribe((response) => {
+        if (response) {
+          const isAppend = (filters.page || 1) > 1;
+          if (Array.isArray(response)) {
+            const list = response as any as Product[];
+            this.setProducts(list, isAppend);
+            const page = filters.page || 1;
+            const limit = filters.limit || list.length || 20;
+            const total = 0; // unknown
+            this.setPagination({ total, page, limit });
+          } else {
+            this.setProducts(response.data, isAppend);
+            this.setPagination({
+              total: response.total,
+              page: response.page,
+              limit: response.limit,
+            });
+          }
         }
-      }
-    });
+      });
   }
 
   loadFeatured(limit?: number) {
-    this.productsService.getFeaturedProducts(limit).pipe(
-      catchError(() => {
-        // Do not pollute the main error signal with featured errors; just return empty list
-        return of([] as Product[]);
-      })
-    ).subscribe(products => {
-      if (products) {
-        this.setFeatured(products);
-      }
-    });
+    this.productsService
+      .getFeaturedProducts(limit)
+      .pipe(
+        catchError(() => {
+          // Do not pollute the main error signal with featured errors; just return empty list
+          return of([] as Product[]);
+        })
+      )
+      .subscribe((products) => {
+        if (products) {
+          this.setFeatured(products);
+        }
+      });
   }
 }

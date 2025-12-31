@@ -1,9 +1,21 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, computed, DestroyRef, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  computed,
+  DestroyRef,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, throttleTime } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  throttleTime,
+} from 'rxjs/operators';
 import { fromEvent, animationFrameScheduler } from 'rxjs';
 import { ProductsStore } from '../../state/products.store';
 import { CategoriesStore } from '../../state/categories.store';
@@ -17,10 +29,15 @@ import { TikTokEmbedComponent } from '../../../../shared/components/tiktok-embed
 @Component({
   selector: 'app-store-home',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgOptimizedImage, TikTokEmbedComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NgOptimizedImage,
+    TikTokEmbedComponent,
+  ],
   templateUrl: './store-home.component.html',
   styleUrls: ['./store-home.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StoreHomeComponent implements OnInit {
   private readonly router = inject(Router);
@@ -48,10 +65,15 @@ export class StoreHomeComponent implements OnInit {
 
   readonly newProducts = computed(() => {
     const products = this.products();
-    return products ? products
-      .filter(p => !p.featured)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 6) : [];
+    return products
+      ? products
+          .filter((p) => !p.featured)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+          .slice(0, 6)
+      : [];
   });
 
   readonly topCategories = computed(() => {
@@ -68,7 +90,7 @@ export class StoreHomeComponent implements OnInit {
     'https://www.tiktok.com/@geo_crafts08/video/7555457313277070599',
     'https://www.tiktok.com/@geo_crafts08/video/7554325402085346567',
     'https://www.tiktok.com/@geo_crafts08/video/7553574142402940167',
-    'https://www.tiktok.com/@geo_crafts08/video/7558450552271555847'
+    'https://www.tiktok.com/@geo_crafts08/video/7558450552271555847',
   ];
 
   constructor() {
@@ -78,96 +100,124 @@ export class StoreHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Set comprehensive SEO for home page
-    this.seo.setDefault({
-      title: 'Premium Epoxy Resin, UV Resin & Art Supplies - Nigeria\'s #1 Resin Store',
-      description: 'Shop premium epoxy resin, UV resin, pigments, molds and art supplies at Geo Resin Store. Nigeria\'s leading destination for resin crafting materials with fast nationwide delivery.',
-      image: 'https://www.georesinstore.com/hero-bg.png',
-      path: '/store'
-    });
-
-    // Set comprehensive keywords for home page
-    this.seo.setKeywords([
-      'resin materials Nigeria',
-      'epoxy resin Lagos',
-      'UV resin',
-      'resin pigments',
-      'resin molds',
-      'resin art supplies',
-      'craft materials Nigeria',
-      'woodworking resin',
-      'jewelry making supplies',
-      'art materials Lagos',
-      'epoxy resin store',
-      'resin crafting supplies',
-      'clear epoxy resin',
-      'colored resin pigments',
-      'silicone molds',
-      'resin starter kit'
-    ]);
-
-    // Set local business structured data
-    this.seo.setLocalBusinessStructuredData();
-
-    // Set FAQ structured data for home page
-    this.seo.setFAQStructuredData([
-      {
-        question: 'What types of resin do you sell?',
-        answer: 'We sell premium epoxy resin, UV resin, and specialized resin formulations for various applications including art, woodworking, and jewelry making.'
-      },
-      {
-        question: 'Do you deliver nationwide in Nigeria?',
-        answer: 'Yes, we provide fast and reliable delivery to all states in Nigeria with secure packaging to ensure your materials arrive safely.'
-      },
-      {
-        question: 'Are your resin materials suitable for beginners?',
-        answer: 'Absolutely! We offer starter kits and beginner-friendly products with detailed instructions to help you get started with resin crafting.'
-      },
-      {
-        question: 'What payment methods do you accept?',
-        answer: 'We accept bank transfers, card payments, and mobile money payments for your convenience.'
-      }
-    ]);
-
-
-    this.search.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(v => {
-      if ((v || '').trim().length > 2) {
-        this.router.navigate(['/store/products'], { queryParams: { q: v?.trim() } });
-      }
-    });
-
-    // Scroll listener for header style (guard for SSR)
-    if (typeof window !== 'undefined') {
-      fromEvent(window, 'scroll').pipe(
-        throttleTime(50, animationFrameScheduler, { leading: true, trailing: true }),
-        takeUntilDestroyed(this.destroyRef)
-      ).subscribe(() => {
-        const shouldBeSolid = window.scrollY > 40; // threshold
-        if (shouldBeSolid !== this.scrolled()) {
-          this.scrolled.set(shouldBeSolid);
-        }
+    try {
+      // Set comprehensive SEO for home page
+      this.seo.setDefault({
+        title:
+          "Premium Epoxy Resin, UV Resin & Art Supplies - Nigeria's #1 Resin Store",
+        description:
+          "Shop premium epoxy resin, UV resin, pigments, molds and art supplies at Geo Resin Store. Nigeria's leading destination for resin crafting materials with fast nationwide delivery.",
+        image: 'https://www.georesinstore.com/hero-bg.png',
+        path: '/store',
       });
+
+      // Set comprehensive keywords for home page
+      this.seo.setKeywords([
+        'resin materials Nigeria',
+        'epoxy resin Lagos',
+        'UV resin',
+        'resin pigments',
+        'resin molds',
+        'resin art supplies',
+        'craft materials Nigeria',
+        'woodworking resin',
+        'jewelry making supplies',
+        'art materials Lagos',
+        'epoxy resin store',
+        'resin crafting supplies',
+        'clear epoxy resin',
+        'colored resin pigments',
+        'silicone molds',
+        'resin starter kit',
+      ]);
+
+      // Set local business structured data
+      this.seo.setLocalBusinessStructuredData();
+
+      // Set FAQ structured data for home page
+      this.seo.setFAQStructuredData([
+        {
+          question: 'What types of resin do you sell?',
+          answer:
+            'We sell premium epoxy resin, UV resin, and specialized resin formulations for various applications including art, woodworking, and jewelry making.',
+        },
+        {
+          question: 'Do you deliver nationwide in Nigeria?',
+          answer:
+            'Yes, we provide fast and reliable delivery to all states in Nigeria with secure packaging to ensure your materials arrive safely.',
+        },
+        {
+          question: 'Are your resin materials suitable for beginners?',
+          answer:
+            'Absolutely! We offer starter kits and beginner-friendly products with detailed instructions to help you get started with resin crafting.',
+        },
+        {
+          question: 'What payment methods do you accept?',
+          answer:
+            'We accept bank transfers, card payments, and mobile money payments for your convenience.',
+        },
+      ]);
+
+      this.search.valueChanges
+        .pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe((v) => {
+          if ((v || '').trim().length > 2) {
+            this.router.navigate(['/store/products'], {
+              queryParams: { q: v?.trim() },
+            });
+          }
+        });
+
+      // Scroll listener for header style (guard for SSR)
+      if (typeof window !== 'undefined') {
+        fromEvent(window, 'scroll')
+          .pipe(
+            throttleTime(50, animationFrameScheduler, {
+              leading: true,
+              trailing: true,
+            }),
+            takeUntilDestroyed(this.destroyRef)
+          )
+          .subscribe(() => {
+            const shouldBeSolid = window.scrollY > 40; // threshold
+            if (shouldBeSolid !== this.scrolled()) {
+              this.scrolled.set(shouldBeSolid);
+            }
+          });
+      }
+
+      // Load general products (could be paginated list) & featured list
+      this.productsStore.loadProducts();
+      this.productsStore.loadFeatured(8);
+
+      this.categoriesStore.loadCategories();
+
+      // Initialize cart
+      this.cartStore.initializeCart();
+    } catch (error) {
+      console.error('StoreHomeComponent initialization failed:', error);
     }
-
-    // Load general products (could be paginated list) & featured list
-    this.productsStore.loadProducts();
-    this.productsStore.loadFeatured(8);
-
-    this.categoriesStore.loadCategories();
-
-    // Initialize cart
-    this.cartStore.initializeCart();
   }
 
-  goToProducts() { this.router.navigate(['/store/products']); }
-  goToCart() { this.router.navigate(['/store/cart']); }
-  goToHome() { this.router.navigate(['/store']); }
-  goToOrderLookup() { this.router.navigate(['/store/orders/lookup']); }
-  trackById(_: number, item: any) { return item?.id || item?.slug || item; }
+  goToProducts() {
+    this.router.navigate(['/store/products']);
+  }
+  goToCart() {
+    this.router.navigate(['/store/cart']);
+  }
+  goToHome() {
+    this.router.navigate(['/store']);
+  }
+  goToOrderLookup() {
+    this.router.navigate(['/store/orders/lookup']);
+  }
+  trackById(_: number, item: any) {
+    return item?.id || item?.slug || item;
+  }
 
   viewProduct(product: Product): void {
     // Navigate using product slug for SEO-friendly URLs
@@ -176,7 +226,7 @@ export class StoreHomeComponent implements OnInit {
 
   viewCategory(category: any): void {
     this.router.navigate(['/store/products'], {
-      queryParams: { category: category.slug }
+      queryParams: { category: category.slug },
     });
   }
 
@@ -187,7 +237,7 @@ export class StoreHomeComponent implements OnInit {
 
     const productData = product as any;
     // If options or multiple variants, take user to detail for selection logic
-    if ((productData.optionGroups && productData.optionGroups.length > 0)) {
+    if (productData.optionGroups && productData.optionGroups.length > 0) {
       this.viewProduct(product);
       return;
     }
@@ -212,9 +262,9 @@ export class StoreHomeComponent implements OnInit {
   }
 
   private setProductAdding(productId: number, adding: boolean): void {
-    this.isAddingToCart.update(state => ({
+    this.isAddingToCart.update((state) => ({
       ...state,
-      [productId]: adding
+      [productId]: adding,
     }));
   }
 
@@ -226,7 +276,6 @@ export class StoreHomeComponent implements OnInit {
     // Simple success feedback - could be replaced with toast notification
     // For now, we'll use a simple alert but this should be a toast
     // console.log(`Added ${productTitle} to cart!`);
-
     // Optional: Show a brief success indicator
     // This could be enhanced with a proper toast notification system
   }
@@ -269,9 +318,8 @@ export class StoreHomeComponent implements OnInit {
     if (element) {
       element.scrollIntoView({
         behavior: 'smooth',
-        block: 'start'
+        block: 'start',
       });
     }
   }
-
 }

@@ -1,10 +1,36 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed, DestroyRef, PLATFORM_ID, Inject, effect } from '@angular/core';
-import { CommonModule, NgOptimizedImage, isPlatformBrowser } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  DestroyRef,
+  PLATFORM_ID,
+  Inject,
+  effect,
+} from '@angular/core';
+import {
+  CommonModule,
+  NgOptimizedImage,
+  isPlatformBrowser,
+} from '@angular/common';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  FormControl,
+  Validators,
+} from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, filter, take } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  take,
+} from 'rxjs/operators';
 import { ProductsStore } from '../../state/products.store';
 import { CategoriesStore } from '../../state/categories.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
@@ -19,7 +45,7 @@ import { toast } from 'ngx-sonner';
   imports: [CommonModule, ReactiveFormsModule, NgOptimizedImage],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductsComponent implements OnInit {
   private readonly router = inject(Router);
@@ -67,15 +93,20 @@ export class ProductsComponent implements OnInit {
 
     if (!products) return [];
 
-    return products.filter(product => {
+    return products.filter((product) => {
       // Search filter
-      if (filters.search && !product.title.toLowerCase().includes(filters.search.toLowerCase())) {
+      if (
+        filters.search &&
+        !product.title.toLowerCase().includes(filters.search.toLowerCase())
+      ) {
         return false;
       }
 
       // Category filter (match by slug)
       if (filters.category) {
-        const match = product.categories?.some(c => c.slug === filters.category);
+        const match = product.categories?.some(
+          (c) => c.slug === filters.category
+        );
         if (!match) return false;
       }
 
@@ -86,7 +117,8 @@ export class ProductsComponent implements OnInit {
 
       // Price range filter
       const effectiveMin = product.minPrice ?? product.basePrice ?? 0;
-      const effectiveMax = product.maxPrice ?? product.basePrice ?? effectiveMin;
+      const effectiveMax =
+        product.maxPrice ?? product.basePrice ?? effectiveMin;
 
       if (filters.minPrice && effectiveMin < filters.minPrice) {
         return false;
@@ -109,12 +141,15 @@ export class ProductsComponent implements OnInit {
       isActive: [null],
       minPrice: [null],
       maxPrice: [null],
-      sortBy: ['newest'] // newest, oldest, price-low, price-high, name
+      sortBy: ['newest'], // newest, oldest, price-low, price-high, name
     });
 
     this.requestForm = this.fb.group({
-      phone: ['', [Validators.required, Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
-      request: ['', [Validators.required, Validators.minLength(10)]]
+      phone: [
+        '',
+        [Validators.required, Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)],
+      ],
+      request: ['', [Validators.required, Validators.minLength(10)]],
     });
 
     // Reactive SEO updates based on filters/search
@@ -123,16 +158,20 @@ export class ProductsComponent implements OnInit {
       const parts: string[] = [];
       if (filters.search) parts.push(`Search: "${filters.search}"`);
       if (filters.category) parts.push(`Category: ${filters.category}`);
-      const titleBase = parts.length ? `${parts.join(' • ')} Products` : 'Premium Resin Materials & Art Supplies';
+      const titleBase = parts.length
+        ? `${parts.join(' • ')} Products`
+        : 'Premium Resin Materials & Art Supplies';
       const desc = parts.length
-        ? `Browse ${parts.join(', ')} products. Quality resin materials, pigments, molds and tools with fast delivery across Nigeria.`
-        : 'Browse premium epoxy resin, UV resin, pigments, molds and art supplies. Nigeria\'s largest selection of quality resin materials with expert support.';
+        ? `Browse ${parts.join(
+            ', '
+          )} products. Quality resin materials, pigments, molds and tools with fast delivery across Nigeria.`
+        : "Browse premium epoxy resin, UV resin, pigments, molds and art supplies. Nigeria's largest selection of quality resin materials with expert support.";
 
       this.seo.setDefault({
         title: titleBase,
         description: desc,
         image: 'https://www.georesinstore.com/hero-bg1.png',
-        path: '/store/products'
+        path: '/store/products',
       });
 
       // Set relevant keywords based on filters
@@ -142,11 +181,14 @@ export class ProductsComponent implements OnInit {
         'UV resin supplies',
         'resin pigments Nigeria',
         'resin molds',
-        'art supplies Lagos'
+        'art supplies Lagos',
       ];
 
       if (filters.category) {
-        keywords.push(`${filters.category} Nigeria`, `${filters.category} Lagos`);
+        keywords.push(
+          `${filters.category} Nigeria`,
+          `${filters.category} Lagos`
+        );
       }
       if (filters.search) {
         keywords.push(`${filters.search} Nigeria`, `${filters.search} resin`);
@@ -158,13 +200,18 @@ export class ProductsComponent implements OnInit {
       const breadcrumbs = [
         { name: 'Home', url: 'https://www.georesinstore.com/' },
         { name: 'Store', url: 'https://www.georesinstore.com/store' },
-        { name: 'Products', url: 'https://www.georesinstore.com/store/products' }
+        {
+          name: 'Products',
+          url: 'https://www.georesinstore.com/store/products',
+        },
       ];
 
       if (filters.category) {
         breadcrumbs.push({
           name: filters.category,
-          url: `https://www.georesinstore.com/store/products?category=${encodeURIComponent(filters.category)}`
+          url: `https://www.georesinstore.com/store/products?category=${encodeURIComponent(
+            filters.category
+          )}`,
         });
       }
 
@@ -179,9 +226,13 @@ export class ProductsComponent implements OnInit {
   }
 
   private loadInitialData(): void {
-    // Load products and categories
-    this.productsStore.loadProducts({ page: 1, limit: 20 });
-    this.categoriesStore.loadCategories();
+    try {
+      // Load products and categories
+      this.productsStore.loadProducts({ page: 1, limit: 20 });
+      this.categoriesStore.loadCategories();
+    } catch (error) {
+      console.error('ProductsComponent loadInitialData failed:', error);
+    }
   }
 
   private setupFilterHandling(): void {
@@ -201,15 +252,27 @@ export class ProductsComponent implements OnInit {
   private handleQueryParams(): void {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
+      .subscribe((params) => {
         const current = this.filterForm.value;
         const next: any = {};
         let changed = false;
-        if (params['q'] !== undefined && current.search !== params['q']) { next.search = params['q']; changed = true; }
-        if (params['category'] !== undefined && current.category !== params['category']) { next.category = params['category']; changed = true; }
+        if (params['q'] !== undefined && current.search !== params['q']) {
+          next.search = params['q'];
+          changed = true;
+        }
+        if (
+          params['category'] !== undefined &&
+          current.category !== params['category']
+        ) {
+          next.category = params['category'];
+          changed = true;
+        }
         if (params['isActive'] !== undefined) {
           const boolVal = params['isActive'] === 'true';
-          if (current.isActive !== boolVal) { next.isActive = boolVal; changed = true; }
+          if (current.isActive !== boolVal) {
+            next.isActive = boolVal;
+            changed = true;
+          }
         }
         if (changed) {
           this.filterForm.patchValue(next, { emitEvent: false }); // avoid bouncing back into applyFilters
@@ -220,7 +283,11 @@ export class ProductsComponent implements OnInit {
         if (params['category']) filtersInUrl.category = params['category'];
         if (params['q']) filtersInUrl.q = params['q'];
         if (Object.keys(filtersInUrl).length) {
-          this.productsStore.loadProducts({ page: 1, limit: 20, ...filtersInUrl });
+          this.productsStore.loadProducts({
+            page: 1,
+            limit: 20,
+            ...filtersInUrl,
+          });
         }
       });
   }
@@ -237,7 +304,7 @@ export class ProductsComponent implements OnInit {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams,
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
 
     // Do not call loadProducts directly here; queryParams subscription will trigger the fetch (prevents duplicate calls)
@@ -252,7 +319,9 @@ export class ProductsComponent implements OnInit {
     this.loadingMore.set(true);
 
     // Store current scroll position to prevent jumping
-    const currentScrollY = isPlatformBrowser(this.platformId) ? window.scrollY : 0;
+    const currentScrollY = isPlatformBrowser(this.platformId)
+      ? window.scrollY
+      : 0;
 
     // Load products with current filters using the quiet method
     const currentFilters = this.filterForm.value;
@@ -261,7 +330,8 @@ export class ProductsComponent implements OnInit {
     // Add current filters to the API call
     if (currentFilters.search) apiFilters.q = currentFilters.search;
     if (currentFilters.category) apiFilters.category = currentFilters.category;
-    if (currentFilters.isActive !== null) apiFilters.isActive = currentFilters.isActive;
+    if (currentFilters.isActive !== null)
+      apiFilters.isActive = currentFilters.isActive;
 
     // Use the new loadMoreProducts method that doesn't trigger global loading
     const subscription = this.productsStore.loadMoreProducts(apiFilters);
@@ -317,7 +387,7 @@ export class ProductsComponent implements OnInit {
         if (window.scrollY !== currentScrollY) {
           window.scrollTo({
             top: currentScrollY,
-            behavior: 'auto'
+            behavior: 'auto',
           });
         }
       }, 100);
@@ -328,7 +398,7 @@ export class ProductsComponent implements OnInit {
 
   // UI Methods
   toggleFilters(): void {
-    this.showFilters.update(show => !show);
+    this.showFilters.update((show) => !show);
   }
 
   clearFilters(): void {
@@ -338,7 +408,7 @@ export class ProductsComponent implements OnInit {
       isActive: null,
       minPrice: null,
       maxPrice: null,
-      sortBy: 'newest'
+      sortBy: 'newest',
     });
   }
 
@@ -349,7 +419,7 @@ export class ProductsComponent implements OnInit {
   addToCart(productId: string | number): void {
     // For products listing, it's better to navigate to product detail
     // where users can select specific variants/options
-    const product = this.filteredProducts().find(p => p.id === productId);
+    const product = this.filteredProducts().find((p) => p.id === productId);
     if (product) {
       this.router.navigate(['/store/products', product.slug]);
     }
@@ -416,13 +486,16 @@ export class ProductsComponent implements OnInit {
       `• Request: ${formValue.request}`,
       `• Timestamp: ${now.toLocaleString()}`,
       '',
-      'Action: Contact customer about requested product availability.'
+      'Action: Contact customer about requested product availability.',
     ].join('\n');
 
     this.notificationsApi.sendTelegram(message).subscribe({
       next: () => {
         // console.log('Product request telegram notification sent');
-        toast.success('Request submitted! We\'ll contact you soon about product availability.', { duration: 4000 });
+        toast.success(
+          "Request submitted! We'll contact you soon about product availability.",
+          { duration: 4000 }
+        );
         this.hideProductRequestForm();
         this.submittingRequest.set(false);
       },
@@ -430,7 +503,7 @@ export class ProductsComponent implements OnInit {
         console.error('Failed to send product request telegram:', err);
         toast.error('Failed to submit request. Please try again.');
         this.submittingRequest.set(false);
-      }
+      },
     });
   }
 
@@ -444,12 +517,16 @@ export class ProductsComponent implements OnInit {
     if (field && field.invalid && (field.dirty || field.touched)) {
       if (field.errors?.['required']) {
         switch (fieldName) {
-          case 'phone': return 'Phone number is required';
-          case 'request': return 'Product request is required';
-          default: return 'This field is required';
+          case 'phone':
+            return 'Phone number is required';
+          case 'request':
+            return 'Product request is required';
+          default:
+            return 'This field is required';
         }
       }
-      if (field.errors?.['minlength']) return 'Please provide more details (at least 10 characters)';
+      if (field.errors?.['minlength'])
+        return 'Please provide more details (at least 10 characters)';
       if (field.errors?.['pattern']) return 'Please enter a valid phone number';
     }
     return null;
