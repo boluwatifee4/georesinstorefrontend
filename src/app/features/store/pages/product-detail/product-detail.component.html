@@ -277,7 +277,7 @@
                    transition-all duration-300 shadow-lg hover:shadow-xl
                    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             [ngClass]="{
-              'bg-brand-600 text-white hover:bg-brand-700 hover:scale-[1.02] active:scale-[0.98]': canAddToCart() && !addInProgress(),
+              'btn-primary hover:scale-[1.02] active:scale-[0.98]': canAddToCart() && !addInProgress(),
               'bg-gray-400 text-gray-600': !canAddToCart() || addInProgress()
             }"
             [class.opacity-90]="addInProgress()"
@@ -327,7 +327,7 @@
           <button
             type="button"
             (click)="goToCart()"
-            class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-medium bg-black text-white hover:bg-black/80 transition-colors"
+            class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-medium btn-primary transition-colors"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h14l-1.35 6.432A2 2 0 0117.683 21H8.317a2 2 0 01-1.966-1.568L4 5H20M7 13l-1-8h15M7 13l-2.293 2.293a1 1 0 000 1.414L7 19m0 0h2m-2 0h6"/></svg>
             View Cart

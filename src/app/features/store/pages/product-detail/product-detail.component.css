@@ -1,23 +1,6 @@
 /* Luxury Product Detail Styles */
 
-.btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  color: white;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.3s ease;
-}
 
-.btn-primary:hover {
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
 
 /* Custom scrollbar for thumbnail gallery */
 .overflow-x-auto::-webkit-scrollbar {
