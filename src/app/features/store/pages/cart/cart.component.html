@@ -68,10 +68,10 @@
 
       <!-- Cart Items List -->
       <div class="lg:col-span-2 space-y-4 sm:space-y-6">
-        <div
-          *ngFor="let item of cartItems(); trackBy: trackByItemId"
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden md:hover:shadow-md active:shadow-md transition-all duration-200"
-        >
+          <div
+            *ngFor="let item of cartItems(); trackBy: trackByItemId"
+            class="card rounded-2xl shadow-sm border border-border overflow-hidden md:hover:shadow-md active:shadow-md transition-all duration-200"
+          >
           <div class="p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
 
@@ -167,7 +167,7 @@
 
       <!-- Order Summary -->
       <div class="lg:col-span-1 order-first lg:order-last">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 sm:p-6 lg:sticky lg:top-6">
+        <div class="card rounded-2xl shadow-sm border border-border p-4 sm:p-6 lg:sticky lg:top-6">
           <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Order Summary</h2>
 
           <div class="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
@@ -192,7 +192,7 @@
           <button
             (click)="proceedToCheckout()"
             [disabled]="loading()"
-            class="w-full py-3 sm:py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl md:hover:from-violet-700 md:hover:to-purple-700 active:from-violet-700 active:to-purple-700 transition-all duration-200 font-semibold shadow-lg md:hover:shadow-xl active:shadow-xl transform md:hover:-translate-y-0.5 active:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
+            class="btn-primary w-full py-3 sm:py-4 rounded-xl shadow-lg md:hover:shadow-xl active:shadow-xl transform md:hover:-translate-y-0.5 active:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
           >
             <span *ngIf="!loading()">Proceed to Checkout</span>
             <span *ngIf="loading()" class="flex items-center justify-center gap-2">

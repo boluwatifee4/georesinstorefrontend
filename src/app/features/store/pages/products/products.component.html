@@ -196,13 +196,12 @@
     <div *ngIf="filteredProducts().length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
       <div
         *ngFor="let product of filteredProducts(); trackBy: trackById"
-        class="group relative cursor-pointer bg-surface border border-border rounded-xl overflow-visible
+        class="group relative cursor-pointer glass backdrop-blur-xl rounded-xl overflow-visible
                md:hover:shadow-xl md:hover:border-brand-600/30 transition-all duration-500
                md:hover:-translate-y-1 active:scale-[0.98] touch-manipulation flex flex-col h-full"
         (click)="viewProduct(product)"
       >
-        <!-- Christmas Ribbon -->
-        <div class="festive-ribbon"></div>
+
 
         <!-- Product Image -->
         <div class="relative aspect-square overflow-hidden rounded-xl">

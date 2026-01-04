@@ -57,76 +57,156 @@ body {
 }
 
 /* === Light theme tokens (create utilities) === */
+/* === PREVIOUS THEME (COMMENTED OUT FOR BACKUP) === */
+/*
 @theme {
-  /* Brand (Palette B – Amethyst) */
   --color-brand-600: #6e44ff;
   --color-brand-700: #5b36e6;
   --color-brand-900: #3b0764;
   --color-accent: #e879f9;
-
-  /* Surfaces & text */
   --color-surface: #ffffff;
   --color-bg: #f8f5ff;
   --color-text: #0b1220;
   --color-muted: #4b5563;
   --color-border: #e5e7eb;
-
-  /* Feedback */
   --color-success: #16a34a;
   --color-warning: #d97706;
   --color-error: #dc2626;
   --color-info: #2563eb;
-
-  /* Fonts (so you can do class: font-sans) */
-  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, Arial;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
 }
 
-/* Improve native widgets + scrollbars for theme */
 :root {
   color-scheme: light;
 }
 
-/* === Dark theme overrides (runtime variable swaps) === */
 .dark {
   color-scheme: dark;
-
   --color-bg: #0f0a18;
   --color-surface: #171123;
   --color-text: #eae6f6;
   --color-muted: #b1a7ca;
   --color-border: #2a1f3d;
-
-  /* Keep brand recognizable but slightly lifted for contrast */
   --color-brand-600: #7c5bff;
   --color-brand-700: #6b48f0;
-
-  /* Accent pop tuned for dark */
   --color-accent: #f0a0ff;
-
-  /* Feedback tweak (still readable on dark) */
   --color-success: #22c55e;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
   --color-info: #3b82f6;
 }
+*/
 
-/* Optional helpers that use your tokens directly */
+/* === GLASSMORPHISM THEME (Refined "Foisit" Style) === */
+@theme {
+  /* Brand - Palette B (Amethyst) */
+  --color-brand-600: #6e44ff;
+  --color-brand-700: #5b36e6;
+  --color-brand-900: #3b0764;
+  --color-accent: #e879f9;
+
+  /* Glass Background - The foundation */
+  --color-bg: linear-gradient(135deg, #f3e6ff 0%, #e0d4fc 40%, #dbeafe 100%); 
+  /* Added a bit more blue/purple nuance to the page bg so glass pops */
+  
+  /* GLASS SURFACE RECIPE */
+  /* Using radial gradient for that "sheen" look */
+  --glass-bg: radial-gradient(ellipse at 70% 0%, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.25));
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-shadow: 0 12px 32px rgba(31, 38, 135, 0.08);
+  --glass-blur: 24px;
+  
+  --color-surface: var(--glass-bg); 
+  --color-surface-hover: radial-gradient(ellipse at 70% 0%, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.35));
+
+  /* Text */
+  --color-text: #1a0b2e;
+  --color-text-muted: #5b5070;
+  --color-muted: #8b809a;
+  
+  --color-border: var(--glass-border);
+  
+  /* Feedback */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+  
+   --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial;
+}
+
+:root {
+  color-scheme: light; 
+}
+
 @layer components {
-  .card {
-    background: var(--color-surface);
+  /* === GLASS UTILITY === */
+  .glass,
+  .card, 
+  .bg-surface,
+  header,
+  /* Removed nav.fixed to prevent full-width glass on bottom nav container */
+  aside {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow);
     color: var(--color-text);
-    border: 1px solid var(--color-border);
-    border-radius: 1rem; /* 2xl */
   }
+  
+  .card, .glass-panel {
+    border-radius: 1.25rem; /* Slightly softer round */
+  }
+
+  /* === INPUTS === */
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    background: rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: var(--color-text) !important;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); 
+    border-radius: 0.75rem;
+  }
+  
+  input:focus, textarea:focus, select:focus {
+     background: rgba(255, 255, 255, 0.7) !important;
+     border-color: var(--color-brand-600) !important;
+     box-shadow: 0 4px 12px rgba(110, 68, 255, 0.1) !important;
+  }
+
+  /* === INTERACTIVE GLASS === */
+  .card:hover,
+  .btn-glass:hover,
+  button.bg-surface:hover {
+    background: var(--color-surface-hover) !important;
+    box-shadow: 0 16px 40px rgba(31, 38, 135, 0.12);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+
+  /* === BUTTONS === */
   .btn-primary {
-    background: var(--color-brand-600);
+    /* Solid brand gradient for primary actions to pop against glass */
+    background: linear-gradient(135deg, #6e44ff 0%, #5b36e6 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
-    transition: background-color 0.15s ease-in-out;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 4px 14px rgba(110, 68, 255, 0.3);
   }
   .btn-primary:hover {
-    background: var(--color-brand-700);
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(110, 68, 255, 0.4);
   }
+
   .muted {
     color: var(--color-muted);
   }

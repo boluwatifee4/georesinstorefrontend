@@ -69,7 +69,7 @@
           class="flex-shrink-0 w-44 sm:w-48 md:w-56 lg:w-64 group relative cursor-pointer snap-start active:scale-[0.97] transition-transform"
           (click)="viewProduct(p)"
         >
-          <div class="aspect-square rounded-lg bg-gray-100 mb-3 md:mb-4 overflow-visible shadow-md md:group-hover:shadow-lg transition-all duration-300">
+          <div class="aspect-square rounded-lg glass mb-3 md:mb-4 overflow-visible shadow-md md:group-hover:shadow-lg transition-all duration-300">
             <!-- Product Image with Fallback -->
             <div *ngIf="p.primaryImageUrl; else newProductPlaceholder"
                  class="w-full h-full relative overflow-hidden">
@@ -114,8 +114,7 @@
             </ng-template>
 
           </div>
-          <!-- Christmas Ribbon -->
-          <div class="festive-ribbon"></div>
+
 
           <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 md:mb-2 tracking-wide line-clamp-2">{{ p.title }}</h3>
           <p class="text-sm sm:text-base md:text-lg font-light text-gray-800 tracking-wide">
@@ -195,8 +194,8 @@
           (click)="viewProduct(p)"
         >
           <!-- Product Image Container -->
-          <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 mb-4 md:mb-6 overflow-visible
-                      shadow-lg md:group-hover:shadow-2xl transition-all duration-500 border border-gray-100/50">
+          <div class="relative aspect-square rounded-2xl glass mb-4 md:mb-6 overflow-visible
+                      shadow-lg md:group-hover:shadow-2xl transition-all duration-500">
 
             <!-- Premium Image Display -->
             <div *ngIf="p.primaryImageUrl; else placeholderImage"
@@ -242,8 +241,7 @@
             </ng-template>
 
           </div>
-          <!-- Christmas Ribbon -->
-          <div class="festive-ribbon"></div>
+
 
 
           <!-- Product Info Container with consistent height -->
@@ -291,7 +289,7 @@
                 (click)="viewProduct(p); $event.stopPropagation()"
                 class="flex items-center justify-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100
                        transition-all duration-300 transform md:translate-x-2 md:group-hover:translate-x-0
-                       bg-black text-white py-2.5 sm:py-1.5 px-4 sm:px-3 rounded-full md:hover:bg-gray-800 active:bg-gray-800 active:scale-95
+                       btn-primary py-2.5 sm:py-1.5 px-4 sm:px-3 rounded-full md:hover:bg-brand-700 active:scale-95
                        shadow-lg md:hover:shadow-xl text-xs sm:text-xs tracking-wide focus-visible:opacity-100 focus-visible:outline-none
                        w-full sm:w-auto min-h-[40px] sm:min-h-[32px]"
               >
@@ -351,8 +349,8 @@
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <button type="button"
               (click)="goToProducts()"
-              class="btn-primary px-8 py-4 bg-surface text-brand-600 font-bold tracking-wide uppercase text-sm
-                     hover:bg-white hover:scale-105 transition-all duration-300 rounded-xl shadow-xl"
+              class="btn-primary px-8 py-4 font-bold tracking-wide uppercase text-sm
+                     hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl shadow-xl"
             >
               Shop Now
             </button>
@@ -409,52 +407,4 @@
   </section>
 
 
-<!-- Bottom Navigation -->
-<nav class="fixed bottom-0 left-0 right-0 flex justify-center z-30 p-3 md:p-4">
-  <div class="bg-brand-600 backdrop-blur-xl rounded-2xl shadow-2xl border border-brand-700/20 w-full max-w-sm">
-    <div class="flex items-center justify-around px-2 sm:px-4 py-2 sm:py-3">
-  <button type="button"
-        (click)="goToHome()"
-        class="flex flex-col items-center justify-center gap-1 sm:gap-2 text-white md:hover:text-accent transition-colors duration-300 py-1.5 px-3 flex-1"
-      >
-        <div class="w-6 h-6 flex items-center justify-center">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-          </svg>
-        </div>
-        <span class="text-[10px] sm:text-xs tracking-wider font-medium">HOME</span>
-      </button>
 
-  <button type="button"
-        (click)="goToProducts()"
-        class="flex flex-col items-center justify-center gap-1 sm:gap-2 text-white md:hover:text-accent transition-colors duration-300 py-1.5 px-3 flex-1"
-      >
-        <div class="w-6 h-6 flex items-center justify-center">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-          </svg>
-        </div>
-        <span class="text-[10px] sm:text-xs tracking-wider font-medium">PRODUCTS</span>
-      </button>
-
-  <button type="button"
-        (click)="goToCart()"
-        class="flex flex-col items-center justify-center gap-1 sm:gap-2 text-white md:hover:text-accent transition-colors duration-300 py-1.5 px-3 relative flex-1"
-      >
-        <div class="w-6 h-6 flex items-center justify-center relative">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-          </svg>
-          <!-- Cart item count badge -->
-          <span
-            *ngIf="cartItemCount() > 0"
-            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold min-w-[20px] animate-pulse"
-          >
-            {{ cartItemCount() > 99 ? '99+' : cartItemCount() }}
-          </span>
-        </div>
-        <span class="text-[10px] sm:text-xs tracking-wider font-medium">CART</span>
-      </button>
-    </div>
-  </div>
-</nav>

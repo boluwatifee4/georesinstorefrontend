@@ -7,43 +7,5 @@
 /* Your design tokens + overrides */
 @import "./styles/theme.css";
 
-/* Christmas Theme Styles */
-.festive-ribbon {
-  position: absolute;
-  top: -30px;
-  right: -15px;
-  width: 100px;
-  height: 100px;
-  z-index: 50;
-  pointer-events: none;
-  background-image: url('/santa-hat.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center bottom;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-  transition: transform 0.3s ease-out;
-  transform-origin: bottom right;
-}
 
-.group:hover .festive-ribbon {
-  animation: ribbon-shake 2s ease-in-out infinite;
-}
-
-@keyframes ribbon-shake {
-  0%, 100% { transform: rotate(-5deg); }
-  25% { transform: rotate(5deg); }
-  50% { transform: rotate(-8deg); }
-  75% { transform: rotate(2deg); }
-}
-
-/* Festive Search Highlight */
-.festive-search-border {
-  border-color: rgba(34, 197, 94, 0.4) !important; /* festive green */
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.1);
-}
-
-.festive-search-border:focus-within {
-  border-color: rgba(234, 179, 8, 0.6) !important; /* festive gold */
-  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15) !important;
-}
 

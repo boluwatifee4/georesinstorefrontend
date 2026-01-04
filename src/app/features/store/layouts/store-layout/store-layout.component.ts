@@ -27,18 +27,11 @@ import {
 import { fromEvent, animationFrameScheduler, EMPTY } from 'rxjs';
 import { CartStore } from '../../state/cart.store';
 import { ThemeService } from '../../../../core/services/theme.service';
-import { ChristmasOverlayComponent } from '../../../../shared/components/christmas-overlay/christmas-overlay.component';
 
 @Component({
   selector: 'app-store-layout',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    ReactiveFormsModule,
-    NgOptimizedImage,
-    ChristmasOverlayComponent,
-  ],
+  imports: [CommonModule, RouterOutlet, ReactiveFormsModule, NgOptimizedImage],
   templateUrl: './store-layout.component.html',
   styleUrls: ['./store-layout.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
