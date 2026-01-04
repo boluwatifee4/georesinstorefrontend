@@ -1,4 +1,3 @@
-<app-christmas-overlay></app-christmas-overlay>
 <!-- Header -->
 <header
   class="sticky top-0 z-30 transition-all duration-500 backdrop-blur-xl border-b"
@@ -10,7 +9,7 @@
   <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
     <!-- Brand -->
   <a routerLink="/store" (click)="onLogoClick($event)" class="flex items-center md:flex-row flex-col gap-2 shrink-0">
-      <img ngSrc="/gc-xmas.png" alt="GeoResin" class="h-14 w-auto object-contain" priority="{{true}}" width="56" height="56">
+      <img ngSrc="/logo.png" alt="GeoResin" class="h-14 w-auto object-contain" priority="{{true}}" width="56" height="56">
       <span class="text-[9px] md:text-base font-medium tracking-wide">GEOResinStore</span>
     </a>
 
@@ -21,7 +20,7 @@
           [formControl]="search"
           type="search"
           placeholder="Search premium resin products..."
-          class="w-full pl-10 pr-4 py-3 bg-surface/80 border border-border rounded-full text-sm focus:outline-none focus:bg-surface focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all duration-300 text-text placeholder:text-muted festive-search-border"
+          class="w-full pl-10 pr-4 py-3 bg-surface/80 border border-border rounded-full text-sm focus:outline-none focus:bg-surface focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all duration-300 text-text placeholder:text-muted"
         >
         <svg class="absolute left-3 top-3.5 h-4 w-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
