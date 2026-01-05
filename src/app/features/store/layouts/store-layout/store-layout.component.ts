@@ -303,7 +303,11 @@ export class StoreLayoutComponent implements OnInit {
           // 2. Exact Match: Auto-Navigate
           if (productList.length === 1) {
             const product = productList[0];
-            this.router.navigate(['/store/products', product.slug]);
+            // Provide a delay so user sees "Found it!" before switching context
+            setTimeout(() => {
+              this.assistant.toggle();
+              this.router.navigate(['/store/products', product.slug]);
+            }, 1500);
             return `Found it! Opening ${product.title} (₦${product.basePrice})...`;
           }
 
