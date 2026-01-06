@@ -504,6 +504,44 @@ export class StoreLayoutComponent implements OnInit {
         }
       },
     });
+
+    //Command6: command to reach out to support for errors
+    this.assistant.addCommand({
+      command: 'report cart or order error',
+      description:
+        'Reports errors with carts actions, checkout actions or order actions so support can reach out to geo support team',
+      parameters: [
+        { name: 'name', type: 'string', required: true },
+        { name: 'message', type: 'string', required: true },
+        { name: 'whatsapp', type: 'string', required: true },
+      ],
+      action: async (params: {
+        name: string;
+        message: string;
+        whatsapp: string;
+      }) => {
+        try {
+          const message = [
+            '🆘 Support Ticket',
+            '----------------',
+            `❓ Error: ${params.message}`,
+            `� Name: ${params.name}`,
+            `�📱 WhatsApp: ${params.whatsapp}`,
+            `⏰ Time: ${new Date().toLocaleString()}`,
+          ].join('\n');
+
+          await this.notificationsService.sendTelegram(message).toPromise();
+
+          return `✅ Ticket Created!\n\nOur support team will message you at ${params.whatsapp} within 2 hours.`;
+        } catch (error) {
+          return {
+            type: 'error',
+            message:
+              'Could not connect to support system. Please try again later.',
+          };
+        }
+      },
+    });
   }
 
   private isOgbomoso(location: string): boolean {
