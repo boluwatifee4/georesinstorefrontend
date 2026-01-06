@@ -288,13 +288,12 @@ export class CartStore {
           const msg = error.message || 'Failed to remove item';
           this.setError(msg);
           this.showOperationFailedToast(msg);
-          return of(null);
+          this.setLoading(false);
+          return EMPTY;
         })
       )
-      .subscribe((result) => {
-        if (result !== null) {
-          this.removeItemFromState(itemId);
-        }
+      .subscribe(() => {
+        this.removeItemFromState(itemId);
         this.setLoading(false);
       });
   }
@@ -311,13 +310,12 @@ export class CartStore {
           const msg = error.message || 'Failed to clear cart';
           this.setError(msg);
           this.showOperationFailedToast(msg);
-          return of(null);
+          this.setLoading(false);
+          return EMPTY;
         })
       )
-      .subscribe((result) => {
-        if (result !== null) {
-          this.setItems([]);
-        }
+      .subscribe(() => {
+        this.setItems([]);
         this.setLoading(false);
       });
   }
