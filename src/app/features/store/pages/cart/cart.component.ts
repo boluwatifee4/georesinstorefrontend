@@ -11,7 +11,7 @@ import { CartItem } from '../../../../types/api.types';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.css']
+  styleUrls: ['./cart.component.css'],
 })
 export class CartComponent implements OnInit {
   private readonly cartStore = inject(CartStore);
@@ -31,11 +31,16 @@ export class CartComponent implements OnInit {
 
   // Computed properties
   // Treat cart as empty only after we know which cart we're looking at (cartId) and not loading
-  readonly isEmpty = computed(() => !this.loading() && this.cartItems().length === 0 && !!this.cartId());
+  readonly isEmpty = computed(
+    () => !this.loading() && this.cartItems().length === 0 && !!this.cartId()
+  );
   // Backward compatibility flag if template wants explicit check separate from loading
   readonly showEmpty = this.isEmpty;
-  readonly formattedSubtotal = computed(() =>
-    `₦${this.subtotal().toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
+  readonly formattedSubtotal = computed(
+    () =>
+      `₦${this.subtotal().toLocaleString('en-NG', {
+        minimumFractionDigits: 2,
+      })}`
   );
 
   ngOnInit(): void {
@@ -59,8 +64,25 @@ export class CartComponent implements OnInit {
           toast.error('Failed to update quantity');
         }
         // Potential place for toast/notification based on success flag
-      }
+      },
     });
+  }
+
+  onQuantityInput(item: CartItem, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let newQty = parseInt(input.value, 10);
+
+    // Validate input
+    if (isNaN(newQty) || newQty < 1) {
+      // Reset to current valid quantity if invalid
+      input.value = item.qty.toString();
+      return;
+    }
+
+    // Only update if changed
+    if (newQty !== item.qty) {
+      this.updateQuantity(item, newQty);
+    }
   }
 
   removeItem(item: CartItem): void {
@@ -96,7 +118,9 @@ export class CartComponent implements OnInit {
   }
 
   getFormattedItemTotal(item: CartItem): string {
-    return `₦${this.getItemTotal(item).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+    return `₦${this.getItemTotal(item).toLocaleString('en-NG', {
+      minimumFractionDigits: 2,
+    })}`;
   }
 
   getFormattedUnitPrice(item: CartItem): string {
@@ -106,9 +130,9 @@ export class CartComponent implements OnInit {
   }
 
   private setItemUpdating(itemId: number, updating: boolean): void {
-    this.isUpdating.update(state => ({
+    this.isUpdating.update((state) => ({
       ...state,
-      [itemId]: updating
+      [itemId]: updating,
     }));
   }
 

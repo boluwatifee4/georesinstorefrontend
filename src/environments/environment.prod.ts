@@ -1,9 +1,10 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://georesinstore-api.onrender.com', // Your production API URL
-  adminApiKey: 'your-production-admin-key-here', // Change this for production
+  production: false,
+  apiUrl: 'https://georesinstore.netlify.app/api', // Your NestJS backend URL
+  // apiUrl: 'https://georesinstore-api.onrender.com', // Your NestJS backend URL
+  adminApiKey: 'changeme-dev-key',
   telegram: {
     botToken: (globalThis as any)?.process?.env?.['TELEGRAM_BOT_TOKEN'] || '',
-    chatId: (globalThis as any)?.process?.env?.['TELEGRAM_CHAT_ID'] || ''
-  }
+    chatId: (globalThis as any)?.process?.env?.['TELEGRAM_CHAT_ID'] || '',
+  },
 };

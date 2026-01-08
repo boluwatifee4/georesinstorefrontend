@@ -85,7 +85,11 @@ export class CartStore {
             this.setLoading(true);
             return this.cartService.getCart(cartId).pipe(
               catchError((error) => {
-                this.setError(error.message || 'Failed to load cart');
+                const msg =
+                  error.error?.error?.message ||
+                  error.error?.message ||
+                  'Failed to load cart';
+                this.setError(msg);
                 return of(null);
               })
             );
@@ -131,7 +135,11 @@ export class CartStore {
       .createCart()
       .pipe(
         catchError((error) => {
-          this.setError(error.message || 'Failed to create cart');
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to create cart';
+          this.setError(msg);
           return of(null);
         })
       )
@@ -193,7 +201,10 @@ export class CartStore {
       .addItem(cartId, dto)
       .pipe(
         catchError((error) => {
-          const msg = error.message || 'Failed to add item';
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to add item';
           this.setError(msg);
           this.showOperationFailedToast(msg);
           if (done) done(false);
@@ -238,7 +249,10 @@ export class CartStore {
       .updateItem(cartId, itemId, { qty })
       .pipe(
         catchError((error) => {
-          const msg = error.message || 'Failed to update item';
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to update item';
           this.setError(msg);
           this.showOperationFailedToast(msg);
           if (opts?.done) {
@@ -285,7 +299,10 @@ export class CartStore {
       .removeItem(cartId, itemId)
       .pipe(
         catchError((error) => {
-          const msg = error.message || 'Failed to remove item';
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to remove item';
           this.setError(msg);
           this.showOperationFailedToast(msg);
           this.setLoading(false);
@@ -307,7 +324,10 @@ export class CartStore {
       .clearCart(cartId)
       .pipe(
         catchError((error) => {
-          const msg = error.message || 'Failed to clear cart';
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to clear cart';
           this.setError(msg);
           this.showOperationFailedToast(msg);
           this.setLoading(false);
@@ -329,7 +349,10 @@ export class CartStore {
       .getCart(cartId)
       .pipe(
         catchError((error) => {
-          const msg = error.message || 'Failed to refresh cart';
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to refresh cart';
           this.setError(msg);
           // Do not toast refresh errors unless loader visible to avoid noise
           if (showLoader) this.showOperationFailedToast(msg);

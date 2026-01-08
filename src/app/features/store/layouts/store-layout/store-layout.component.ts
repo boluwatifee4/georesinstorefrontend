@@ -267,7 +267,7 @@ export class StoreLayoutComponent implements OnInit {
       command: 'search product',
       // Fixed: Removed duplicate phrases in description
       description:
-        'Search for products. Triggers: do you have, i need, i need to buy/order/get/purchase, show me, find {product name}',
+        'Search for products. Triggers: do you have, i need, i need to buy/order/get/purchase, show me, find {product name} or eg i need products, i need amterials, i neeed stuffs things like that',
       parameters: [{ name: 'query', type: 'string', required: true }],
       action: async (params: any) => {
         try {
@@ -279,11 +279,37 @@ export class StoreLayoutComponent implements OnInit {
             };
           }
 
-          const results = await this.productsService
+          // Initial Search
+          let results = await this.productsService
             .getProducts({ q: params.query, limit: 5 })
             .toPromise();
 
-          const productList = results?.data || [];
+          let productList = results?.data || [];
+          let usedQuery = params.query;
+          let isFallback = false;
+
+          // Smart Fallback: If no results and query ends in 's', try singular
+          if (
+            productList.length === 0 &&
+            params.query.trim().toLowerCase().endsWith('s')
+          ) {
+            const singularQuery = params.query.trim().slice(0, -1);
+            if (singularQuery.length >= 2) {
+              const fallbackResults = await this.productsService
+                .getProducts({ q: singularQuery, limit: 5 })
+                .toPromise();
+
+              if (
+                fallbackResults &&
+                fallbackResults.data &&
+                fallbackResults.data.length > 0
+              ) {
+                productList = fallbackResults.data;
+                usedQuery = singularQuery;
+                isFallback = true;
+              }
+            }
+          }
 
           // 1. No Results: Upsell the Request Feature
           if (productList.length === 0) {
@@ -300,9 +326,13 @@ export class StoreLayoutComponent implements OnInit {
             };
           }
 
-          // 2. Exact Match: Auto-Navigate
-          if (productList.length === 1) {
-            const product = productList[0];
+          // 2. Exact Match Check (Prioritize exact title match to prevent loops)
+          const exactMatch = productList.find(
+            (p: any) => p.title.toLowerCase() === usedQuery.toLowerCase()
+          );
+
+          if (productList.length === 1 || exactMatch) {
+            const product = exactMatch || productList[0];
             // Provide a delay so user sees "Found it!" before switching context
             setTimeout(() => {
               this.assistant.toggle();
@@ -317,14 +347,16 @@ export class StoreLayoutComponent implements OnInit {
             .map((p: any) => `• ${p.title} (₦${p.basePrice})`)
             .join('\n');
 
+          const headerMsg = isFallback
+            ? `We couldn't find "${params.query}", but found matches for "${usedQuery}":`
+            : `Found ${productList.length} products matching "${params.query}":`;
+
           return {
             type: 'confirm',
-            message: `Found ${productList.length} products matching "${params.query}":\n\n${list}\n\nSelect a product to see full details:`,
+            message: `${headerMsg}\n\n${list}\n\nSelect a product to see full details:`,
             options: productList.map((p: any) => ({
               label: p.title,
-              value: p.title, // Assuming you have a command to open via slug, or the assistant handles selection
-              // Alternatively, if the assistant just echoes the value back into the mic:
-              // value: p.title
+              value: p.title,
             })),
           };
         } catch (error) {
@@ -507,9 +539,9 @@ export class StoreLayoutComponent implements OnInit {
 
     //Command6: command to reach out to support for errors
     this.assistant.addCommand({
-      command: 'report cart or order error',
+      command: 'escalate issue',
       description:
-        'Reports errors with carts actions, checkout actions or order actions so support can reach out to geo support team',
+        'Reports errors with carts actions, checkout actions or order actions so support can reach out to geo support team, give an intro message to user saying something like : We notice you have issue performing an action, please fill out the form below to report the issue so that our support team can reach out to you something in that line',
       parameters: [
         { name: 'name', type: 'string', required: true },
         { name: 'message', type: 'string', required: true },

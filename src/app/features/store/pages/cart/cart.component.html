@@ -127,9 +127,14 @@
                         </svg>
                       </button>
 
-                      <span class="px-3 sm:px-4 py-2 font-semibold text-gray-900 dark:text-white min-w-[2.5rem] sm:min-w-[3rem] text-center text-sm sm:text-base">
-                        {{ item.qty }}
-                      </span>
+                        <input
+                          type="number"
+                          [value]="item.qty"
+                          (change)="onQuantityInput(item, $event)"
+                          [disabled]="isItemUpdating(item.id)"
+                          min="1"
+                          class="w-16 sm:w-20 px-2 py-1 text-center bg-transparent border-none focus:ring-0 text-sm sm:text-base font-semibold text-gray-900 dark:text-white [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                        />
 
                       <button
                         (click)="updateQuantity(item, item.qty + 1)"

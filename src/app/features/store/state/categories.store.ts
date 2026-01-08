@@ -32,28 +32,42 @@ export class CategoriesStore {
   // Actions
   loadCategories() {
     this.setLoading(true);
-    this.categoriesService.getCategories().pipe(
-      catchError(error => {
-        this.setError(error.message || 'Failed to load categories');
-        return of([]);
-      })
-    ).subscribe(categories => {
-      this.setCategories(categories);
-      this.setLoading(false);
-    });
+    this.categoriesService
+      .getCategories()
+      .pipe(
+        catchError((error) => {
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to load categories';
+          this.setError(msg);
+          return of([]);
+        })
+      )
+      .subscribe((categories) => {
+        this.setCategories(categories);
+        this.setLoading(false);
+      });
   }
 
   loadCategoryBySlug(slug: string) {
     this.setLoading(true);
-    this.categoriesService.getCategoryBySlug(slug).pipe(
-      catchError(error => {
-        this.setError(error.message || 'Failed to load category');
-        return of(null);
-      })
-    ).subscribe(category => {
-      this.setCurrentCategory(category);
-      this.setLoading(false);
-    });
+    this.categoriesService
+      .getCategoryBySlug(slug)
+      .pipe(
+        catchError((error) => {
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to load category';
+          this.setError(msg);
+          return of(null);
+        })
+      )
+      .subscribe((category) => {
+        this.setCurrentCategory(category);
+        this.setLoading(false);
+      });
   }
 
   clearCurrentCategory() {
@@ -62,18 +76,18 @@ export class CategoriesStore {
 
   // Private state updaters
   private setCategories(categories: Category[]) {
-    this._state.update(state => ({ ...state, categories }));
+    this._state.update((state) => ({ ...state, categories }));
   }
 
   private setCurrentCategory(currentCategory: Category | null) {
-    this._state.update(state => ({ ...state, currentCategory }));
+    this._state.update((state) => ({ ...state, currentCategory }));
   }
 
   private setLoading(loading: boolean) {
-    this._state.update(state => ({ ...state, loading }));
+    this._state.update((state) => ({ ...state, loading }));
   }
 
   private setError(error: string | null) {
-    this._state.update(state => ({ ...state, error }));
+    this._state.update((state) => ({ ...state, error }));
   }
 }

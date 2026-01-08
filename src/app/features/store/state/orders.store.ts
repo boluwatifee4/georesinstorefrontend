@@ -1,6 +1,10 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { PublicOrdersService } from '../../../api/public/orders/orders.service';
-import { Order, OrderCreateRequest, DeclarePaymentRequest } from '../../../types/api.types';
+import {
+  Order,
+  OrderCreateRequest,
+  DeclarePaymentRequest,
+} from '../../../types/api.types';
 import { catchError, of } from 'rxjs';
 
 export interface OrdersState {
@@ -29,60 +33,88 @@ export class OrdersStore {
   // Actions
   saveOrder(request: OrderCreateRequest) {
     this.setLoading(true);
-    this.ordersService.saveOrder(request).pipe(
-      catchError(error => {
-        this.setError(error.message || 'Failed to save order');
-        return of(null);
-      })
-    ).subscribe(result => {
-      if (result) {
-        // Order saved successfully, result contains orderCode and totals
-        this.setError(null);
-      }
-      this.setLoading(false);
-    });
+    this.ordersService
+      .saveOrder(request)
+      .pipe(
+        catchError((error) => {
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to save order';
+          this.setError(msg);
+          return of(null);
+        })
+      )
+      .subscribe((result) => {
+        if (result) {
+          // Order saved successfully, result contains orderCode and totals
+          this.setError(null);
+        }
+        this.setLoading(false);
+      });
   }
 
   declarePayment(request: DeclarePaymentRequest) {
     this.setLoading(true);
-    this.ordersService.declarePayment(request).pipe(
-      catchError(error => {
-        this.setError(error.message || 'Failed to declare payment');
-        return of(null);
-      })
-    ).subscribe(result => {
-      if (result) {
-        // Payment declared, result contains orderCode, bank details, and total
-        this.setError(null);
-      }
-      this.setLoading(false);
-    });
+    this.ordersService
+      .declarePayment(request)
+      .pipe(
+        catchError((error) => {
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to declare payment';
+          this.setError(msg);
+          return of(null);
+        })
+      )
+      .subscribe((result) => {
+        if (result) {
+          // Payment declared, result contains orderCode, bank details, and total
+          this.setError(null);
+        }
+        this.setLoading(false);
+      });
   }
 
   lookupOrder(orderCode: string) {
     this.setLoading(true);
-    this.ordersService.lookupOrder(orderCode).pipe(
-      catchError(error => {
-        this.setError(error.message || 'Failed to lookup order');
-        return of(null);
-      })
-    ).subscribe(order => {
-      this.setCurrentOrder(order);
-      this.setLoading(false);
-    });
+    this.ordersService
+      .lookupOrder(orderCode)
+      .pipe(
+        catchError((error) => {
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to lookup order';
+          this.setError(msg);
+          return of(null);
+        })
+      )
+      .subscribe((order) => {
+        this.setCurrentOrder(order);
+        this.setLoading(false);
+      });
   }
 
   getOrder(orderCode: string) {
     this.setLoading(true);
-    this.ordersService.getOrder(orderCode).pipe(
-      catchError(error => {
-        this.setError(error.message || 'Failed to get order');
-        return of(null);
-      })
-    ).subscribe(order => {
-      this.setCurrentOrder(order);
-      this.setLoading(false);
-    });
+    this.ordersService
+      .getOrder(orderCode)
+      .pipe(
+        catchError((error) => {
+          const msg =
+            error.error?.error?.message ||
+            error.error?.message ||
+            'Failed to get order';
+          this.setError(msg);
+          return of(null);
+        })
+      )
+      .subscribe((order) => {
+        this.setCurrentOrder(order);
+        this.setLoading(false);
+      });
   }
 
   clearCurrentOrder() {
@@ -91,14 +123,14 @@ export class OrdersStore {
 
   // Private state updaters
   private setCurrentOrder(currentOrder: Order | null) {
-    this._state.update(state => ({ ...state, currentOrder }));
+    this._state.update((state) => ({ ...state, currentOrder }));
   }
 
   private setLoading(loading: boolean) {
-    this._state.update(state => ({ ...state, loading }));
+    this._state.update((state) => ({ ...state, loading }));
   }
 
   private setError(error: string | null) {
-    this._state.update(state => ({ ...state, error }));
+    this._state.update((state) => ({ ...state, error }));
   }
 }
