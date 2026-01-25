@@ -51,9 +51,9 @@
 <!-- Main Content Area -->
 <main class="min-h-screen">
   <router-outlet></router-outlet>
-  
+
   <!-- GEO AI Discovery Banner -->
-  <div 
+  <div
     *ngIf="showGeoAIBanner()"
     class="fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-md w-[90%] animate-[slideDown_0.5s_ease-out]"
   >
@@ -64,17 +64,17 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
         </svg>
       </div>
-      
+
       <!-- Message -->
       <div class="flex-1">
         <p class="text-sm font-medium text-text">
-          Need help? Try <span class="text-brand-600 font-bold">✰ GEO AI</span>
+          {{ bannerTitle() }}
         </p>
         <p class="text-xs text-brand-900 mt-1">
-          Tap the button below or double-tap anywhere to chat
+          {{ bannerSubtitle() }}
         </p>
       </div>
-      
+
       <!-- Close Button -->
       <button
         type="button"

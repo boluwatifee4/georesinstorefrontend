@@ -32,6 +32,7 @@ import { ProductsStore } from '../../state/products.store';
 import { PublicProductsService } from '../../../../api/public/products/products.service';
 import { PublicOrdersService } from '../../../../api/public/orders/orders.service';
 import { PublicNotificationsService } from '../../../../api/public/notifications/notifications.service';
+import { response } from 'express';
 
 @Component({
   selector: 'app-store-layout',
@@ -65,8 +66,12 @@ export class StoreLayoutComponent implements OnInit {
 
   // GEO AI Banner
   readonly showGeoAIBanner = signal(false);
+  readonly bannerTitle = signal('Need help? Try ✰ GEO AI');
+  readonly bannerSubtitle = signal('Tap the button below or tap 3 times on anywhere to chat');
+  private bannerTimeout: any;
+  readonly modalOpen = signal(false);
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   ngOnInit(): void {
     this.setupScrollDetection();
@@ -83,42 +88,83 @@ export class StoreLayoutComponent implements OnInit {
     // Check if GEO AI banner should show
     this.checkGeoAIBanner();
     // Setup double-tap gesture
-    this.setupDoubleTap();
+    // Update banner content based on current route
+    this.updateBannerContent();
   }
 
   private checkGeoAIBanner(): void {
+    this.showBannerIfNeeded();
+  }
+
+  private showBannerIfNeeded(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const dismissed = localStorage.getItem('geoai-banner-dismissed');
-    if (!dismissed) {
-      // Show banner after 3 seconds
-      setTimeout(() => {
+    const isListing = this.router.url.startsWith('/store/products');
+    if (isListing) {
+      // Always show on listing after 5 seconds
+      this.bannerTimeout = setTimeout(() => {
         this.showGeoAIBanner.set(true);
-      }, 3000);
+        this.playNotificationSound();
+        this.openGeoAIModal(); // open the modal
+      }, 15000);
+    } else {
+      const dismissed = localStorage.getItem('geoai-banner-dismissed');
+      if (!dismissed) {
+        // Show banner after 3 seconds
+        this.bannerTimeout = setTimeout(() => {
+          this.showGeoAIBanner.set(true);
+        }, 3000);
+      }
+    }
+  }
+
+  private playNotificationSound(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.type = 'sine';
+
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      // Silently fail if audio not supported
     }
   }
 
   dismissGeoAIBanner(): void {
     this.showGeoAIBanner.set(false);
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('geoai-banner-dismissed', 'true');
+      const isListing = this.router.url.startsWith('/store/products');
+      if (!isListing) {
+        localStorage.setItem('geoai-banner-dismissed', 'true');
+      }
+      // Clear existing timeout
+      if (this.bannerTimeout) {
+        clearTimeout(this.bannerTimeout);
+      }
     }
   }
 
-  setupDoubleTap(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    let lastTap = 0;
-    fromEvent(document, 'touchend')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTap;
-        if (tapLength < 300 && tapLength > 0) {
-          this.openGeoAI();
-        }
-        lastTap = currentTime;
-      });
+  private updateBannerContent(): void {
+    const isListing = this.router.url.startsWith('/store/products');
+    if (isListing) {
+      this.bannerTitle.set('Can\'t find what you\'re looking for?');
+      this.bannerSubtitle.set('Request a custom product using ✰ GEO AI');
+    } else {
+      this.bannerTitle.set('Need help? Try ✰ GEO AI');
+      this.bannerSubtitle.set('Tap the button below or tap 3 times on anywhere to chat');
+    }
   }
 
   private setupClickOutside(): void {
@@ -197,6 +243,18 @@ export class StoreLayoutComponent implements OnInit {
         if (q !== (this.search.value || '')) {
           this.search.setValue(q, { emitEvent: false });
         }
+        // Clear banner timeout on navigation
+        if (this.bannerTimeout) {
+          clearTimeout(this.bannerTimeout);
+          this.bannerTimeout = null;
+        }
+        this.updateBannerContent();
+        // Close modal if open on listing page
+        const isListing = this.router.url.startsWith('/store/products');
+        if (isListing && this.modalOpen()) {
+          this.openGeoAIModal(); // close it
+        }
+        this.showBannerIfNeeded();
       });
   }
 
@@ -257,11 +315,40 @@ export class StoreLayoutComponent implements OnInit {
   }
 
   openGeoAI(): void {
-    this.assistant.toggle();
+    // this.assistant.toggle();
+    const config = {
+      commandId: 'geoai_root',
+      openOverlay: true,
+      showInvocation: true,
+    }
+    this.assistant.runCommand(config);
+  }
+
+  openGeoAIModal(): void {
+    this.modalOpen.update(open => !open);
   }
 
   // Foisit AI Assistant Commands
   private registerFoisitCommands(): void {
+    this.assistant.addCommand({
+      id: 'geoai_root',
+      command: 'What can you do?',
+      description: 'Root command for GEO AI assistant',
+      action: async (params: any) => {
+        const commnands = this.assistant.getCommands();
+        const response = {
+          type: 'confirm',
+          message: 'Hello! resin artist. How can I assist you today? Below are some things you can ask me, click any of the options to get started:',
+          options: commnands
+            .map(cmd => ({
+              label: cmd,
+              value: cmd,
+            })),
+        };
+        return response;
+      },
+    });
+
     // Command 2: Product Search with Auto-Routing (Refined)
     this.assistant.addCommand({
       command: 'search product',
@@ -281,7 +368,7 @@ export class StoreLayoutComponent implements OnInit {
 
           // Initial Search
           let results = await this.productsService
-            .getProducts({ q: params.query, limit: 5 })
+            .getProducts({ q: params.query, limit: 100 })
             .toPromise();
 
           let productList = results?.data || [];
@@ -296,7 +383,7 @@ export class StoreLayoutComponent implements OnInit {
             const singularQuery = params.query.trim().slice(0, -1);
             if (singularQuery.length >= 2) {
               const fallbackResults = await this.productsService
-                .getProducts({ q: singularQuery, limit: 5 })
+                .getProducts({ q: singularQuery, limit: 100 })
                 .toPromise();
 
               if (
@@ -343,7 +430,7 @@ export class StoreLayoutComponent implements OnInit {
 
           // 3. Multiple Results: Interactive List
           const list = productList
-            .slice(0, 5)
+            .slice(0, 100)
             .map((p: any) => `• ${p.title} (₦${p.basePrice})`)
             .join('\n');
 
@@ -440,8 +527,8 @@ export class StoreLayoutComponent implements OnInit {
             order.status === 'CONFIRMED'
               ? '✅'
               : order.status === 'REJECTED'
-              ? '❌'
-              : '⏳';
+                ? '❌'
+                : '⏳';
 
           return {
             type: 'confirm',
@@ -539,32 +626,32 @@ export class StoreLayoutComponent implements OnInit {
 
     //Command6: command to reach out to support for errors
     this.assistant.addCommand({
-      command: 'escalate issue',
+      command: 'the error you are facing so someone can help',
       description:
         'Reports errors with carts actions, checkout actions or order actions so support can reach out to geo support team, give an intro message to user saying something like : We notice you have issue performing an action, please fill out the form below to report the issue so that our support team can reach out to you something in that line',
       parameters: [
-        { name: 'name', type: 'string', required: true },
-        { name: 'message', type: 'string', required: true },
-        { name: 'whatsapp', type: 'string', required: true },
+        { name: 'what is your name', type: 'string', required: true },
+        { name: 'what is the error you are facing', type: 'string', required: true },
+        { name: 'what is your whatsapp number', type: 'string', required: true },
       ],
       action: async (params: {
-        name: string;
-        message: string;
-        whatsapp: string;
+        'what is your name': string;
+        'what is the error you are facing': string;
+        'what is your whatsapp number': string;
       }) => {
         try {
           const message = [
             '🆘 Support Ticket',
             '----------------',
-            `❓ Error: ${params.message}`,
-            `� Name: ${params.name}`,
-            `�📱 WhatsApp: ${params.whatsapp}`,
+            `❓ Error: ${params['what is the error you are facing']}`,
+            `� Name: ${params['what is your name']}`,
+            `�📱 WhatsApp: ${params['what is your whatsapp number']}`,
             `⏰ Time: ${new Date().toLocaleString()}`,
           ].join('\n');
 
           await this.notificationsService.sendTelegram(message).toPromise();
 
-          return `✅ Ticket Created!\n\nOur support team will message you at ${params.whatsapp} within 2 hours.`;
+          return `✅ Ticket Created!\n\nOur support team will message you at ${params['what is your whatsapp number']} within 5 to 15 minutes.`;
         } catch (error) {
           return {
             type: 'error',

@@ -42,7 +42,7 @@ export const errorTrackerInterceptor: HttpInterceptorFn = (req, next) => {
 
               if (input) {
                 // 4. Inject value
-                input.value = 'escalate issue';
+                input.value = 'the error you are facing so someone can help';
 
                 // 5. Dispatch events to simulate user typing and entering
                 input.dispatchEvent(new Event('input', { bubbles: true }));
