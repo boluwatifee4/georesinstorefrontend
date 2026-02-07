@@ -33,7 +33,7 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({
         scrollPositionRestoration: 'top',
         anchorScrolling: 'enabled',
-      })
+      }),
     ),
     provideHttpClient(
       withInterceptors([
@@ -41,10 +41,10 @@ export const appConfig: ApplicationConfig = {
         noCacheInterceptor,
         errorTrackerInterceptor,
       ]),
-      withFetch() // Use fetch API for SSR compatibility
+      withFetch(), // Use fetch API for SSR compatibility
     ),
     provideClientHydration(
-      withEventReplay()
+      withEventReplay(),
       // HTTP transfer cache is completely disabled to prevent stale data
     ),
     // Use environment configuration
@@ -78,7 +78,17 @@ export const appConfig: ApplicationConfig = {
           position: { bottom: '30px', right: '30px' },
         },
         commands: [],
-      })
+        // Solid theme matching the app's Amethyst glassmorphism design
+        theme: 'solid',
+        themeColors: {
+          background: '#3b2d5c',
+          text: '#eae6f6',
+          accent: 'linear-gradient(135deg, #6e44ff 0%, #5b36e6 100%)',
+          userBubbleBg: 'rgba(110, 68, 255, 0.25)',
+          systemBubbleBg: 'rgba(255, 255, 255, 0.1)',
+          border: 'rgba(255, 255, 255, 0.15)',
+        },
+      }),
     ),
   ],
 };
