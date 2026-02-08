@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /checkout/
+Disallow: /auth/
+Disallow: /api/
+
+Sitemap: https://www.georesinstore.com/sitemap.xml

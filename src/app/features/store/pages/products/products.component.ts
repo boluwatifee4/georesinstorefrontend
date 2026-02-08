@@ -105,7 +105,7 @@ export class ProductsComponent implements OnInit {
       // Category filter (match by slug)
       if (filters.category) {
         const match = product.categories?.some(
-          (c) => c.slug === filters.category
+          (c) => c.slug === filters.category,
         );
         if (!match) return false;
       }
@@ -163,7 +163,7 @@ export class ProductsComponent implements OnInit {
         : 'Premium Resin Materials & Art Supplies';
       const desc = parts.length
         ? `Browse ${parts.join(
-            ', '
+            ', ',
           )} products. Quality resin materials, pigments, molds and tools with fast delivery across Nigeria.`
         : "Browse premium epoxy resin, UV resin, pigments, molds and art supplies. Nigeria's largest selection of quality resin materials with expert support.";
 
@@ -187,7 +187,7 @@ export class ProductsComponent implements OnInit {
       if (filters.category) {
         keywords.push(
           `${filters.category} Nigeria`,
-          `${filters.category} Lagos`
+          `${filters.category} Lagos`,
         );
       }
       if (filters.search) {
@@ -210,7 +210,7 @@ export class ProductsComponent implements OnInit {
         breadcrumbs.push({
           name: filters.category,
           url: `https://www.georesinstore.com/store/products?category=${encodeURIComponent(
-            filters.category
+            filters.category,
           )}`,
         });
       }
@@ -240,7 +240,7 @@ export class ProductsComponent implements OnInit {
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
         this.applyFilters();
@@ -434,6 +434,21 @@ export class ProductsComponent implements OnInit {
     return this.googleDriveService.convertGoogleDriveUrl(url);
   }
 
+  isProductAvailable(product: Product): boolean {
+    // If we have detailed option info, trust that over the simple isEmpty flag
+    // This aligns logic with ProductDetailComponent to prevent "Out of Stock" discrepancies
+    if (product.optionGroups && product.optionGroups.length > 0) {
+      // Check if all option groups have at least one valid option available
+      // (e.g. Needs at least one available Size AND at least one available Color)
+      return product.optionGroups.every((group) =>
+        group.options?.some((opt) => opt.isActive && opt.inventory > 0),
+      );
+    }
+
+    // Fallback to server-provided flag
+    return !product.isEmpty;
+  }
+
   onImageError(event: any): void {
     const el: HTMLImageElement = event.target as HTMLImageElement;
     const original = el.getAttribute('data-orig') || el.currentSrc || el.src;
@@ -494,7 +509,7 @@ export class ProductsComponent implements OnInit {
         // console.log('Product request telegram notification sent');
         toast.success(
           "Request submitted! We'll contact you soon about product availability.",
-          { duration: 4000 }
+          { duration: 4000 },
         );
         this.hideProductRequestForm();
         this.submittingRequest.set(false);

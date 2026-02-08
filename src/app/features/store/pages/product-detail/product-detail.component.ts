@@ -142,12 +142,26 @@ export class ProductDetailComponent implements OnInit {
     const optionGroups =
       ((product as any).optionGroups as ProductOptionGroup[]) || [];
 
-    // Check if all required option groups have selections
+    // If no option groups, product is in stock (based on isEmpty check above)
+    if (optionGroups.length === 0) return true;
+
+    // Check each option group
     for (const group of optionGroups) {
       const selectedOption = selected[group.id];
-      if (!selectedOption) return false; // No option selected for this group
-      if (!selectedOption.isActive || selectedOption.inventory <= 0)
-        return false;
+
+      if (selectedOption) {
+        // If an option IS selected, check if it's available
+        if (!selectedOption.isActive || selectedOption.inventory <= 0) {
+          return false;
+        }
+      } else {
+        // If NO option selected yet, check if ANY option in this group is available
+        // This prevents the "Out of Stock" flash before auto-selection runs
+        const hasAvailableOption = group.options.some(
+          (opt) => opt.isActive && opt.inventory > 0,
+        );
+        if (!hasAvailableOption) return false;
+      }
     }
 
     return true;
@@ -178,7 +192,7 @@ export class ProductDetailComponent implements OnInit {
     const product = this.product();
     if (!product) return [];
     return (((product as any).optionGroups as ProductOptionGroup[]) || []).sort(
-      (a, b) => a.position - b.position
+      (a, b) => a.position - b.position,
     );
   });
 
@@ -219,7 +233,7 @@ export class ProductDetailComponent implements OnInit {
 
         optionGroups.forEach((group) => {
           const firstAvailableOption = group.options.find(
-            (opt) => opt.isActive && opt.inventory > 0
+            (opt) => opt.isActive && opt.inventory > 0,
           );
           if (firstAvailableOption) {
             initialSelections[group.id] = firstAvailableOption;
@@ -254,11 +268,12 @@ export class ProductDetailComponent implements OnInit {
   }
 
   private applySeo(product: Product) {
-    const title = `${product.title} - Premium Resin Materials | Geo Resin Store`;
+    // Senior SEO Strategy: Append location to product title for better local relevance
+    const title = `${product.title} - Buy in Nigeria | Geo Resin Store`;
     const desc =
       product.description?.slice(0, 150) +
-        "... Available at Nigeria's premier resin store with fast delivery." ||
-      'Premium resin product available at Geo Resin Store Nigeria with fast delivery nationwide.';
+        '... Buy this premium resin material online in Lagos, Nigeria. Fast nationwide delivery.' ||
+      `Buy ${product.title} online in Nigeria. Top quality art & craft supplies delivered to your doorstep in Lagos, Abuja & across the country.`;
     const img = product.primaryImageUrl
       ? this.googleDriveService.convertGoogleDriveUrl(product.primaryImageUrl)
       : undefined;
@@ -290,20 +305,24 @@ export class ProductDetailComponent implements OnInit {
       sku: product.id?.toString() || product.slug || undefined,
     });
 
-    // Set product-specific keywords
+    // Senior SEO Strategy: Rich, diverse keyword set covering location, intent, and niche
     const keywords = [
       product.title,
+      `buy ${product.title} Nigeria`,
+      `${product.title} price Lagos`,
       'resin materials Nigeria',
-      'epoxy resin Lagos',
+      'epoxy resin supplier Nigeria',
+      'where to buy resin in Lagos',
       categoryName,
-      `${product.title} Nigeria`,
-      'resin crafting supplies',
       'art materials Lagos',
+      'resin casting supplies',
+      'jewelry making supplies Nigeria',
+      'DIY craft materials Nigeria',
     ];
 
     if (product.categories && product.categories.length > 0) {
       product.categories.forEach((cat) => {
-        keywords.push(`${cat.name} Nigeria`, `${cat.name} Lagos`);
+        keywords.push(`${cat.name} Nigeria`, `${cat.name} shop Lagos`);
       });
     }
 
@@ -320,7 +339,7 @@ export class ProductDetailComponent implements OnInit {
       breadcrumbs.push({
         name: product.categories[0].name,
         url: `https://www.georesinstore.com/store/products?category=${encodeURIComponent(
-          product.categories[0].name
+          product.categories[0].name,
         )}`,
       });
     }
@@ -378,7 +397,7 @@ export class ProductDetailComponent implements OnInit {
     if (optionGroups.length && !optionGroups.every((g) => !!selected[g.id])) {
       this.showFeedback(
         'error',
-        'Please select all required options before adding to cart.'
+        'Please select all required options before adding to cart.',
       );
       return;
     }
@@ -402,7 +421,7 @@ export class ProductDetailComponent implements OnInit {
     if (!variantId) {
       this.showFeedback(
         'error',
-        'Unable to add product to cart. Please try again.'
+        'Unable to add product to cart. Please try again.',
       );
       return;
     }
@@ -487,7 +506,7 @@ export class ProductDetailComponent implements OnInit {
     // Detect if backend includes combination metadata
     const anyHasCombinations = variants.some(
       (v: any) =>
-        Array.isArray(v.optionCombination) && v.optionCombination.length
+        Array.isArray(v.optionCombination) && v.optionCombination.length,
     );
 
     if (anyHasCombinations) {
@@ -499,7 +518,7 @@ export class ProductDetailComponent implements OnInit {
         if (
           combo.length === selectedOptionIds.length &&
           combo.every(
-            (id: number, idx: number) => id === selectedOptionIds[idx]
+            (id: number, idx: number) => id === selectedOptionIds[idx],
           )
         ) {
           return variant.id;
@@ -508,7 +527,7 @@ export class ProductDetailComponent implements OnInit {
       // Relaxed superset match (if variant combo is a superset including all selected)
       for (const variant of variants) {
         const combo = (variant.optionCombination || []).map((oc: any) =>
-          Number(oc.option.id)
+          Number(oc.option.id),
         );
         if (selectedOptionIds.every((id) => combo.includes(id))) {
           return variant.id;
@@ -518,7 +537,7 @@ export class ProductDetailComponent implements OnInit {
       // No combination metadata at all: attempt heuristic by price match
       const current = this.currentPrice();
       const priceMatched = variants.find(
-        (v: any) => parseFloat(v.price) === current
+        (v: any) => parseFloat(v.price) === current,
       );
       if (priceMatched) return priceMatched.id;
       // Fallback to first variant
@@ -533,7 +552,7 @@ export class ProductDetailComponent implements OnInit {
     variantId: number | null,
     product: any,
     qty: number,
-    selected: Record<number, ProductOption>
+    selected: Record<number, ProductOption>,
   ) {
     const optionDetails = Object.values(selected)
       .map((opt) => opt.value)
@@ -543,7 +562,7 @@ export class ProductDetailComponent implements OnInit {
           product.title
         } (${optionDetails}) – ₦${this.totalPrice().toLocaleString('en-NG')}`
       : `Added ${qty} × ${product.title} – ₦${this.totalPrice().toLocaleString(
-          'en-NG'
+          'en-NG',
         )}`;
 
     // Reset quantity & show inline feedback/actions

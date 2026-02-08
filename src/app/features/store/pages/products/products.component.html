@@ -1,20 +1,31 @@
 <div class="min-h-screen bg-bg">
   <!-- Search & Filter Header -->
-  <div class="sticky top-0 z-20 bg-surface/95 backdrop-blur-xl border-b border-border shadow-sm">
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 overflow-visible">
-
+  <div
+    class="sticky top-0 z-20 bg-surface/95 backdrop-blur-xl border-b border-border shadow-sm"
+  >
+    <div
+      class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 overflow-visible"
+    >
       <!-- Search Bar -->
       <div class="relative mb-4">
         <input
           [formControl]="searchControl"
           type="search"
           placeholder="Search premium resin products..."
-          class="w-full pl-12 pr-4 py-3 bg-bg border border-border rounded-xl text-sm
-                 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20
-                 transition-all duration-300 text-text placeholder:text-muted"
+          class="w-full pl-12 pr-4 py-3 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all duration-300 text-text placeholder:text-muted"
+        />
+        <svg
+          class="absolute left-4 top-3.5 h-5 w-5 text-muted"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-        <svg class="absolute left-4 top-3.5 h-5 w-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          ></path>
         </svg>
       </div>
 
@@ -25,11 +36,20 @@
           <button
             type="button"
             (click)="toggleFilters()"
-            class="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg
-                   hover:bg-brand-700 transition-colors duration-300 text-sm font-medium"
+            class="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors duration-300 text-sm font-medium"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"/>
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"
+              />
             </svg>
             Filters
           </button>
@@ -37,8 +57,7 @@
           <!-- Sort Dropdown -->
           <select
             [formControl]="sortByControl"
-            class="px-3 py-2 bg-bg border border-border rounded-lg text-sm text-text
-                   focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
+            class="px-3 py-2 bg-bg border border-border rounded-lg text-sm text-text focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -50,7 +69,8 @@
 
         <!-- Results Count -->
         <div class="text-sm text-muted">
-          {{ totalProducts() }} {{ totalProducts() === 1 ? 'product' : 'products' }}
+          {{ totalProducts() }}
+          {{ totalProducts() === 1 ? "product" : "products" }}
         </div>
       </div>
     </div>
@@ -60,18 +80,23 @@
   <div *ngIf="showFilters()" class="bg-surface border-b border-border">
     <div class="max-w-7xl mx-auto px-4 py-6">
       <form [formGroup]="filterForm" class="space-y-6">
-
         <!-- Categories Filter -->
         <div>
-          <label class="block text-sm font-medium text-text mb-3">Category</label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          <label class="block text-sm font-medium text-text mb-3"
+            >Category</label
+          >
+          <div
+            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2"
+          >
             <button
               type="button"
               (click)="filterForm.patchValue({ category: '' })"
               class="px-3 py-2 text-sm border border-border rounded-lg transition-all duration-300"
               [ngClass]="{
-                'bg-brand-600 text-white border-brand-600': !filterForm.get('category')?.value,
-                'bg-bg text-text hover:border-brand-600': filterForm.get('category')?.value
+                'bg-brand-600 text-white border-brand-600':
+                  !filterForm.get('category')?.value,
+                'bg-bg text-text hover:border-brand-600':
+                  filterForm.get('category')?.value,
               }"
             >
               All
@@ -82,8 +107,10 @@
               (click)="filterForm.patchValue({ category: category.slug })"
               class="px-3 py-2 text-sm border border-border rounded-lg transition-all duration-300 text-left"
               [ngClass]="{
-                'bg-brand-600 text-white border-brand-600': filterForm.get('category')?.value === category.slug,
-                'bg-bg text-text hover:border-brand-600': filterForm.get('category')?.value !== category.slug
+                'bg-brand-600 text-white border-brand-600':
+                  filterForm.get('category')?.value === category.slug,
+                'bg-bg text-text hover:border-brand-600':
+                  filterForm.get('category')?.value !== category.slug,
               }"
             >
               {{ category.name }}
@@ -94,24 +121,26 @@
         <!-- Price Range -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-text mb-2">Min Price (₦)</label>
+            <label class="block text-sm font-medium text-text mb-2"
+              >Min Price (₦)</label
+            >
             <input
               type="number"
               formControlName="minPrice"
               placeholder="0"
-              class="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm
-                     focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
-            >
+              class="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
+            />
           </div>
           <div>
-            <label class="block text-sm font-medium text-text mb-2">Max Price (₦)</label>
+            <label class="block text-sm font-medium text-text mb-2"
+              >Max Price (₦)</label
+            >
             <input
               type="number"
               formControlName="maxPrice"
               placeholder="100000"
-              class="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm
-                     focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
-            >
+              class="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
+            />
           </div>
         </div>
 
@@ -120,8 +149,7 @@
           <button
             type="button"
             (click)="clearFilters()"
-            class="px-4 py-2 text-sm text-muted hover:text-text border border-border
-                   rounded-lg hover:border-brand-600 transition-all duration-300"
+            class="px-4 py-2 text-sm text-muted hover:text-text border border-border rounded-lg hover:border-brand-600 transition-all duration-300"
           >
             Clear Filters
           </button>
@@ -132,9 +160,16 @@
 
   <!-- Loading State -->
   <div *ngIf="loadingProducts()" class="max-w-7xl mx-auto px-4 py-8">
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-      <div *ngFor="let sk of [1,2,3,4,5,6,7,8,9,10,11,12]" class="space-y-3 sm:space-y-4">
-        <div class="aspect-square rounded-xl animate-pulse bg-surface border border-border"></div>
+    <div
+      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6"
+    >
+      <div
+        *ngFor="let sk of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]"
+        class="space-y-3 sm:space-y-4"
+      >
+        <div
+          class="aspect-square rounded-xl animate-pulse bg-surface border border-border"
+        ></div>
         <div class="h-3 sm:h-4 bg-surface rounded animate-pulse"></div>
         <div class="h-3 sm:h-4 bg-surface rounded animate-pulse w-2/3"></div>
         <div class="h-5 sm:h-6 bg-surface rounded animate-pulse w-1/2"></div>
@@ -143,22 +178,52 @@
   </div>
 
   <!-- Error State (only when we truly have no products) -->
-  <div *ngIf="!loadingProducts() && productsError() && products().length === 0" class="max-w-7xl mx-auto px-4 py-16">
+  <div
+    *ngIf="!loadingProducts() && productsError() && products().length === 0"
+    class="max-w-7xl mx-auto px-4 py-16"
+  >
     <div class="text-center">
-      <div class="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md mx-auto">
-        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full">
-          <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      <div
+        class="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md mx-auto"
+      >
+        <div
+          class="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full"
+        >
+          <svg
+            class="w-8 h-8 text-red-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
           </svg>
         </div>
-        <h3 class="text-xl font-semibold text-red-900 mb-3">Failed to Load Products</h3>
+        <h3 class="text-xl font-semibold text-red-900 mb-3">
+          Failed to Load Products
+        </h3>
         <p class="text-red-700 mb-4">{{ productsError() }}</p>
         <p class="text-red-600 text-sm mb-6">
           Need help? Contact us on
-          <a href="https://wa.me/2348023456789" target="_blank" class="underline hover:text-red-800">WhatsApp</a> or
-          <a href="https://t.me/georesinsupport" target="_blank" class="underline hover:text-red-800">Telegram</a>
+          <a
+            href="https://wa.me/2348023456789"
+            target="_blank"
+            class="underline hover:text-red-800"
+            >WhatsApp</a
+          >
+          or
+          <a
+            href="https://t.me/georesinsupport"
+            target="_blank"
+            class="underline hover:text-red-800"
+            >Telegram</a
+          >
         </p>
-            <button
+        <button
           type="button"
           (click)="retryLoadProducts()"
           class="btn-primary px-6 py-3 rounded-lg"
@@ -170,19 +235,37 @@
   </div>
 
   <!-- Products Grid -->
-  <div *ngIf="!loadingProducts() && !productsError()" class="max-w-7xl mx-auto px-4 py-6">
-
+  <div
+    *ngIf="!loadingProducts() && !productsError()"
+    class="max-w-7xl mx-auto px-4 py-6"
+  >
     <!-- Empty State -->
     <div *ngIf="filteredProducts().length === 0" class="text-center py-16">
-      <div class="bg-surface border border-border rounded-xl p-8 max-w-md mx-auto">
-        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full">
-          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.467.881-6.078 2.327C8.162 17.077 10.055 17 12 17c1.945 0 3.838.077 6.078-2.327z"></path>
+      <div
+        class="bg-surface border border-border rounded-xl p-8 max-w-md mx-auto"
+      >
+        <div
+          class="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full"
+        >
+          <svg
+            class="w-8 h-8 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.467.881-6.078 2.327C8.162 17.077 10.055 17 12 17c1.945 0 3.838.077 6.078-2.327z"
+            ></path>
           </svg>
         </div>
         <h3 class="text-xl font-semibold text-text mb-3">No Products Found</h3>
-        <p class="text-muted mb-6">Try adjusting your filters or search terms</p>
-            <button
+        <p class="text-muted mb-6">
+          Try adjusting your filters or search terms
+        </p>
+        <button
           type="button"
           (click)="clearFilters()"
           class="btn-primary px-6 py-3 rounded-lg"
@@ -193,19 +276,21 @@
     </div>
 
     <!-- Products Grid -->
-    <div *ngIf="filteredProducts().length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+    <div
+      *ngIf="filteredProducts().length > 0"
+      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6"
+    >
       <div
         *ngFor="let product of filteredProducts(); trackBy: trackById"
-        class="group relative cursor-pointer glass backdrop-blur-xl rounded-xl overflow-visible
-               md:hover:shadow-xl md:hover:border-brand-600/30 transition-all duration-500
-               md:hover:-translate-y-1 active:scale-[0.98] touch-manipulation flex flex-col h-full"
+        class="group relative cursor-pointer glass backdrop-blur-xl rounded-xl overflow-visible md:hover:shadow-xl md:hover:border-brand-600/30 transition-all duration-500 md:hover:-translate-y-1 active:scale-[0.98] touch-manipulation flex flex-col h-full"
         (click)="viewProduct(product)"
       >
-
-
         <!-- Product Image -->
         <div class="relative aspect-square overflow-hidden rounded-xl">
-          <div *ngIf="product.primaryImageUrl; else placeholderImage" class="w-full h-full">
+          <div
+            *ngIf="product.primaryImageUrl; else placeholderImage"
+            class="w-full h-full"
+          >
             <img
               [ngSrc]="getImageUrl(product.primaryImageUrl)"
               [alt]="product.title"
@@ -214,16 +299,28 @@
               width="300"
               height="300"
               [attr.data-orig]="product.primaryImageUrl"
-            >
+            />
           </div>
 
           <!-- Placeholder -->
           <ng-template #placeholderImage>
-            <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <div
+              class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center"
+            >
               <div class="text-center">
-                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-300/80 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                <div
+                  class="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-300/80 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-6 h-6 text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 </div>
                 <span class="text-gray-400 text-xs">Premium Product</span>
@@ -232,35 +329,43 @@
           </ng-template>
 
           <!-- Quick Actions Overlay -->
-          <div class="absolute inset-0 bg-black/40 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300
-                      flex items-center justify-center">
+          <div
+            class="absolute inset-0 bg-black/40 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+          >
             <button
               type="button"
-              (click)="!product.isEmpty && addToCart(product.id); $event.stopPropagation()"
-              [disabled]="product.isEmpty"
-              class="hidden md:block px-6 py-3 font-medium rounded-lg
-                     transform translate-y-4 md:group-hover:translate-y-0 opacity-0 md:group-hover:opacity-100
-                     shadow-lg text-sm min-h-[44px] transition-all duration-300"
+              (click)="
+                isProductAvailable(product) && addToCart(product.id);
+                $event.stopPropagation()
+              "
+              [disabled]="!isProductAvailable(product)"
+              class="hidden md:block px-6 py-3 font-medium rounded-lg transform translate-y-4 md:group-hover:translate-y-0 opacity-0 md:group-hover:opacity-100 shadow-lg text-sm min-h-[44px] transition-all duration-300"
               [ngClass]="{
-                'bg-white text-black hover:bg-gray-100 active:bg-gray-100': !product.isEmpty,
-                'bg-gray-400 text-gray-600 cursor-not-allowed': product.isEmpty
+                'bg-white text-black hover:bg-gray-100 active:bg-gray-100':
+                  isProductAvailable(product),
+                'bg-gray-400 text-gray-600 cursor-not-allowed':
+                  !isProductAvailable(product),
               }"
             >
-              {{ product.isEmpty ? 'Out of Stock' : 'Add to Cart' }}
+              {{
+                !isProductAvailable(product) ? "Out of Stock" : "Add to Cart"
+              }}
             </button>
           </div>
 
           <!-- Premium Badge -->
-          <div *ngIf="product.featured"
-               class="absolute top-3 right-3 bg-black/80 backdrop-blur-sm text-white px-2 py-1
-                      rounded-full text-xs font-medium">
+          <div
+            *ngIf="product.featured"
+            class="absolute top-3 right-3 bg-black/80 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium"
+          >
             Featured
           </div>
 
           <!-- Out of Stock Badge -->
-          <div *ngIf="product.isEmpty"
-               class="absolute top-3 left-3 bg-red-600/90 backdrop-blur-sm text-white px-2 py-1
-                      rounded-full text-xs font-medium">
+          <div
+            *ngIf="!isProductAvailable(product)"
+            class="absolute top-3 left-3 bg-red-600/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium"
+          >
             Out of Stock
           </div>
         </div>
@@ -268,13 +373,18 @@
         <!-- Product Info -->
         <div class="p-3 sm:p-4 flex flex-col flex-grow">
           <!-- Title -->
-          <h3 class="text-sm sm:text-base font-medium text-text leading-tight line-clamp-2 group-hover:text-brand-600 transition-colors min-h-[2.5rem] sm:min-h-[3rem] mb-1 sm:mb-2 text-ellipsis overflow-hidden">
+          <h3
+            class="text-sm sm:text-base font-medium text-text leading-tight line-clamp-2 group-hover:text-brand-600 transition-colors min-h-[2.5rem] sm:min-h-[3rem] mb-1 sm:mb-2 text-ellipsis overflow-hidden"
+          >
             {{ product.title }}
           </h3>
 
           <!-- Description -->
           <div class="mb-3 sm:mb-4">
-            <p *ngIf="product.description" class="text-xs sm:text-sm text-muted line-clamp-2 leading-relaxed">
+            <p
+              *ngIf="product.description"
+              class="text-xs sm:text-sm text-muted line-clamp-2 leading-relaxed"
+            >
               {{ product.description }}
             </p>
           </div>
@@ -284,20 +394,45 @@
             <!-- Price -->
             <div class="flex flex-col">
               <!-- Discount Badge & Original Price (only for single price items) -->
-              <div *ngIf="product.compareAtPrice && product.compareAtPrice > (product.basePrice || product.minPrice || 0) && (!product.maxPrice || product.maxPrice === product.basePrice)"
-                   class="flex items-center gap-2 mb-1">
-                 <span class="text-xs text-muted line-through">₦{{ product.compareAtPrice | number:'1.0-0' }}</span>
-                 <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
-                   {{ (1 - ((product.basePrice || 0) / product.compareAtPrice)) | percent:'1.0-0' }} OFF
-                 </span>
+              <div
+                *ngIf="
+                  product.compareAtPrice &&
+                  product.compareAtPrice >
+                    (product.basePrice || product.minPrice || 0) &&
+                  (!product.maxPrice || product.maxPrice === product.basePrice)
+                "
+                class="flex items-center gap-2 mb-1"
+              >
+                <span class="text-xs text-muted line-through"
+                  >₦{{ product.compareAtPrice | number: "1.0-0" }}</span
+                >
+                <span
+                  class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full"
+                >
+                  {{
+                    1 - (product.basePrice || 0) / product.compareAtPrice
+                      | percent: "1.0-0"
+                  }}
+                  OFF
+                </span>
               </div>
 
               <span class="text-sm sm:text-lg font-semibold text-text">
-                <ng-container *ngIf="product.maxPrice && product.maxPrice !== product.basePrice; else singlePrice">
-                  ₦{{ (product.basePrice || product.minPrice || 0) | number:'1.0-0' }} - ₦{{ (product.maxPrice || 0) | number:'1.0-0' }}
+                <ng-container
+                  *ngIf="
+                    product.maxPrice && product.maxPrice !== product.basePrice;
+                    else singlePrice
+                  "
+                >
+                  ₦{{
+                    product.basePrice || product.minPrice || 0 | number: "1.0-0"
+                  }}
+                  - ₦{{ product.maxPrice || 0 | number: "1.0-0" }}
                 </ng-container>
                 <ng-template #singlePrice>
-                  ₦{{ (product.basePrice || product.minPrice || 0) | number:'1.0-0' }}
+                  ₦{{
+                    product.basePrice || product.minPrice || 0 | number: "1.0-0"
+                  }}
                 </ng-template>
               </span>
             </div>
@@ -305,19 +440,30 @@
             <!-- Mobile Add to Cart -->
             <button
               type="button"
-              (click)="!product.isEmpty && addToCart(product.id); $event.stopPropagation()"
-              [disabled]="product.isEmpty"
-              class="md:hidden flex items-center justify-center gap-1 px-2 py-1.5 rounded-md
-                     text-xs font-medium active:scale-95 min-h-[32px] w-full transition-all duration-300"
+              (click)="
+                isProductAvailable(product) && addToCart(product.id);
+                $event.stopPropagation()
+              "
+              [disabled]="!isProductAvailable(product)"
+              class="md:hidden flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium active:scale-95 min-h-[32px] w-full transition-all duration-300"
               [ngClass]="{
-                'bg-brand-600 text-white active:bg-brand-700': !product.isEmpty,
-                'bg-gray-400 text-gray-600 cursor-not-allowed': product.isEmpty
+                'bg-brand-600 text-white active:bg-brand-700':
+                  isProductAvailable(product),
+                'bg-gray-400 text-gray-600 cursor-not-allowed':
+                  !isProductAvailable(product),
               }"
             >
-              <svg *ngIf="!product.isEmpty" class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+              <svg
+                *ngIf="isProductAvailable(product)"
+                class="w-3 h-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                />
               </svg>
-              {{ product.isEmpty ? 'Out of Stock' : 'Add' }}
+              {{ !isProductAvailable(product) ? "Out of Stock" : "Add" }}
             </button>
           </div>
         </div>
@@ -334,33 +480,66 @@
         class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl hover:border-brand-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
         [disabled]="loadingMore()"
       >
-        <div *ngIf="loadingMore()" class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></div>
-        <span>{{ loadingMore() ? 'Loading...' : 'Load More Products' }}</span>
+        <div
+          *ngIf="loadingMore()"
+          class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"
+        ></div>
+        <span>{{ loadingMore() ? "Loading..." : "Load More Products" }}</span>
       </button>
       <ng-template #endOfResults>
         <div class="text-center space-y-6">
-          <div class="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-xl text-sm text-muted">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          <div
+            class="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-xl text-sm text-muted"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
             </svg>
             You've seen all products
           </div>
 
           <!-- Product Request Section -->
           <div class="max-w-lg mx-auto">
-            <div *ngIf="!showRequestForm()" class="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border border-violet-200 dark:border-violet-700 rounded-2xl p-6">
+            <div
+              *ngIf="!showRequestForm()"
+              class="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border border-violet-200 dark:border-violet-700 rounded-2xl p-6"
+            >
               <div class="text-center space-y-4">
-                <div class="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mx-auto">
-                  <svg class="w-8 h-8 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                <div
+                  class="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mx-auto"
+                >
+                  <svg
+                    class="w-8 h-8 text-violet-600 dark:text-violet-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    ></path>
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-lg font-semibold text-violet-900 dark:text-violet-100 mb-2">
+                  <h3
+                    class="text-lg font-semibold text-violet-900 dark:text-violet-100 mb-2"
+                  >
                     Can't find what you're looking for?
                   </h3>
                   <p class="text-sm text-violet-700 dark:text-violet-300 mb-4">
-                    Tell us what product you need and we'll help you find it or source it specially for you.
+                    Tell us what product you need and we'll help you find it or
+                    source it specially for you.
                   </p>
                 </div>
                 <button
@@ -368,8 +547,18 @@
                   (click)="showProductRequestForm()"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-colors"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.975 8.975 0 01-2.347-.306c-.584.296-1.925.864-3.653.864-.5 0-1.126-.053-1.852-.109a4.017 4.017 0 01-.533-.055A8 8 0 0121 12z"></path>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.975 8.975 0 01-2.347-.306c-.584.296-1.925.864-3.653.864-.5 0-1.126-.053-1.852-.109a4.017 4.017 0 01-.533-.055A8 8 0 0121 12z"
+                    ></path>
                   </svg>
                   Request a Product
                 </button>
@@ -377,52 +566,89 @@
             </div>
 
             <!-- Product Request Form -->
-            <div *ngIf="showRequestForm()" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg">
+            <div
+              *ngIf="showRequestForm()"
+              class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 shadow-lg"
+            >
               <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Request a Product</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                  Request a Product
+                </h3>
                 <button
                   type="button"
                   (click)="hideProductRequestForm()"
                   class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
                   </svg>
                 </button>
               </div>
 
-              <form [formGroup]="requestForm" (ngSubmit)="submitProductRequest()" class="space-y-4">
+              <form
+                [formGroup]="requestForm"
+                (ngSubmit)="submitProductRequest()"
+                class="space-y-4"
+              >
                 <!-- Phone Number -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Phone Number *
                   </label>
                   <input
                     type="tel"
                     formControlName="phone"
-                    [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
-                      (isRequestFormFieldInvalid('phone') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
-                    placeholder="+234 8XX XXX XXXX"
+                    [class]="
+                      'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
+                      (isRequestFormFieldInvalid('phone')
+                        ? 'border-red-500 dark:border-red-400'
+                        : 'border-gray-300 dark:border-slate-600')
+                    "
+                    placeholder="080 1234 5678"
+                  />
+                  <div
+                    *ngIf="getRequestFormFieldError('phone')"
+                    class="text-red-500 text-sm mt-1"
                   >
-                  <div *ngIf="getRequestFormFieldError('phone')" class="text-red-500 text-sm mt-1">
-                    {{ getRequestFormFieldError('phone') }}
+                    {{ getRequestFormFieldError("phone") }}
                   </div>
                 </div>
 
                 <!-- Product Request -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     What product are you looking for? *
                   </label>
                   <textarea
                     formControlName="request"
                     rows="4"
-                    [class]="'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 resize-none ' +
-                      (isRequestFormFieldInvalid('request') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-slate-600')"
+                    [class]="
+                      'w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 resize-none ' +
+                      (isRequestFormFieldInvalid('request')
+                        ? 'border-red-500 dark:border-red-400'
+                        : 'border-gray-300 dark:border-slate-600')
+                    "
                     placeholder="Describe the product you're looking for, including brand, color, size, or any specific requirements..."
                   ></textarea>
-                  <div *ngIf="getRequestFormFieldError('request')" class="text-red-500 text-sm mt-1">
-                    {{ getRequestFormFieldError('request') }}
+                  <div
+                    *ngIf="getRequestFormFieldError('request')"
+                    class="text-red-500 text-sm mt-1"
+                  >
+                    {{ getRequestFormFieldError("request") }}
                   </div>
                 </div>
 
@@ -440,14 +666,22 @@
                     [disabled]="requestForm.invalid || submittingRequest()"
                     class="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-400 disabled:cursor-not-allowed text-white rounded-xl transition-colors font-medium flex items-center justify-center gap-2"
                   >
-                    <div *ngIf="submittingRequest()" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>{{ submittingRequest() ? 'Submitting...' : 'Submit Request' }}</span>
+                    <div
+                      *ngIf="submittingRequest()"
+                      class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                    ></div>
+                    <span>{{
+                      submittingRequest() ? "Submitting..." : "Submit Request"
+                    }}</span>
                   </button>
                 </div>
               </form>
 
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 text-center">
-                We'll contact you within 24 hours about product availability and pricing.
+              <p
+                class="text-xs text-gray-500 dark:text-gray-400 mt-4 text-center"
+              >
+                We'll contact you within 24 hours about product availability and
+                pricing.
               </p>
             </div>
           </div>

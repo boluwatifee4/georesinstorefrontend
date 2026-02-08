@@ -4,7 +4,7 @@ import { InvoiceDetails } from '../models/invoice.model';
 import { DOCUMENT } from '@angular/common';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PdfService {
   private readonly document = inject(DOCUMENT);
@@ -32,7 +32,10 @@ export class PdfService {
     }
   }
 
-  private async addInvoiceContent(pdf: jsPDF, invoice: InvoiceDetails): Promise<void> {
+  private async addInvoiceContent(
+    pdf: jsPDF,
+    invoice: InvoiceDetails,
+  ): Promise<void> {
     const pageWidth = 210; // A4 width in mm
     const margin = 20;
     let yPosition = 30;
@@ -50,14 +53,29 @@ export class PdfService {
     pdf.text('Your Company Name', margin, yPosition);
     pdf.text('123 Business Street', margin, yPosition + 5);
     pdf.text('Lagos, Nigeria', margin, yPosition + 10);
-    pdf.text('Phone: +234 xxx xxxx xxx', margin, yPosition + 15);
+    pdf.text('Phone: +234 705 071 3289', margin, yPosition + 15);
 
     // Invoice Details
     yPosition += 25;
     pdf.setFontSize(10);
-    pdf.text(`Invoice #: ${invoice.invoiceNumber || 'Not Set'}`, pageWidth - margin, yPosition, { align: 'right' });
-    pdf.text(`Date: ${this.formatDate(invoice.date)}`, pageWidth - margin, yPosition + 5, { align: 'right' });
-    pdf.text(`Due Date: ${this.formatDate(invoice.dueDate)}`, pageWidth - margin, yPosition + 10, { align: 'right' });
+    pdf.text(
+      `Invoice #: ${invoice.invoiceNumber || 'Not Set'}`,
+      pageWidth - margin,
+      yPosition,
+      { align: 'right' },
+    );
+    pdf.text(
+      `Date: ${this.formatDate(invoice.date)}`,
+      pageWidth - margin,
+      yPosition + 5,
+      { align: 'right' },
+    );
+    pdf.text(
+      `Due Date: ${this.formatDate(invoice.dueDate)}`,
+      pageWidth - margin,
+      yPosition + 10,
+      { align: 'right' },
+    );
 
     // Bill To Section
     yPosition += 25;
@@ -77,7 +95,7 @@ export class PdfService {
     if (invoice.customerAddress) {
       const addressLines = invoice.customerAddress.split('\n');
       addressLines.forEach((line, index) => {
-        pdf.text(line, margin, yPosition + 16 + (index * 5));
+        pdf.text(line, margin, yPosition + 16 + index * 5);
       });
       yPosition += addressLines.length * 5;
     }
@@ -97,7 +115,7 @@ export class PdfService {
 
     // Draw header background
     pdf.setFillColor(245, 245, 245);
-    pdf.rect(margin, tableTop, pageWidth - (2 * margin), 8, 'F');
+    pdf.rect(margin, tableTop, pageWidth - 2 * margin, 8, 'F');
 
     // Header text
     pdf.text('Description', descCol + 2, tableTop + 5);
@@ -118,8 +136,16 @@ export class PdfService {
 
       pdf.text(item.description || '', descCol + 2, yPosition);
       pdf.text((item.quantity || 0).toString(), qtyCol + 2, yPosition);
-      pdf.text(`₦${(item.price || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`, priceCol + 2, yPosition);
-      pdf.text(`₦${amount.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`, amountCol + 2, yPosition);
+      pdf.text(
+        `₦${(item.price || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
+        priceCol + 2,
+        yPosition,
+      );
+      pdf.text(
+        `₦${amount.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
+        amountCol + 2,
+        yPosition,
+      );
 
       yPosition += 8;
 
@@ -141,13 +167,21 @@ export class PdfService {
 
     // Subtotal
     pdf.text('Subtotal:', totalsX, yPosition);
-    pdf.text(`₦${(invoice.subtotal || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`, totalsX + 30, yPosition);
+    pdf.text(
+      `₦${(invoice.subtotal || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
+      totalsX + 30,
+      yPosition,
+    );
 
     // Delivery Cost (if applicable)
     if (invoice.deliveryCost && invoice.deliveryCost > 0) {
       yPosition += 8;
       pdf.text('Delivery Cost:', totalsX, yPosition);
-      pdf.text(`₦${invoice.deliveryCost.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`, totalsX + 30, yPosition);
+      pdf.text(
+        `₦${invoice.deliveryCost.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
+        totalsX + 30,
+        yPosition,
+      );
     }
 
     // Total
@@ -159,7 +193,11 @@ export class PdfService {
     pdf.setFontSize(12);
     pdf.setTextColor(59, 130, 246); // Blue color
     pdf.text('Total:', totalsX, yPosition + 5);
-    pdf.text(`₦${(invoice.total || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`, totalsX + 30, yPosition + 5);
+    pdf.text(
+      `₦${(invoice.total || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
+      totalsX + 30,
+      yPosition + 5,
+    );
 
     // Notes (if any)
     if (invoice.notes) {
@@ -172,7 +210,7 @@ export class PdfService {
       pdf.setFont('helvetica', 'normal');
       const noteLines = invoice.notes.split('\n');
       noteLines.forEach((line, index) => {
-        pdf.text(line, margin, yPosition + 8 + (index * 5));
+        pdf.text(line, margin, yPosition + 8 + index * 5);
       });
     }
 
@@ -180,7 +218,9 @@ export class PdfService {
     const footerY = 280;
     pdf.setFontSize(9);
     pdf.setTextColor(100, 100, 100);
-    pdf.text('Thank you for your business!', pageWidth / 2, footerY, { align: 'center' });
+    pdf.text('Thank you for your business!', pageWidth / 2, footerY, {
+      align: 'center',
+    });
   }
 
   private formatDate(dateStr: string): string {
@@ -228,10 +268,12 @@ export class PdfService {
           ctx.translate(canvas.width / 2, canvas.height / 2);
 
           // Rotate the entire pattern by -30 degrees for diagonal watermark
-          ctx.rotate(-30 * Math.PI / 180);
+          ctx.rotate((-30 * Math.PI) / 180);
 
           // Calculate how many logos we need to cover the rotated canvas
-          const diagonal = Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height);
+          const diagonal = Math.sqrt(
+            canvas.width * canvas.width + canvas.height * canvas.height,
+          );
           const cols = Math.ceil(diagonal / patternWidth) + 2;
           const rows = Math.ceil(diagonal / patternHeight) + 2;
 
