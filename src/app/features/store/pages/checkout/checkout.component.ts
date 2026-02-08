@@ -1,11 +1,30 @@
-import { Component, computed, inject, OnInit, signal, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  PLATFORM_ID,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CartStore } from '../../state/cart.store';
-import { PublicOrdersService, DeclarePaymentResponse, SaveOrderResponse } from '../../../../api/public/orders/orders.service';
-import { ConfigService, ConfigResponse } from '../../../../api/public/config/config.service';
+import {
+  PublicOrdersService,
+  DeclarePaymentResponse,
+  SaveOrderResponse,
+} from '../../../../api/public/orders/orders.service';
+import {
+  ConfigService,
+  ConfigResponse,
+} from '../../../../api/public/config/config.service';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 import { ReceiptGeneratorService } from '../../../../core/services/receipt-generator.service';
 import { PaymentModalComponent } from '../../../../shared/components/payment-modal.component';
@@ -14,9 +33,14 @@ import { toast } from 'ngx-sonner';
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, PaymentModalComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    PaymentModalComponent,
+  ],
   templateUrl: './checkout.component.html',
-  styleUrls: ['./checkout.component.css']
+  styleUrls: ['./checkout.component.css'],
 })
 export class CheckoutComponent implements OnInit {
   private readonly cartStore = inject(CartStore);
@@ -31,11 +55,15 @@ export class CheckoutComponent implements OnInit {
   // Form
   readonly checkoutForm: FormGroup = this.fb.group({
     buyerName: ['', [Validators.required, Validators.minLength(2)]],
-    phone: ['', [Validators.required, Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
+    phone: [
+      '',
+      [Validators.required, Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)],
+    ],
     email: ['', [Validators.email]],
     whatsapp: ['', [Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
     locationLabel: ['', [Validators.required]],
-    withinOgbomoso: [false]
+    withinOgbomoso: [false],
+    acknowledgeReturnsPolicy: [false, [Validators.requiredTrue]],
   });
 
   // Helper methods for validation state
@@ -49,13 +77,18 @@ export class CheckoutComponent implements OnInit {
     if (field && field.invalid && (field.dirty || field.touched)) {
       if (field.errors?.['required']) {
         switch (fieldName) {
-          case 'buyerName': return 'Full name is required';
-          case 'phone': return 'Phone number is required';
-          case 'locationLabel': return 'Delivery location is required';
-          default: return 'This field is required';
+          case 'buyerName':
+            return 'Full name is required';
+          case 'phone':
+            return 'Phone number is required';
+          case 'locationLabel':
+            return 'Delivery location is required';
+          default:
+            return 'This field is required';
         }
       }
-      if (field.errors?.['minlength']) return 'Name must be at least 2 characters';
+      if (field.errors?.['minlength'])
+        return 'Name must be at least 2 characters';
       if (field.errors?.['email']) return 'Please enter a valid email address';
       if (field.errors?.['pattern']) return 'Please enter a valid phone number';
     }
@@ -83,18 +116,23 @@ export class CheckoutComponent implements OnInit {
   readonly isEmpty = computed(() => this.cartItems().length === 0);
   private readonly _withinOgbomoso = signal(false);
   readonly withinOgbomoso = () => this._withinOgbomoso();
-  readonly deliveryFee = computed(() => this.withinOgbomoso() ? 0 : this.DELIVERY_FEE);
+  readonly deliveryFee = computed(() =>
+    this.withinOgbomoso() ? 0 : this.DELIVERY_FEE,
+  );
   readonly total = computed(() => this.subtotal() + this.deliveryFee());
 
   // Formatted values
-  readonly formattedSubtotal = computed(() =>
-    `₦${this.subtotal().toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
+  readonly formattedSubtotal = computed(
+    () =>
+      `₦${this.subtotal().toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
   );
-  readonly formattedDeliveryFee = computed(() =>
-    `₦${this.deliveryFee().toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
+  readonly formattedDeliveryFee = computed(
+    () =>
+      `₦${this.deliveryFee().toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
   );
-  readonly formattedTotal = computed(() =>
-    `₦${this.total().toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
+  readonly formattedTotal = computed(
+    () =>
+      `₦${this.total().toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
   );
 
   ngOnInit(): void {
@@ -106,7 +144,7 @@ export class CheckoutComponent implements OnInit {
 
     // Sync withinOgbomoso control to signal so computed updates reliably
     const ctrl = this.checkoutForm.get('withinOgbomoso');
-    ctrl?.valueChanges.subscribe(val => this._withinOgbomoso.set(!!val));
+    ctrl?.valueChanges.subscribe((val) => this._withinOgbomoso.set(!!val));
     // Initialize signal with initial control value
     this._withinOgbomoso.set(!!ctrl?.value);
 
@@ -116,7 +154,7 @@ export class CheckoutComponent implements OnInit {
       error: (error) => {
         console.error('Failed to load config:', error);
         toast.error('Load Config failed');
-      }
+      },
     });
 
     // Attempt to prefill previously saved customer profile
@@ -128,14 +166,18 @@ export class CheckoutComponent implements OnInit {
 
     // Must acknowledge delivery disclaimer first
     if (!this.acknowledgeDelivery()) {
-      this.error.set('Please acknowledge the delivery fee notice before proceeding.');
+      this.error.set(
+        'Please acknowledge the delivery fee notice before proceeding.',
+      );
       return;
     }
 
     // Validate contact info
     const formValue = this.checkoutForm.value;
     if (!formValue.phone && !formValue.email && !formValue.whatsapp) {
-      this.error.set('Please provide at least one contact method (phone, email, or WhatsApp).');
+      this.error.set(
+        'Please provide at least one contact method (phone, email, or WhatsApp).',
+      );
       return;
     }
 
@@ -148,17 +190,20 @@ export class CheckoutComponent implements OnInit {
     if (!this.cartId()) return;
 
     if (!this.acknowledgeDelivery()) {
-      this.error.set('Please acknowledge the delivery fee notice before proceeding.');
+      this.error.set(
+        'Please acknowledge the delivery fee notice before proceeding.',
+      );
       return;
     }
 
     this.isSavingOrder.set(true);
     this.error.set(null);
 
-    const locationLabel = this.checkoutForm.get('locationLabel')?.value || undefined;
+    const locationLabel =
+      this.checkoutForm.get('locationLabel')?.value || undefined;
     const request = {
       cartId: this.cartId()!,
-      locationLabel
+      locationLabel,
     };
 
     this.ordersService.saveOrder(request).subscribe({
@@ -168,15 +213,18 @@ export class CheckoutComponent implements OnInit {
         this.generateReceipt(result);
         // Clear cart after successful save
         if (isPlatformBrowser(this.platformId)) {
-          try { localStorage.removeItem('cartId'); } catch { }
+          try {
+            localStorage.removeItem('cartId');
+          } catch {}
         }
       },
       error: (error) => {
-        const message = error.error?.message || 'Failed to save order. Please try again.';
+        const message =
+          error.error?.message || 'Failed to save order. Please try again.';
         this.error.set(message);
         this.isSavingOrder.set(false);
         toast.error('Save Order failed');
-      }
+      },
     });
   }
 
@@ -200,17 +248,23 @@ export class CheckoutComponent implements OnInit {
     toast.success('Thank you! We will contact you shortly.');
     // Clear cart after success
     if (isPlatformBrowser(this.platformId)) {
-      try { localStorage.removeItem('cartId'); } catch { }
+      try {
+        localStorage.removeItem('cartId');
+      } catch {}
       // Navigate to products then force a refresh (gives time for receipt download)
       setTimeout(() => {
         this.router.navigate(['/store/products']).then(() => {
-          try { window.location.reload(); } catch { }
+          try {
+            window.location.reload();
+          } catch {}
         });
       }, 800);
     }
   }
 
-  generateReceipt(orderResult: DeclarePaymentResponse | SaveOrderResponse): void {
+  generateReceipt(
+    orderResult: DeclarePaymentResponse | SaveOrderResponse,
+  ): void {
     try {
       const formValue = this.checkoutForm.value;
       const receiptData = {
@@ -224,7 +278,7 @@ export class CheckoutComponent implements OnInit {
         subtotal: this.subtotal(),
         deliveryFee: this.DELIVERY_FEE,
         total: this.total(),
-        date: new Date()
+        date: new Date(),
       };
 
       this.receiptGenerator.generateReceipt(receiptData);
@@ -237,7 +291,9 @@ export class CheckoutComponent implements OnInit {
   contactViaWhatsApp(): void {
     const config = this.config();
     if (config?.whatsappLink && isPlatformBrowser(this.platformId)) {
-      try { window.open(config.whatsappLink, '_blank'); } catch { }
+      try {
+        window.open(config.whatsappLink, '_blank');
+      } catch {}
     }
   }
 
@@ -246,9 +302,14 @@ export class CheckoutComponent implements OnInit {
   }
 
   copyOrderCode(): void {
-    const orderCode = this.orderResult()?.orderCode || this.saveOrderResult()?.orderCode;
-    if (orderCode && isPlatformBrowser(this.platformId) && navigator?.clipboard) {
-      navigator.clipboard.writeText(orderCode).catch(() => { });
+    const orderCode =
+      this.orderResult()?.orderCode || this.saveOrderResult()?.orderCode;
+    if (
+      orderCode &&
+      isPlatformBrowser(this.platformId) &&
+      navigator?.clipboard
+    ) {
+      navigator.clipboard.writeText(orderCode).catch(() => {});
     }
   }
 
@@ -256,7 +317,7 @@ export class CheckoutComponent implements OnInit {
     const result = this.orderResult();
     if (result && isPlatformBrowser(this.platformId) && navigator?.clipboard) {
       const details = `Bank: ${result.bankName}\nAccount: ${result.accountNumber}\nAmount: ${result.total}`;
-      navigator.clipboard.writeText(details).catch(() => { });
+      navigator.clipboard.writeText(details).catch(() => {});
     }
   }
 
@@ -280,7 +341,9 @@ export class CheckoutComponent implements OnInit {
   lineItemTotal(item: any): string {
     const unit = parseFloat(item.unitPriceSnap);
     if (isNaN(unit)) return '0.00';
-    return (unit * item.qty).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    return (unit * item.qty).toLocaleString('en-NG', {
+      minimumFractionDigits: 2,
+    });
   }
 
   // NEW: click handlers replacing direct (click)="saveOrder()" / (click)="declarePayment()"
@@ -317,7 +380,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   private markRequiredFieldsAsTouched(fieldNames: string[]) {
-    fieldNames.forEach(fieldName => {
+    fieldNames.forEach((fieldName) => {
       const field = this.checkoutForm.get(fieldName);
       if (field) {
         field.markAsTouched();
@@ -336,6 +399,8 @@ export class CheckoutComponent implements OnInit {
       issues.push('Enter your delivery location');
     if (!this.acknowledgeDelivery())
       issues.push('Acknowledge the delivery process');
+    if (!this.checkoutForm.get('acknowledgeReturnsPolicy')?.value)
+      issues.push('Accept the Returns & Exchange Policy');
     return issues;
   }
 
@@ -350,6 +415,8 @@ export class CheckoutComponent implements OnInit {
       issues.push('Enter your delivery location');
     if (!this.acknowledgeDelivery())
       issues.push('Acknowledge the delivery process');
+    if (!this.checkoutForm.get('acknowledgeReturnsPolicy')?.value)
+      issues.push('Accept the Returns & Exchange Policy');
 
     // Email validation if provided
     const emailCtrl = this.checkoutForm.get('email');
@@ -385,7 +452,7 @@ export class CheckoutComponent implements OnInit {
         whatsapp: raw.whatsapp || '',
         locationLabel: raw.locationLabel || '',
         withinOgbomoso: !!raw.withinOgbomoso,
-        savedAt: new Date().toISOString()
+        savedAt: new Date().toISOString(),
       };
       localStorage.setItem('grs_customer_profile', JSON.stringify(profile));
     } catch (e) {
@@ -404,17 +471,23 @@ export class CheckoutComponent implements OnInit {
       if (!raw) return;
       const profile = JSON.parse(raw);
       // Only patch if key fields exist
-      if (profile && (profile.buyerName || profile.phone || profile.locationLabel)) {
-        this.checkoutForm.patchValue({
-          buyerName: profile.buyerName || '',
-          phone: profile.phone || '',
-          email: profile.email || '',
-          whatsapp: profile.whatsapp || '',
-          locationLabel: profile.locationLabel || '',
-          withinOgbomoso: !!profile.withinOgbomoso
-        }, { emitEvent: true });
+      if (
+        profile &&
+        (profile.buyerName || profile.phone || profile.locationLabel)
+      ) {
+        this.checkoutForm.patchValue(
+          {
+            buyerName: profile.buyerName || '',
+            phone: profile.phone || '',
+            email: profile.email || '',
+            whatsapp: profile.whatsapp || '',
+            locationLabel: profile.locationLabel || '',
+            withinOgbomoso: !!profile.withinOgbomoso,
+          },
+          { emitEvent: true },
+        );
         // Mark as untouched so validation errors don't show immediately
-        Object.keys(this.checkoutForm.controls).forEach(key => {
+        Object.keys(this.checkoutForm.controls).forEach((key) => {
           const ctrl = this.checkoutForm.get(key);
           ctrl?.markAsPristine();
           ctrl?.markAsUntouched();
@@ -422,7 +495,10 @@ export class CheckoutComponent implements OnInit {
         // Require re-acknowledgement of delivery each visit
         this.acknowledgeDelivery.set(false);
         // Show gentle toast asking for confirmation
-        toast.info('We prefilled details from your last visit. Please review & confirm before proceeding.', { duration: 5000 });
+        toast.info(
+          'We prefilled details from your last visit. Please review & confirm before proceeding.',
+          { duration: 5000 },
+        );
       }
     } catch (e) {
       console.warn('Load profile failed', e);

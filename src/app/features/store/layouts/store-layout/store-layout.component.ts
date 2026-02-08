@@ -14,7 +14,12 @@ import {
   NgOptimizedImage,
   isPlatformBrowser,
 } from '@angular/common';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import {
+  RouterOutlet,
+  Router,
+  NavigationEnd,
+  RouterModule,
+} from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -37,7 +42,13 @@ import { response } from 'express';
 @Component({
   selector: 'app-store-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, ReactiveFormsModule, NgOptimizedImage],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    ReactiveFormsModule,
+    NgOptimizedImage,
+    RouterModule,
+  ],
   templateUrl: './store-layout.component.html',
   styleUrls: ['./store-layout.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,11 +78,13 @@ export class StoreLayoutComponent implements OnInit {
   // GEO AI Banner
   readonly showGeoAIBanner = signal(false);
   readonly bannerTitle = signal('Need help? Try ✰ GEO AI');
-  readonly bannerSubtitle = signal('Tap the button below or tap 3 times on anywhere to chat');
+  readonly bannerSubtitle = signal(
+    'Tap the button below or tap 3 times on anywhere to chat',
+  );
   private bannerTimeout: any;
   readonly modalOpen = signal(false);
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
     this.setupScrollDetection();
@@ -122,7 +135,9 @@ export class StoreLayoutComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
 
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = new (
+        window.AudioContext || (window as any).webkitAudioContext
+      )();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -133,7 +148,10 @@ export class StoreLayoutComponent implements OnInit {
       oscillator.type = 'sine';
 
       gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.5,
+      );
 
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.5);
@@ -159,11 +177,13 @@ export class StoreLayoutComponent implements OnInit {
   private updateBannerContent(): void {
     const isListing = this.router.url.startsWith('/store/products');
     if (isListing) {
-      this.bannerTitle.set('Can\'t find what you\'re looking for?');
+      this.bannerTitle.set("Can't find what you're looking for?");
       this.bannerSubtitle.set('Request a custom product using ✰ GEO AI');
     } else {
       this.bannerTitle.set('Need help? Try ✰ GEO AI');
-      this.bannerSubtitle.set('Tap the button below or tap 3 times on anywhere to chat');
+      this.bannerSubtitle.set(
+        'Tap the button below or tap 3 times on anywhere to chat',
+      );
     }
   }
 
@@ -188,7 +208,7 @@ export class StoreLayoutComponent implements OnInit {
     fromEvent(window, 'scroll', { passive: true })
       .pipe(
         throttleTime(16, animationFrameScheduler), // ~60fps
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
         this.scrolled.set(window.scrollY > 50);
@@ -203,7 +223,7 @@ export class StoreLayoutComponent implements OnInit {
         distinctUntilChanged(),
         // Allow empty (to clear) or 2+ chars to search
         rxFilter((v) => v.length === 0 || v.length >= 2),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((q) => {
         const navigatingTo = '/store/products';
@@ -235,7 +255,7 @@ export class StoreLayoutComponent implements OnInit {
     this.router.events
       .pipe(
         rxFilter((e) => e instanceof NavigationEnd),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((e: any) => {
         const tree = this.router.parseUrl(e.urlAfterRedirects || e.url || '');
@@ -320,12 +340,12 @@ export class StoreLayoutComponent implements OnInit {
       commandId: 'geoai_root',
       openOverlay: true,
       showInvocation: true,
-    }
+    };
     this.assistant.runCommand(config);
   }
 
   openGeoAIModal(): void {
-    this.modalOpen.update(open => !open);
+    this.modalOpen.update((open) => !open);
   }
 
   // Foisit AI Assistant Commands
@@ -338,12 +358,12 @@ export class StoreLayoutComponent implements OnInit {
         const commnands = this.assistant.getCommands();
         const response = {
           type: 'confirm',
-          message: 'Hello! resin artist. How can I assist you today? Below are some things you can ask me, click any of the options to get started:',
-          options: commnands
-            .map(cmd => ({
-              label: cmd,
-              value: cmd,
-            })),
+          message:
+            'Hello! resin artist. How can I assist you today? Below are some things you can ask me, click any of the options to get started:',
+          options: commnands.map((cmd) => ({
+            label: cmd,
+            value: cmd,
+          })),
         };
         return response;
       },
@@ -415,7 +435,7 @@ export class StoreLayoutComponent implements OnInit {
 
           // 2. Exact Match Check (Prioritize exact title match to prevent loops)
           const exactMatch = productList.find(
-            (p: any) => p.title.toLowerCase() === usedQuery.toLowerCase()
+            (p: any) => p.title.toLowerCase() === usedQuery.toLowerCase(),
           );
 
           if (productList.length === 1 || exactMatch) {
@@ -631,8 +651,16 @@ export class StoreLayoutComponent implements OnInit {
         'Reports errors with carts actions, checkout actions or order actions so support can reach out to geo support team, give an intro message to user saying something like : We notice you have issue performing an action, please fill out the form below to report the issue so that our support team can reach out to you something in that line',
       parameters: [
         { name: 'what is your name', type: 'string', required: true },
-        { name: 'what is the error you are facing', type: 'string', required: true },
-        { name: 'what is your whatsapp number', type: 'string', required: true },
+        {
+          name: 'what is the error you are facing',
+          type: 'string',
+          required: true,
+        },
+        {
+          name: 'what is your whatsapp number',
+          type: 'string',
+          required: true,
+        },
       ],
       action: async (params: {
         'what is your name': string;
