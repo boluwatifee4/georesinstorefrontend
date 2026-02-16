@@ -1,6 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { Title, Meta, MetaDefinition } from '@angular/platform-browser';
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 
 export interface OgConfig {
   title?: string;
@@ -24,7 +24,27 @@ export class SeoService {
     private title: Title,
     private meta: Meta,
     @Inject(PLATFORM_ID) private platformId: Object,
-  ) {}
+    @Inject(DOCUMENT) private document: Document,
+  ) { }
+
+  private upsertJsonLdScript(id: string, data: unknown): void {
+    const doc = this.document;
+    if (!doc?.head) return;
+    let script = doc.getElementById(id) as HTMLScriptElement | null;
+    if (!script) {
+      script = doc.createElement('script');
+      script.id = id;
+      script.type = 'application/ld+json';
+      doc.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(data);
+  }
+
+  private removeJsonLdScript(id: string): void {
+    const doc = this.document;
+    const script = doc?.getElementById(id);
+    if (script) script.remove();
+  }
 
   private defaults: SiteDefaults = {
     siteName: 'Geo Resin Store',
@@ -36,15 +56,18 @@ export class SeoService {
   };
 
   setCanonical(path?: string) {
-    if (!isPlatformBrowser(this.platformId)) return; // server will include rendered head; canonical safe but skip DOM duplication
-    const href = this.defaults.baseUrl.replace(/\/$/, '') + (path || '/');
-    let link: HTMLLinkElement | null = document.querySelector(
+    const doc = this.document;
+    if (!doc?.head) return;
+
+    const normalizedPath = path || '/';
+    const href = this.defaults.baseUrl.replace(/\/$/, '') + normalizedPath;
+    let link: HTMLLinkElement | null = doc.querySelector(
       "link[rel='canonical']",
     );
     if (!link) {
-      link = document.createElement('link');
+      link = doc.createElement('link');
       link.setAttribute('rel', 'canonical');
-      document.head.appendChild(link);
+      doc.head.appendChild(link);
     }
     link.setAttribute('href', href);
   }
@@ -110,9 +133,8 @@ export class SeoService {
     const desc = page?.description || this.defaults.defaultDescription;
     const img = page?.image || this.defaults.defaultImage;
     const url = page?.path
-      ? `${this.defaults.baseUrl.replace(/\/$/, '')}${
-          page.path.startsWith('/') ? page.path : '/' + page.path
-        }`
+      ? `${this.defaults.baseUrl.replace(/\/$/, '')}${page.path.startsWith('/') ? page.path : '/' + page.path
+      }`
       : this.defaults.baseUrl;
     this.setOg({ title, description: desc, image: img, url, type: 'website' });
     this.setCanonical(page?.path || '/');
@@ -123,27 +145,55 @@ export class SeoService {
     title: string;
     description?: string;
     image?: string;
-    price?: number;
+    price?: number | null;
+    minPrice?: number | null;
+    maxPrice?: number | null;
     currency?: string;
     slug?: string;
     category?: string;
     brand?: string;
     sku?: string;
+    availability?: 'InStock' | 'OutOfStock' | 'PreOrder';
   }) {
-    if (!isPlatformBrowser(this.platformId)) return;
     const id = 'structured-data-product';
-    let script = document.getElementById(id) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = id;
-      script.type = 'application/ld+json';
-      document.head.appendChild(script);
+
+    const normalizePrice = (value: unknown): number | null => {
+      if (value === null || value === undefined) return null;
+      const n = typeof value === 'number' ? value : Number(value);
+      if (!Number.isFinite(n)) return null;
+      if (n < 0) return null;
+      return n;
+    };
+
+    const currency = product.currency || 'NGN';
+    const url = product.slug
+      ? `${this.defaults.baseUrl}/store/products/${product.slug}`
+      : `${this.defaults.baseUrl}/store/products`;
+    const availabilityUrl = `https://schema.org/${product.availability || 'InStock'}`;
+
+    const min = normalizePrice(product.minPrice ?? product.price);
+    const max = normalizePrice(product.maxPrice ?? product.price);
+    const hasAnyPrice = min !== null || max !== null;
+
+    // If we can't provide offers/reviews/ratings, don't emit Product JSON-LD at all.
+    // This prevents Google Search Console from flagging invalid Product rich results.
+    if (!hasAnyPrice) {
+      this.removeJsonLdScript(id);
+      return;
     }
+
+    const lowPrice = min ?? max!;
+    const highPrice = max ?? min!;
+
     const data: any = {
       '@context': 'https://schema.org',
       '@type': 'Product',
+      '@id': product.slug
+        ? `${this.defaults.baseUrl}/store/products/${product.slug}#product`
+        : `${this.defaults.baseUrl}/store/products#product`,
       name: product.title,
       description: product.description || '',
+      url,
       brand: {
         '@type': 'Brand',
         name: product.brand || 'Geo Resin Store',
@@ -154,32 +204,40 @@ export class SeoService {
     if (product.image) {
       data.image = [product.image];
     }
-    if (product.price) {
-      data.offers = {
-        '@type': 'Offer',
-        price: product.price,
-        priceCurrency: product.currency || 'NGN',
-        availability: 'https://schema.org/InStock',
-        url: `${this.defaults.baseUrl}/store/products/${product.slug}`,
-        seller: {
-          '@type': 'Organization',
-          name: 'Geo Resin Store',
-        },
-      };
-    }
-    script.textContent = JSON.stringify(data);
+
+    // Rich results requirement: Product must include offers, review, or aggregateRating.
+    // We implement offers (Offer or AggregateOffer) from available pricing.
+    data.offers =
+      highPrice !== lowPrice
+        ? {
+          '@type': 'AggregateOffer',
+          lowPrice,
+          highPrice,
+          priceCurrency: currency,
+          availability: availabilityUrl,
+          url,
+          seller: {
+            '@type': 'Organization',
+            name: 'Geo Resin Store',
+          },
+        }
+        : {
+          '@type': 'Offer',
+          price: lowPrice,
+          priceCurrency: currency,
+          availability: availabilityUrl,
+          url,
+          seller: {
+            '@type': 'Organization',
+            name: 'Geo Resin Store',
+          },
+        };
+
+    this.upsertJsonLdScript(id, data);
   }
 
   private setWebSiteStructuredData() {
-    if (!isPlatformBrowser(this.platformId)) return;
     const id = 'structured-data-website';
-    let script = document.getElementById(id) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = id;
-      script.type = 'application/ld+json';
-      document.head.appendChild(script);
-    }
     const data = {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
@@ -202,19 +260,11 @@ export class SeoService {
         },
       },
     };
-    script.textContent = JSON.stringify(data);
+    this.upsertJsonLdScript(id, data);
   }
 
   setLocalBusinessStructuredData() {
-    if (!isPlatformBrowser(this.platformId)) return;
     const id = 'structured-data-local-business';
-    let script = document.getElementById(id) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = id;
-      script.type = 'application/ld+json';
-      document.head.appendChild(script);
-    }
     const data = {
       '@context': 'https://schema.org',
       '@type': 'Store',
@@ -243,44 +293,27 @@ export class SeoService {
         itemListElement: [
           {
             '@type': 'Offer',
-            itemOffered: {
-              '@type': 'Product',
-              name: 'Epoxy Resin',
-              category: 'Resin Materials',
-            },
+            name: 'Epoxy Resin',
+            url: `${this.defaults.baseUrl}/store/products?q=${encodeURIComponent('Epoxy Resin')}`,
           },
           {
             '@type': 'Offer',
-            itemOffered: {
-              '@type': 'Product',
-              name: 'UV Resin',
-              category: 'Resin Materials',
-            },
+            name: 'UV Resin',
+            url: `${this.defaults.baseUrl}/store/products?q=${encodeURIComponent('UV Resin')}`,
           },
           {
             '@type': 'Offer',
-            itemOffered: {
-              '@type': 'Product',
-              name: 'Resin Pigments',
-              category: 'Art Supplies',
-            },
+            name: 'Resin Pigments',
+            url: `${this.defaults.baseUrl}/store/products?q=${encodeURIComponent('Resin Pigments')}`,
           },
         ],
       },
     };
-    script.textContent = JSON.stringify(data);
+    this.upsertJsonLdScript(id, data);
   }
 
   setBreadcrumbStructuredData(breadcrumbs: { name: string; url: string }[]) {
-    if (!isPlatformBrowser(this.platformId)) return;
     const id = 'structured-data-breadcrumb';
-    let script = document.getElementById(id) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = id;
-      script.type = 'application/ld+json';
-      document.head.appendChild(script);
-    }
     const data = {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
@@ -291,19 +324,11 @@ export class SeoService {
         item: item.url,
       })),
     };
-    script.textContent = JSON.stringify(data);
+    this.upsertJsonLdScript(id, data);
   }
 
   setFAQStructuredData(faqs: { question: string; answer: string }[]) {
-    if (!isPlatformBrowser(this.platformId)) return;
     const id = 'structured-data-faq';
-    let script = document.getElementById(id) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = id;
-      script.type = 'application/ld+json';
-      document.head.appendChild(script);
-    }
     const data = {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
@@ -316,7 +341,7 @@ export class SeoService {
         },
       })),
     };
-    script.textContent = JSON.stringify(data);
+    this.upsertJsonLdScript(id, data);
   }
 
   setKeywords(keywords: string[]) {

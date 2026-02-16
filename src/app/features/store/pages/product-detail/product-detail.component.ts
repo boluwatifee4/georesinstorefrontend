@@ -272,7 +272,7 @@ export class ProductDetailComponent implements OnInit {
     const title = `${product.title} - Buy in Nigeria | Geo Resin Store`;
     const desc =
       product.description?.slice(0, 150) +
-        '... Buy this premium resin material online in Lagos, Nigeria. Fast nationwide delivery.' ||
+      '... Buy this premium resin material online in Lagos, Nigeria. Fast nationwide delivery.' ||
       `Buy ${product.title} online in Nigeria. Top quality art & craft supplies delivered to your doorstep in Lagos, Abuja & across the country.`;
     const img = product.primaryImageUrl
       ? this.googleDriveService.convertGoogleDriveUrl(product.primaryImageUrl)
@@ -290,7 +290,25 @@ export class ProductDetailComponent implements OnInit {
       type: 'product',
     });
 
-    const price = product.basePrice || (product as any).minPrice;
+    const optionGroups = ((product as any).optionGroups as ProductOptionGroup[]) || [];
+    let minPrice: number | undefined = product.minPrice ?? (product as any).minPrice;
+    let maxPrice: number | undefined = product.maxPrice ?? (product as any).maxPrice;
+
+    // Fallback: compute min/max from active, in-stock options when backend fields aren't present.
+    if ((minPrice === undefined || maxPrice === undefined) && optionGroups.length > 0) {
+      const optionPrices = optionGroups
+        .flatMap((g) => g.options || [])
+        .filter((o) => o.isActive && o.inventory > 0)
+        .map((o) => o.priceModifier)
+        .filter((p) => Number.isFinite(p));
+
+      if (optionPrices.length > 0) {
+        minPrice = minPrice ?? Math.min(...optionPrices);
+        maxPrice = maxPrice ?? Math.max(...optionPrices);
+      }
+    }
+
+    const price = minPrice ?? product.basePrice;
     const categoryName = product.categories?.[0]?.name || 'Resin Materials';
 
     this.seo.setProductStructuredData({
@@ -298,11 +316,14 @@ export class ProductDetailComponent implements OnInit {
       description: product.description || undefined,
       image: img,
       price,
+      minPrice,
+      maxPrice,
       currency: 'NGN',
       slug: product.slug || undefined,
       category: categoryName,
       brand: 'Geo Resin Store',
       sku: product.id?.toString() || product.slug || undefined,
+      availability: product.isEmpty ? 'OutOfStock' : 'InStock',
     });
 
     // Senior SEO Strategy: Rich, diverse keyword set covering location, intent, and niche
@@ -430,8 +451,8 @@ export class ProductDetailComponent implements OnInit {
     const variants = (product as any).variants || [];
     const selectedOptionEntries = optionGroups.length
       ? Object.entries(selected)
-          .map(([gId, opt]) => [gId, (opt as any)?.id])
-          .filter(([_, id]) => !!id)
+        .map(([gId, opt]) => [gId, (opt as any)?.id])
+        .filter(([_, id]) => !!id)
       : [];
 
     // If product truly has no variants, ignore the earlier fallback variantId (which may equal product.id)
@@ -558,12 +579,11 @@ export class ProductDetailComponent implements OnInit {
       .map((opt) => opt.value)
       .join(', ');
     const message = optionDetails
-      ? `Added ${qty} × ${
-          product.title
-        } (${optionDetails}) – ₦${this.totalPrice().toLocaleString('en-NG')}`
+      ? `Added ${qty} × ${product.title
+      } (${optionDetails}) – ₦${this.totalPrice().toLocaleString('en-NG')}`
       : `Added ${qty} × ${product.title} – ₦${this.totalPrice().toLocaleString(
-          'en-NG',
-        )}`;
+        'en-NG',
+      )}`;
 
     // Reset quantity & show inline feedback/actions
     this.quantity.set(1);
