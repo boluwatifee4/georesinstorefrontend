@@ -150,7 +150,7 @@
           <div>
             <div class="promo-title">Track Order</div>
             <div class="promo-subtitle">Order status</div>
-            
+
             <!-- Delivery timeline micro-graphic -->
             <div class="mt-2.5 flex items-center gap-1.5 opacity-65 group-hover:opacity-90 transition-opacity duration-300">
               <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
@@ -186,18 +186,20 @@
 
     <!-- Mobile: Chip ribbon -->
     <div *ngIf="!loadingCategories()" class="md:hidden">
-      <div class="categories-scroll">
-        <button
-          *ngFor="let c of topCategories(); let i = index; trackBy: trackById"
-          type="button"
-          class="category-chip"
-          (click)="viewCategory(c)"
-        >
-          <div class="category-icon bg-gradient-to-br" [ngClass]="getCategoryGradient(i)">
-            {{ c.name.charAt(0) }}
-          </div>
-          <span class="category-name">{{ c.name }}</span>
-        </button>
+      <div class="-mx-4">
+        <div class="categories-scroll px-4">
+          <button
+            *ngFor="let c of topCategories(); let i = index; trackBy: trackById"
+            type="button"
+            class="category-chip"
+            (click)="viewCategory(c)"
+          >
+            <span class="category-icon bg-gradient-to-br" [ngClass]="getCategoryGradient(i)">
+              {{ c.name.charAt(0) }}
+            </span>
+            <span class="category-name">{{ c.name }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -210,9 +212,9 @@
           class="category-card-desktop"
           (click)="viewCategory(c)"
         >
-          <div class="category-icon bg-gradient-to-br" [ngClass]="getCategoryGradient(i)">
+          <span class="category-icon bg-gradient-to-br" [ngClass]="getCategoryGradient(i)">
             {{ c.name.charAt(0) }}
-          </div>
+          </span>
           <span class="category-name">{{ c.name }}</span>
         </button>
       </div>

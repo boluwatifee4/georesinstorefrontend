@@ -89,12 +89,19 @@ export class ProductDetailComponent implements OnInit {
     const optionGroups =
       ((product as any).optionGroups as ProductOptionGroup[]) || [];
 
-    // If there are option groups and at least one option is selected, use the option price
+    // If there are option groups and at least one option is selected, compute the combined price
     if (optionGroups.length > 0) {
-      const selectedValues = Object.values(selected);
+      const selectedValues = Object.values(selected).filter(
+        (opt): opt is ProductOption => Boolean(opt),
+      );
       if (selectedValues.length > 0) {
-        // Use the price from the selected option as the unit price
-        return selectedValues[0]?.priceModifier || product.basePrice || 0;
+        const total = selectedValues.reduce(
+          (sum, option) => sum + (option.priceModifier || 0),
+          0,
+        );
+        return total > 0
+          ? total
+          : selectedValues[0]?.priceModifier || product.basePrice || 0;
       }
     }
 
@@ -275,7 +282,7 @@ export class ProductDetailComponent implements OnInit {
       '... Buy this premium resin material online in Lagos, Nigeria. Fast nationwide delivery.' ||
       `Buy ${product.title} online in Nigeria. Top quality art & craft supplies delivered to your doorstep in Lagos, Abuja & across the country.`;
     const img = product.primaryImageUrl
-      ? this.googleDriveService.convertGoogleDriveUrl(product.primaryImageUrl)
+      ? this.getSocialImageUrl(product.primaryImageUrl)
       : undefined;
     const url =
       typeof location !== 'undefined'
@@ -371,6 +378,18 @@ export class ProductDetailComponent implements OnInit {
     });
 
     this.seo.setBreadcrumbStructuredData(breadcrumbs);
+  }
+
+  private getSocialImageUrl(imageUrl: string): string {
+    const converted = this.googleDriveService.convertGoogleDriveUrl(imageUrl);
+    if (!converted) return converted;
+
+    const lower = converted.split('?')[0].toLowerCase();
+    if (lower.match(/\.(jpg|jpeg|png|gif|webp|avif|svg)$/)) {
+      return converted;
+    }
+
+    return converted.includes('?') ? `${converted}&.jpg` : `${converted}?.jpg`;
   }
 
   // UI Methods
@@ -650,26 +669,79 @@ export class ProductDetailComponent implements OnInit {
 
     const p = this.product();
     if (!p) return;
+    // Build a rich, human-readable product summary intended for customer sharing
+    const text = this.formatFullProductDetails(p);
 
-    const url = window.location.href;
-    const selected = this.selectedOptions();
-    const optionValues = Object.values(selected);
+    const url = p.slug
+      ? new URL(`/store/products/${p.slug}`, window.location.origin).href
+      : window.location.href;
 
-    let text = `${p.title}\n`;
-    text += `Price: ₦${this.currentPrice().toLocaleString('en-NG')}\n`;
-
-    if (optionValues.length > 0) {
-      text += `\nOptions:\n`;
-      optionValues.forEach((opt) => {
-        text += `- ${opt.value}\n`;
-      });
-    }
+    // Include the canonical product URL and do not attempt to include the primary image URL
+    const payload = `${text}  \n\n${url}`;
 
     try {
-      await navigator.clipboard.writeText(`${text}\n${url}`);
+      await navigator.clipboard.writeText(payload);
       this.showFeedback('success', 'Product details copied to clipboard!');
     } catch (err) {
       this.showFeedback('error', 'Failed to copy product details.');
     }
+  }
+
+  private formatFullProductDetails(product: Product): string {
+    const lines: string[] = [];
+
+    // Title and price
+    lines.push(product.title || '');
+    lines.push(`Price: ₦${this.currentPrice().toLocaleString('en-NG')}`);
+
+    // Stock status
+    lines.push(this.isInStock() ? 'In Stock' : 'Out of Stock');
+
+    // Short description
+    if (product.description) {
+      lines.push('');
+      lines.push(product.description);
+    }
+
+    // All option groups and their options (show full catalogue of options)
+    const groups = ((product as any).optionGroups as ProductOptionGroup[]) || [];
+    if (groups.length > 0) {
+      lines.push('');
+      lines.push('Options:');
+
+      groups.forEach((group) => {
+        lines.push(`\n${group.name}`);
+        (group.options || []).forEach((opt) => {
+          const priceLabel = opt.priceModifier
+            ? ` (₦${opt.priceModifier.toLocaleString('en-NG')})`
+            : '';
+          const baseFlag = opt.priceModifier === product.basePrice ? ' (Base price)' : '';
+          const availability = opt.inventory <= 0 ? ' — Out of stock' : '';
+          lines.push(`- ${opt.value}${priceLabel}${baseFlag}${availability}`);
+        });
+      });
+    }
+
+    return lines.join('\n');
+  }
+
+  private formatSelectedOptions(
+    product: Product,
+    selected: Record<number, ProductOption>,
+  ): string {
+    const groups =
+      ((product as any).optionGroups as ProductOptionGroup[]) || [];
+
+    return Object.entries(selected)
+      .filter(([, option]) => Boolean(option))
+      .map(([groupId, option]) => {
+        const group = groups.find((g) => g.id === Number(groupId));
+        const label = group ? `${group.name}: ${option.value}` : option.value;
+        const priceLabel = option.priceModifier
+          ? ` (₦${option.priceModifier.toLocaleString('en-NG')})`
+          : '';
+        return `- ${label}${priceLabel}`;
+      })
+      .join('\n');
   }
 }
