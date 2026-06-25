@@ -1,410 +1,472 @@
-<!-- Hero Section with TikTok Background Video -->
-<section class="relative overflow-visible">
-  <div class="relative min-h-[80vh] md:h-screen flex items-center">
-    <!-- Rotating TikTok background (single iframe rotates through all URLs) -->
-    <div class="absolute inset-0 -z-10">
-      <app-tiktok-embed
-        class="block w-full h-full"
-        mode="background"
-        [url]="tiktokHeroVideos"
-        [autoplay]="true"
-        [rotateInterval]="9000"
-      ></app-tiktok-embed>
-      <!-- Unified gradient overlay for readable hero text -->
-      <div class="absolute inset-0 z-[150] pointer-events-none bg-gradient-to-r from-brand-900/80 via-brand-900/60 to-brand-700/40"></div>
-      <div class="absolute inset-0 z-[160] pointer-events-none bg-black/30 mix-blend-multiply"></div>
-    </div>
-
-    <div class="relative z-10 max-w-7xl mx-auto px-4">
-      <div class="max-w-2xl">
-        <h1 class="h1 text-white leading-tight mb-6">
-          Exquisite
-          <span class="block font-black italic text-accent">Resin Artistry</span>
+<!-- ═══════════════════════════════════════════════
+     §1. HERO — Hybrid Layout (Image + Promo Tiles)
+     ═══════════════════════════════════════════════ -->
+<section>
+  <div class="hero-container">
+    <!-- Main Hero Image -->
+    <div class="hero-main" (click)="goToProducts()">
+      <img
+        src="/hero-bg.png"
+        alt="Premium Resin Art Materials — GeoResinStore"
+        class="hero-image"
+      />
+      <div class="hero-overlay"></div>
+      <div class="hero-content fade-in-up">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight mb-3">
+          Premium
+          <span class="block text-accent italic">Resin Artistry</span>
         </h1>
-        <p class="text-lg md:text-xl text-white/90 font-light leading-relaxed mb-8 max-w-lg">
-          Discover our curated collection of premium resin materials and craft supplies,
-          designed for the discerning artisan.
+        <p class="text-white/85 text-sm md:text-base font-light leading-relaxed mb-5 max-w-md">
+          Nigeria's #1 destination for epoxy resin, UV resin, pigments, molds &amp; craft supplies.
         </p>
-        <div class="flex flex-col sm:flex-row gap-4">
-          <button type="button"
-            (click)="goToProducts()"
-            class="btn-primary px-8 py-4 font-semibold tracking-wide uppercase text-sm
-                   md:hover:bg-brand-700 md:hover:scale-105 transition-all duration-300 shadow-lg md:hover:shadow-xl rounded-lg active:scale-95"
+        <div class="flex gap-3">
+          <button
+            type="button"
+            (click)="goToProducts(); $event.stopPropagation()"
+            class="btn-primary px-6 py-3 font-semibold tracking-wide uppercase text-xs rounded-lg"
           >
-            Explore Collection
+            Shop Now
           </button>
-          <button type="button"
-            (click)="scrollToNewArrivals()"
-            class="px-8 py-4 border-2 border-white/30 text-white font-medium tracking-wide uppercase text-sm
-                   md:hover:bg-white/10 md:hover:border-accent md:hover:text-accent transition-all duration-300 rounded-lg active:scale-95"
+          <button
+            type="button"
+            (click)="scrollToNewArrivals(); $event.stopPropagation()"
+            class="px-6 py-3 border border-white/30 text-white font-medium tracking-wide uppercase text-xs
+                   hover:bg-white/10 hover:border-accent transition-all duration-300 rounded-lg"
           >
             New Arrivals
           </button>
         </div>
       </div>
     </div>
+
+    <!-- Promo Tiles Grid -->
+    <div class="promo-grid">
+      <!-- New Arrivals Card -->
+      <div
+        role="button"
+        tabindex="0"
+        class="promo-tile group relative overflow-hidden"
+        (click)="onPromoTileClick('new')"
+        (keydown.enter)="onPromoTileClick('new'); $event.preventDefault()"
+      >
+        <!-- Slideshow Background -->
+        <div *ngIf="newArrivalsImages().length > 0" class="promo-slideshow">
+          <div
+            *ngFor="let img of newArrivalsImages(); let idx = index; trackBy: trackById"
+            class="promo-slide-img"
+            [style.backgroundImage]="'url(\'' + img + '\')'"
+            [class.active]="idx === newArrivalsIndex()"
+          ></div>
+        </div>
+        <!-- Fallback Gradient -->
+        <div *ngIf="newArrivalsImages().length === 0" class="absolute inset-0 bg-gradient-to-br from-brand-600 to-brand-700"></div>
+        <div class="promo-tile-overlay"></div>
+        <div class="promo-tile-content">
+          <div class="promo-icon-badge">
+            <ng-icon name="lucideSparkles" class="w-5 h-5 text-white/90"></ng-icon>
+          </div>
+          <div>
+            <div class="promo-title">New Arrivals</div>
+            <div class="promo-subtitle">Just dropped</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best Sellers Card -->
+      <div
+        role="button"
+        tabindex="0"
+        class="promo-tile group relative overflow-hidden"
+        (click)="onPromoTileClick('featured')"
+        (keydown.enter)="onPromoTileClick('featured'); $event.preventDefault()"
+      >
+        <!-- Slideshow Background -->
+        <div *ngIf="bestSellersImages().length > 0" class="promo-slideshow">
+          <div
+            *ngFor="let img of bestSellersImages(); let idx = index; trackBy: trackById"
+            class="promo-slide-img"
+            [style.backgroundImage]="'url(\'' + img + '\')'"
+            [class.active]="idx === bestSellersIndex()"
+          ></div>
+        </div>
+        <!-- Fallback Gradient -->
+        <div *ngIf="bestSellersImages().length === 0" class="absolute inset-0 bg-gradient-to-br from-fuchsia-500 to-purple-600"></div>
+        <div class="promo-tile-overlay"></div>
+        <div class="promo-tile-content">
+          <div class="promo-icon-badge">
+            <ng-icon name="lucideFlame" class="w-5 h-5 text-white/90"></ng-icon>
+          </div>
+          <div>
+            <div class="promo-title">Best Sellers</div>
+            <div class="promo-subtitle">Top picks</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Products Card -->
+      <div
+        role="button"
+        tabindex="0"
+        class="promo-tile group relative overflow-hidden"
+        (click)="onPromoTileClick('products')"
+        (keydown.enter)="onPromoTileClick('products'); $event.preventDefault()"
+      >
+        <!-- Slideshow Background -->
+        <div *ngIf="allProductsImages().length > 0" class="promo-slideshow">
+          <div
+            *ngFor="let img of allProductsImages(); let idx = index; trackBy: trackById"
+            class="promo-slide-img"
+            [style.backgroundImage]="'url(\'' + img + '\')'"
+            [class.active]="idx === allProductsIndex()"
+          ></div>
+        </div>
+        <!-- Fallback Gradient -->
+        <div *ngIf="allProductsImages().length === 0" class="absolute inset-0 bg-gradient-to-br from-violet-500 to-indigo-600"></div>
+        <div class="promo-tile-overlay"></div>
+        <div class="promo-tile-content">
+          <div class="promo-icon-badge">
+            <ng-icon name="lucideShoppingBag" class="w-5 h-5 text-white/90"></ng-icon>
+          </div>
+          <div>
+            <div class="promo-title">All Products</div>
+            <div class="promo-subtitle">Browse catalog</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Track Order Card -->
+      <div
+        role="button"
+        tabindex="0"
+        class="promo-tile group relative overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600"
+        (click)="onPromoTileClick('track')"
+        (keydown.enter)="onPromoTileClick('track'); $event.preventDefault()"
+      >
+        <div class="promo-tile-overlay-track"></div>
+        <div class="promo-tile-content flex flex-col justify-between h-full w-full">
+          <div class="promo-icon-badge">
+            <ng-icon name="lucideTruck" class="w-5 h-5 text-white/90"></ng-icon>
+          </div>
+          <div>
+            <div class="promo-title">Track Order</div>
+            <div class="promo-subtitle">Order status</div>
+            
+            <!-- Delivery timeline micro-graphic -->
+            <div class="mt-2.5 flex items-center gap-1.5 opacity-65 group-hover:opacity-90 transition-opacity duration-300">
+              <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+              <div class="flex-1 h-0.5 border-t border-dashed border-white/60"></div>
+              <div class="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+              <div class="flex-1 h-0.5 border-t border-dashed border-white/60"></div>
+              <div class="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-  <!-- New Arrivals -->
-  <section id="new-arrivals" class="py-16 px-4 bg-gray-50/50">
-    <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-light text-gray-900 tracking-wide mb-4">New Arrivals</h2>
-        <p class="text-gray-600 font-light max-w-2xl mx-auto">
-          The latest additions to our premium collection, featuring innovative materials and exclusive designs
-        </p>
-      </div>
+<!-- ═══════════════════════════════════════════════
+     §2. CATEGORIES — Exposed Ribbon
+     ═══════════════════════════════════════════════ -->
+<section class="section section-categories">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="section-header">
+      <h2 class="section-title">Shop by Category</h2>
+      <button type="button" (click)="goToProducts()" class="section-link">
+        All Products →
+      </button>
+    </div>
 
-      <div *ngIf="loadingProducts()" class="flex gap-6 overflow-x-auto pb-4">
-        <div *ngFor="let sk of [1,2,3,4,5,6]" class="flex-shrink-0 w-64 space-y-4">
-          <div class="aspect-square rounded-lg animate-pulse bg-gray-200"></div>
-          <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
-        </div>
-      </div>
+    <!-- Loading skeleton -->
+    <div *ngIf="loadingCategories()" class="categories-scroll">
+      <div *ngFor="let sk of [1,2,3,4,5,6]"
+           class="skeleton" style="width: 140px; height: 48px; flex-shrink: 0; border-radius: 999px;"></div>
+    </div>
 
-        <div *ngIf="!loadingProducts()" class="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-4 px-4">
-        <div
-          *ngFor="let p of newProducts(); trackBy: trackById"
-          class="flex-shrink-0 w-44 sm:w-48 md:w-56 lg:w-64 group relative cursor-pointer snap-start active:scale-[0.97] transition-transform"
-          (click)="viewProduct(p)"
+    <!-- Mobile: Chip ribbon -->
+    <div *ngIf="!loadingCategories()" class="md:hidden">
+      <div class="categories-scroll">
+        <button
+          *ngFor="let c of topCategories(); let i = index; trackBy: trackById"
+          type="button"
+          class="category-chip"
+          (click)="viewCategory(c)"
         >
-          <div class="aspect-square rounded-lg glass mb-3 md:mb-4 overflow-visible shadow-md md:group-hover:shadow-lg transition-all duration-300">
-            <!-- Product Image with Fallback -->
-            <div *ngIf="p.primaryImageUrl; else newProductPlaceholder"
-                 class="w-full h-full relative overflow-hidden">
-              <img
-                [ngSrc]="getImageUrl(p.primaryImageUrl)"
-                [alt]="p.title"
-                class="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110"
-                (error)="onImageError($event)"
-                width="400"
-                height="400"
-                [attr.data-orig]="p.primaryImageUrl"
-              >
-              <!-- Hover Overlay -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent
-                          opacity-0 md:group-hover:opacity-100 transition-opacity duration-500"></div>
-            </div>
-
-            <!-- Placeholder for products without images -->
-            <ng-template #newProductPlaceholder>
-              <div class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100
-                          flex items-center justify-center relative overflow-hidden">
-                <!-- Elegant pattern overlay -->
-                <div class="absolute inset-0 opacity-10">
-                  <svg class="w-full h-full" viewBox="0 0 100 100" fill="none">
-                    <defs>
-                      <pattern id="grid-new" width="10" height="10" patternUnits="userSpaceOnUse">
-                        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                      </pattern>
-                    </defs>
-                    <rect width="100" height="100" fill="url(#grid-new)" />
-                  </svg>
-                </div>
-                <div class="relative z-10 text-center">
-                  <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-200/80 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-                    </svg>
-                  </div>
-                  <span class="text-gray-400 text-xs uppercase tracking-wider font-light">New Arrival</span>
-                </div>
-              </div>
-            </ng-template>
-
+          <div class="category-icon bg-gradient-to-br" [ngClass]="getCategoryGradient(i)">
+            {{ c.name.charAt(0) }}
           </div>
+          <span class="category-name">{{ c.name }}</span>
+        </button>
+      </div>
+    </div>
 
+    <!-- Desktop: Grid -->
+    <div *ngIf="!loadingCategories()" class="hidden md:block">
+      <div class="categories-grid-desktop">
+        <button
+          *ngFor="let c of topCategories(); let i = index; trackBy: trackById"
+          type="button"
+          class="category-card-desktop"
+          (click)="viewCategory(c)"
+        >
+          <div class="category-icon bg-gradient-to-br" [ngClass]="getCategoryGradient(i)">
+            {{ c.name.charAt(0) }}
+          </div>
+          <span class="category-name">{{ c.name }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
 
-          <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 md:mb-2 tracking-wide line-clamp-2">{{ p.title }}</h3>
-          <p class="text-sm sm:text-base md:text-lg font-light text-gray-800 tracking-wide">
-            <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleNA">
-              ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
-            </ng-container>
-            <ng-template #singleNA>
-              <div class="flex flex-col">
-                <div *ngIf="p.compareAtPrice && p.compareAtPrice > (p.basePrice || 0)" class="flex items-center gap-2 mb-1">
-                  <span class="text-xs text-muted line-through">₦{{ p.compareAtPrice | number:'1.0-0' }}</span>
-                   <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
-                     {{ (1 - ((p.basePrice || 0) / p.compareAtPrice)) | percent:'1.0-0' }} OFF
-                   </span>
-                </div>
-                <span>₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}</span>
-              </div>
-            </ng-template>
-          </p>
+<!-- ═══════════════════════════════════════════════
+     §3. FEATURED PRODUCTS — Uniform Grid
+     ═══════════════════════════════════════════════ -->
+<section class="section">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="section-header">
+      <h2 class="section-title">Featured Collection</h2>
+      <button type="button" (click)="goToProducts()" class="section-link">
+        View All →
+      </button>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="loadingProducts()" class="products-grid">
+      <div *ngFor="let sk of [1,2,3,4,5,6,7,8]"
+           class="skeleton" [style.height.px]="400"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="productsError() && featuredProducts().length === 0 && newProducts().length === 0"
+         class="text-center py-12">
+      <div class="glass rounded-2xl p-8 max-w-sm mx-auto">
+        <div class="w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-base font-semibold text-text mb-2">Failed to Load Products</h3>
+        <p class="text-muted text-sm mb-4">{{ productsError() }}</p>
+        <button type="button" (click)="retryLoadProducts()" class="btn-primary px-5 py-2 text-sm rounded-lg">
+          Try Again
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div *ngIf="!loadingProducts() && (!productsError() || featuredProducts().length > 0)" class="products-grid">
+      <div
+        *ngFor="let p of featuredProducts(); trackBy: trackById"
+        class="product-card"
+        (click)="viewProduct(p)"
+      >
+        <!-- Image -->
+        <div class="product-image-wrap">
+          <ng-container *ngIf="p.primaryImageUrl; else featuredPlaceholder">
+            <img
+              [src]="getImageUrl(p.primaryImageUrl)"
+              [alt]="p.title"
+              loading="lazy"
+              (error)="onImageError($event)"
+              [attr.data-orig]="p.primaryImageUrl"
+            />
+          </ng-container>
+          <ng-template #featuredPlaceholder>
+            <div class="w-full h-full bg-gradient-to-br from-brand-600/10 to-accent/10 flex items-center justify-center">
+              <svg class="w-10 h-10 text-brand-600/30" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </ng-template>
+          <!-- Featured badge -->
+          <span *ngIf="p.featured"
+                class="product-badge bg-brand-600 text-white">
+            Featured
+          </span>
+        </div>
+
+        <!-- Info -->
+        <div class="product-info">
+          <h3 class="product-title">{{ p.title }}</h3>
+          <div class="product-bottom">
+            <div>
+              <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleFP">
+                <span class="product-price">
+                  ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} – ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
+                </span>
+              </ng-container>
+              <ng-template #singleFP>
+                <span class="product-price">₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}</span>
+                <span *ngIf="p.compareAtPrice && p.compareAtPrice > (p.basePrice || 0)"
+                      class="product-price-old">₦{{ p.compareAtPrice | number:'1.0-0' }}</span>
+              </ng-template>
+            </div>
+            <button
+              type="button"
+              class="add-to-cart-btn flex items-center justify-center gap-1.5"
+              [disabled]="isProductAdding(p.id)"
+              (click)="quickAddToCart(p, $event)"
+            >
+              <ng-icon *ngIf="!isProductAdding(p.id)" name="lucideShoppingBag" class="text-xs"></ng-icon>
+              <span>{{ isProductAdding(p.id) ? '...' : 'Add' }}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
+<!-- ═══════════════════════════════════════════════
+     §4. NEW ARRIVALS — Horizontal Scroll
+     ═══════════════════════════════════════════════ -->
+<section id="new-arrivals" class="section">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="section-header">
+      <h2 class="section-title">New Arrivals</h2>
+      <button type="button" (click)="goToProducts()" class="section-link">
+        See All →
+      </button>
+    </div>
 
+    <!-- Loading Skeleton -->
+    <div *ngIf="loadingProducts()" class="scroll-container">
+      <div *ngFor="let sk of [1,2,3,4,5,6]"
+           class="skeleton" style="min-width: 240px; flex-shrink: 0;" [style.height.px]="400"></div>
+    </div>
 
-  <!-- Featured Products -->
-  <section class="py-20 px-4 bg-surface">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-12 sm:mb-16">
-        <div class="text-center sm:text-left">
-          <h2 class="h2 text-text mb-2">Featured Collection</h2>
-          <p class="text-muted font-light">Handpicked premium selections</p>
+    <!-- Horizontal Scroll -->
+    <div *ngIf="!loadingProducts()" class="scroll-container">
+      <div
+        *ngFor="let p of newProducts(); trackBy: trackById"
+        class="product-card"
+        (click)="viewProduct(p)"
+      >
+        <!-- Image -->
+        <div class="product-image-wrap">
+          <ng-container *ngIf="p.primaryImageUrl; else newPlaceholder">
+            <img
+              [src]="getImageUrl(p.primaryImageUrl)"
+              [alt]="p.title"
+              loading="lazy"
+              (error)="onImageError($event)"
+              [attr.data-orig]="p.primaryImageUrl"
+            />
+          </ng-container>
+          <ng-template #newPlaceholder>
+            <div class="w-full h-full bg-gradient-to-br from-brand-600/10 to-accent/10 flex items-center justify-center">
+              <svg class="w-10 h-10 text-brand-600/30" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </ng-template>
+          <span class="product-badge bg-accent text-brand-900">New</span>
         </div>
-  <button type="button"
-          (click)="goToProducts()"
-          class="text-sm uppercase tracking-wider text-brand-600 md:text-muted md:hover:text-brand-600 font-medium
-                 flex items-center justify-center gap-2 py-2 px-4 rounded-lg border border-brand-600/20
-                 md:hover:bg-brand-600/5 transition-all duration-300"
-        >
-          View All
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-        </button>
-      </div>
 
-      <div *ngIf="loadingProducts()" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-8">
-        <div *ngFor="let sk of [1,2,3,4,5,6,7,8]" class="space-y-3 sm:space-y-4">
-          <div class="aspect-square rounded-2xl animate-pulse bg-surface border border-border"></div>
-          <div class="h-3 sm:h-4 bg-surface rounded animate-pulse"></div>
-          <div class="h-3 sm:h-4 bg-surface rounded animate-pulse w-1/2"></div>
-        </div>
-      </div>
-
-  <!-- Error State (only when list is empty) -->
-  <div *ngIf="productsError() && featuredProducts().length === 0 && newProducts().length === 0" class="text-center py-12">
-        <div class="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-          <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
-            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+        <!-- Info -->
+        <div class="product-info">
+          <h3 class="product-title">{{ p.title }}</h3>
+          <div class="product-bottom">
+            <div>
+              <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleNA">
+                <span class="product-price">
+                  ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} – ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
+                </span>
+              </ng-container>
+              <ng-template #singleNA>
+                <span class="product-price">₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}</span>
+                <span *ngIf="p.compareAtPrice && p.compareAtPrice > (p.basePrice || 0)"
+                      class="product-price-old">₦{{ p.compareAtPrice | number:'1.0-0' }}</span>
+              </ng-template>
+            </div>
+            <button
+              type="button"
+              class="add-to-cart-btn flex items-center justify-center gap-1.5"
+              [disabled]="isProductAdding(p.id)"
+              (click)="quickAddToCart(p, $event)"
+            >
+              <ng-icon *ngIf="!isProductAdding(p.id)" name="lucideShoppingBag" class="text-xs"></ng-icon>
+              <span>{{ isProductAdding(p.id) ? '...' : 'Add' }}</span>
+            </button>
           </div>
-          <h3 class="text-lg font-medium text-red-900 mb-2">Failed to Load Products</h3>
-          <p class="text-red-700 text-sm mb-4">{{ productsError() }}</p>
-          <button type="button"
-            (click)="retryLoadProducts()"
-            class="btn-primary px-4 py-2 text-sm rounded-lg">
-            Try Again
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     §5. VALUE PROPOSITIONS BAR
+     ═══════════════════════════════════════════════ -->
+<section class="section">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="value-props">
+      <!-- Quality -->
+      <div class="value-prop-card">
+        <div class="value-prop-icon bg-gradient-to-br from-green-500 to-emerald-500 text-white flex items-center justify-center">
+          <ng-icon name="lucideShieldCheck" class="text-xl"></ng-icon>
+        </div>
+        <h3 class="value-prop-title">Quality Guaranteed</h3>
+        <p class="value-prop-desc">Premium materials tested for exceptional results every time</p>
+      </div>
+
+      <!-- Fast Processing -->
+      <div class="value-prop-card">
+        <div class="value-prop-icon bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center">
+          <ng-icon name="lucideZap" class="text-xl"></ng-icon>
+        </div>
+        <h3 class="value-prop-title">Fast Processing</h3>
+        <p class="value-prop-desc">Quick order confirmation and reliable nationwide delivery</p>
+      </div>
+
+      <!-- Expert Support -->
+      <div class="value-prop-card">
+        <div class="value-prop-icon bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center">
+          <ng-icon name="lucideHeartHandshake" class="text-xl"></ng-icon>
+        </div>
+        <h3 class="value-prop-title">Expert Support</h3>
+        <p class="value-prop-desc">Guidance from experienced resin artists &amp; crafters</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     §6. CTA BANNER
+     ═══════════════════════════════════════════════ -->
+<section class="section">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="cta-banner bg-gradient-to-r from-brand-900 via-brand-700 to-brand-600 text-white">
+      <!-- Decorative circles -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/3 -translate-x-1/4"></div>
+
+      <div class="relative z-10">
+        <h2 class="text-xl md:text-2xl font-bold mb-3">Ready to Create?</h2>
+        <p class="text-white/85 text-sm md:text-base font-light mb-6 max-w-lg mx-auto leading-relaxed">
+          Start your resin art journey today with our premium materials and expert guidance.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            type="button"
+            (click)="goToProducts()"
+            class="btn-primary px-7 py-3 font-bold tracking-wide uppercase text-xs rounded-lg"
+          >
+            Shop Now
+          </button>
+          <button
+            type="button"
+            (click)="goToOrderLookup()"
+            class="px-7 py-3 border border-white/30 text-white font-medium tracking-wide uppercase text-xs
+                   hover:bg-white/10 hover:border-white transition-all duration-300 rounded-lg"
+          >
+            Track Order
           </button>
         </div>
       </div>
-
-  <div *ngIf="!loadingProducts() && !productsError()" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-8">
-        <div
-          *ngFor="let p of featuredProducts(); trackBy: trackById"
-          class="group relative cursor-pointer transform transition-all duration-500 md:hover:-translate-y-2 active:scale-[0.98] touch-manipulation flex flex-col"
-          (click)="viewProduct(p)"
-        >
-          <!-- Product Image Container -->
-          <div class="relative aspect-square rounded-2xl glass mb-4 md:mb-6 overflow-visible
-                      shadow-lg md:group-hover:shadow-2xl transition-all duration-500">
-
-            <!-- Premium Image Display -->
-            <div *ngIf="p.primaryImageUrl; else placeholderImage"
-                 class="w-full h-full relative overflow-hidden">
-              <img
-                [ngSrc]="getImageUrl(p.primaryImageUrl)"
-                [alt]="p.title"
-                class="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110"
-                (error)="onImageError($event)"
-                width="400"
-                height="400"
-                [attr.data-orig]="p.primaryImageUrl"
-              >
-              <!-- Overlay for premium effect -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent
-                          opacity-0 md:group-hover:opacity-100 transition-opacity duration-500"></div>
-            </div>
-
-            <!-- Placeholder for products without images -->
-            <ng-template #placeholderImage>
-              <div class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100
-                          flex items-center justify-center relative overflow-hidden">
-                <!-- Elegant pattern overlay -->
-                <div class="absolute inset-0 opacity-10">
-                  <svg class="w-full h-full" viewBox="0 0 100 100" fill="none">
-                    <defs>
-                      <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                      </pattern>
-                    </defs>
-                    <rect width="100" height="100" fill="url(#grid)" />
-                  </svg>
-                </div>
-                <div class="relative z-10 text-center">
-                  <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-200/80 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-                    </svg>
-                  </div>
-                  <span class="text-gray-400 text-xs uppercase tracking-widest font-light">Premium Product</span>
-                </div>
-              </div>
-            </ng-template>
-
-          </div>
-
-
-
-          <!-- Product Info Container with consistent height -->
-          <div class="flex flex-col flex-1 min-h-[140px] sm:min-h-[160px]">
-            <h3 class="text-sm sm:text-base font-medium text-gray-900 dark:text-white leading-tight tracking-wide
-                       md:group-hover:text-black dark:md:group-hover:text-gray-100 transition-colors duration-300 line-clamp-2
-                       min-h-[3rem] mb-2 sm:mb-3">
-              {{ p.title }}
-            </h3>
-
-            <!-- Product Description -->
-            <div class="mb-4 sm:mb-5">
-              <p *ngIf="p.description"
-                 class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-light leading-relaxed line-clamp-2
-                        md:group-hover:text-gray-700 dark:md:group-hover:text-gray-200 transition-colors duration-300">
-                {{ p.description }}
-              </p>
-            </div>
-
-            <!-- Price and Action Row - Always at bottom -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mt-auto">
-              <!-- Price Display -->
-              <div class="flex flex-col">
-                <span class="text-base sm:text-lg md:text-xl font-light text-gray-900 dark:text-white tracking-wide">
-                  <ng-container *ngIf="p.maxPrice && p.maxPrice !== p.basePrice; else singleFP">
-                    ₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }} - ₦{{ (p.maxPrice || 0) | number:'1.0-0' }}
-                  </ng-container>
-                  <ng-template #singleFP>
-                    <div class="flex flex-col">
-                      <div *ngIf="p.compareAtPrice && p.compareAtPrice > (p.basePrice || 0)" class="flex items-center gap-2 mb-1">
-                        <span class="text-xs text-muted line-through">₦{{ p.compareAtPrice | number:'1.0-0' }}</span>
-                         <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
-                           {{ (1 - ((p.basePrice || 0) / p.compareAtPrice)) | percent:'1.0-0' }} OFF
-                         </span>
-                      </div>
-                      <span>₦{{ (p.basePrice || p.minPrice || 0) | number:'1.0-0' }}</span>
-                    </div>
-                  </ng-template>
-                </span>
-              </div>
-
-              <!-- Quick Action Button -->
-              <button
-                type="button"
-                (click)="viewProduct(p); $event.stopPropagation()"
-                class="flex items-center justify-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100
-                       transition-all duration-300 transform md:translate-x-2 md:group-hover:translate-x-0
-                       btn-primary py-2.5 sm:py-1.5 px-4 sm:px-3 rounded-full md:hover:bg-brand-700 active:scale-95
-                       shadow-lg md:hover:shadow-xl text-xs sm:text-xs tracking-wide focus-visible:opacity-100 focus-visible:outline-none
-                       w-full sm:w-auto min-h-[40px] sm:min-h-[32px]"
-              >
-                <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-                </svg>
-                <span>View Details</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </section>
-
-  <!-- Categories Section -->
-  <section class="py-20 px-4">
-    <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="h2 text-text mb-4">Product Categories</h2>
-        <div class="w-32 h-px bg-brand-600 mx-auto"></div>
-      </div>
-
-      <div *ngIf="loadingCategories()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        <div *ngFor="let sk of [1,2,3,4,5,6,7,8]" class="aspect-square rounded-2xl animate-pulse bg-surface border border-border"></div>
-      </div>
-
-      <div *ngIf="!loadingCategories()" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-        <button
-          *ngFor="let c of topCategories(); trackBy: trackById"
-          (click)="viewCategory(c)"
-     class="group aspect-square rounded-2xl bg-surface border border-border md:hover:border-brand-600
-       shadow-lg md:hover:shadow-xl transition-all duration-500 p-6 md:p-8 flex flex-col items-center justify-center
-       md:hover:-translate-y-2 md:hover:bg-gradient-to-br md:hover:from-brand-600/5 md:hover:to-accent/5 active:scale-95"
-        >
-     <div class="w-16 h-16 bg-gradient-to-br from-brand-600 to-accent rounded-2xl mb-4 md:mb-6
-       md:group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
-            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-            </svg>
-          </div>
-     <span class="text-xs sm:text-sm font-semibold text-text text-center tracking-wide md:group-hover:text-brand-600 transition-colors line-clamp-2">{{ c.name }}</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Special Offers -->
-  <section class="py-20 px-4">
-    <div class="max-w-7xl mx-auto">
-      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-900 via-brand-700 to-brand-600 text-white p-16 md:p-20">
-        <div class="relative z-10 text-center">
-          <h2 class="h2 text-white mb-6">Ready to Create?</h2>
-          <p class="text-lg font-light text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Start your resin art journey today with our premium materials and expert guidance
-          </p>
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <button type="button"
-              (click)="goToProducts()"
-              class="btn-primary px-8 py-4 font-bold tracking-wide uppercase text-sm
-                     hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl shadow-xl"
-            >
-              Shop Now
-            </button>
-            <button type="button"
-              (click)="goToOrderLookup()"
-              class="px-8 py-4 border-2 border-white/30 text-white font-medium tracking-wide uppercase text-sm
-                     hover:bg-white/10 hover:border-white hover:text-white transition-all duration-300 rounded-xl"
-            >
-              Track Order
-            </button>
-          </div>
-        </div>
-        <div class="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full -translate-y-40 translate-x-40"></div>
-        <div class="absolute bottom-0 left-0 w-60 h-60 bg-white/5 rounded-full translate-y-30 -translate-x-30"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trust and Support Section -->
-  <section class="py-16 px-4 bg-surface">
-    <div class="max-w-7xl mx-auto">
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="text-center">
-          <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-text mb-2">Quality Guaranteed</h3>
-          <p class="text-muted text-sm">Premium materials tested for exceptional results</p>
-        </div>
-
-        <div class="text-center">
-          <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-text mb-2">Fast Processing</h3>
-          <p class="text-muted text-sm">Quick order confirmation and delivery</p>
-        </div>
-
-        <div class="text-center">
-          <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-text mb-2">Expert Support</h3>
-          <p class="text-muted text-sm">Guidance from experienced resin artists</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-
+  </div>
+</section>

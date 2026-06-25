@@ -222,7 +222,9 @@ export class ProductsComponent implements OnInit {
   ngOnInit(): void {
     this.setupFilterHandling();
     this.handleQueryParams();
-    this.loadInitialData();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadInitialData();
+    }
   }
 
   private loadInitialData(): void {
@@ -282,7 +284,7 @@ export class ProductsComponent implements OnInit {
         const filtersInUrl: any = {};
         if (params['category']) filtersInUrl.category = params['category'];
         if (params['q']) filtersInUrl.q = params['q'];
-        if (Object.keys(filtersInUrl).length) {
+        if (Object.keys(filtersInUrl).length && isPlatformBrowser(this.platformId)) {
           this.productsStore.loadProducts({
             page: 1,
             limit: 20,

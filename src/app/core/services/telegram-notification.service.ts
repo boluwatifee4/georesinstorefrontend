@@ -11,6 +11,19 @@ export interface TelegramMessage {
   phone?: string;
   email?: string;
   declaredAt: string;
+  paymentReference?: string;
+}
+
+export interface SaveOrderTelegramMessage {
+  orderCode: string;
+  buyerName: string;
+  phone?: string;
+  email?: string;
+  whatsapp?: string;
+  locationLabel?: string;
+  items: any[];
+  subtotal: string;
+  savedAt: string;
 }
 
 @Injectable({
@@ -31,6 +44,28 @@ export class TelegramNotificationService {
     }
 
     const message = this.formatPaymentMessage(messageData);
+
+    return this.sendTelegramMessage(message).pipe(
+      tap(() => {
+        // console.log('Telegram notification sent successfully');
+      }),
+      catchError(error => {
+        console.error('Failed to send Telegram notification:', error);
+        return of(null); // Don't fail the main process if telegram fails
+      })
+    );
+  }
+
+  /**
+   * Send order saved notification to Telegram
+   */
+  sendOrderSavedNotification(messageData: SaveOrderTelegramMessage): Observable<any> {
+    if (!this.botToken || !this.chatId) {
+      console.warn('Telegram bot configuration missing. Skipping notification.');
+      return of(null);
+    }
+
+    const message = this.formatSaveOrderMessage(messageData);
 
     return this.sendTelegramMessage(message).pipe(
       tap(() => {
@@ -69,7 +104,49 @@ export class TelegramNotificationService {
     }
 
     message += `⏰ *Declared At:* ${formattedDate}\n\n`;
+    if (data.paymentReference) {
+      message += `🔖 *Payment Ref:* \`${data.paymentReference}\`\n\n`;
+    }
     message += `⚠️ *Action Required:* Please review and confirm this payment in the admin panel.`;
+
+    return message;
+  }
+
+  /**
+   * Format the save order message
+   */
+  private formatSaveOrderMessage(data: SaveOrderTelegramMessage): string {
+    const formattedDate = new Date(data.savedAt).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    let message = `🛒 *Order Saved (Pay Later)*\n\n`;
+    message += `📋 *Order:* \`${data.orderCode}\`\n`;
+    message += `👤 *Customer:* ${data.buyerName}\n`;
+    message += `💰 *Subtotal:* ₦${parseFloat(data.subtotal).toLocaleString('en-US', { minimumFractionDigits: 2 })}\n`;
+    message += `📍 *Location:* ${data.locationLabel || 'Not provided'}\n`;
+
+    if (data.phone) {
+      message += `📞 *Phone:* ${data.phone}\n`;
+    }
+    if (data.whatsapp) {
+      message += `💬 *WhatsApp:* ${data.whatsapp}\n`;
+    }
+    if (data.email) {
+      message += `📧 *Email:* ${data.email}\n`;
+    }
+
+    message += `\n📦 *Items:*\n`;
+    data.items.forEach(item => {
+      message += `- ${item.qty}x ${item.titleSnap} (₦${parseFloat(item.unitPriceSnap).toLocaleString('en-US')})\n`;
+    });
+
+    message += `\n⏰ *Saved At:* ${formattedDate}\n\n`;
+    message += `ℹ️ *Note:* Customer will declare payment later. You may want to reach out to them.`;
 
     return message;
   }

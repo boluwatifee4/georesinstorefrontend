@@ -71,10 +71,28 @@ import { toast } from 'ngx-sonner';
                   </div>
                 </div>
                 <div class="flex justify-between items-start">
-                  <span class="text-gray-600 dark:text-gray-400">Reference:</span>
+                  <span class="text-gray-600 dark:text-gray-400 mt-1">Reference:</span>
                   <div class="text-right">
-                      <span class="font-mono text-sm text-gray-900 dark:text-white">{{ orderResponse()?.orderCode }}</span>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">Use as payment reference</p>
+                      <div class="flex items-center justify-end gap-2">
+                        <span 
+                          (click)="copyReference()"
+                          class="font-mono font-bold text-sm text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 px-2 py-1 rounded cursor-pointer hover:bg-violet-100 dark:hover:bg-violet-900/50 transition-colors" 
+                          title="Click to copy"
+                        >
+                          {{ paymentReference() || 'Contact Support' }}
+                        </span>
+                        <button
+                          *ngIf="paymentReference()"
+                          (click)="copyReference()"
+                          class="p-1 text-violet-500 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
+                          title="Copy Reference"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                          </svg>
+                        </button>
+                      </div>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Use this exactly as payment reference</p>
                   </div>
                 </div>
               </div>
@@ -85,9 +103,9 @@ import { toast } from 'ngx-sonner';
               <h4 class="font-medium text-amber-800 dark:text-amber-200 mb-2">Instructions:</h4>
               <ol class="text-sm text-amber-700 dark:text-amber-300 space-y-1">
                 <li>1. Transfer the exact amount to the account above</li>
-                <li>2. Use your order code as the payment reference</li>
+                <li>2. Use the exact Reference above as your payment reference</li>
                 <li>3. Click "I have paid" below once payment is made</li>
-                <li>4. You will be contacted immediately after payment confirmation</li>
+                <li>4. You will receive an order code immediately after</li>
               </ol>
             </div>
 
@@ -132,7 +150,7 @@ import { toast } from 'ngx-sonner';
           </div>
 
           <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
-              Use the order code as the transfer reference. Click only after payment.
+              Use the reference above as the transfer reference. Click only after payment.
           </p>
         </div>
       </div>
@@ -154,6 +172,7 @@ export class PaymentModalComponent implements OnInit {
   readonly email = input<string | undefined>();
   readonly whatsapp = input<string | undefined>();
   readonly locationLabel = input.required<string>();
+  readonly paymentReference = input<string | null>(null);
 
   // Outputs
   readonly onClose = output<void>();
@@ -200,6 +219,17 @@ export class PaymentModalComponent implements OnInit {
     }
   }
 
+  copyReference(): void {
+    const reference = this.paymentReference();
+    if (reference && navigator.clipboard) {
+      navigator.clipboard.writeText(reference).then(() => {
+        toast.success('Payment reference copied!');
+      }).catch(() => {
+        toast.error('Failed to copy reference');
+      });
+    }
+  }
+
   confirmPayment(): void {
     if (this.declaring()) return;
     this.orderResponse.set(null);
@@ -241,7 +271,8 @@ export class PaymentModalComponent implements OnInit {
       total: this.totalAmount(),
       phone: this.phone(),
       email: this.email(),
-      declaredAt: new Date().toISOString()
+      declaredAt: new Date().toISOString(),
+      paymentReference: this.paymentReference() || undefined
     };
 
     this.telegramService.sendPaymentDeclaredNotification(telegramMessage).subscribe({

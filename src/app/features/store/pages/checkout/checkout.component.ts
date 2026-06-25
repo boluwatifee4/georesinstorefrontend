@@ -29,6 +29,7 @@ import { GoogleDriveUtilService } from '../../../../core/services/google-drive-u
 import { ReceiptGeneratorService } from '../../../../core/services/receipt-generator.service';
 import { PaymentModalComponent } from '../../../../shared/components/payment-modal.component';
 import { toast } from 'ngx-sonner';
+import { TelegramNotificationService } from '../../../../core/services/telegram-notification.service';
 
 @Component({
   selector: 'app-checkout',
@@ -51,6 +52,7 @@ export class CheckoutComponent implements OnInit {
   private readonly googleDriveService = inject(GoogleDriveUtilService);
   private readonly receiptGenerator = inject(ReceiptGeneratorService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly telegramService = inject(TelegramNotificationService);
 
   // Form
   readonly checkoutForm: FormGroup = this.fb.group({
@@ -62,7 +64,6 @@ export class CheckoutComponent implements OnInit {
     email: ['', [Validators.email]],
     whatsapp: ['', [Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
     locationLabel: ['', [Validators.required]],
-    withinOgbomoso: [false],
     acknowledgeReturnsPolicy: [false, [Validators.requiredTrue]],
   });
 
@@ -109,17 +110,11 @@ export class CheckoutComponent implements OnInit {
   readonly showPaymentModal = signal(false);
   readonly config = signal<ConfigResponse | null>(null);
 
-  // Fixed delivery fee (only when NOT within Ogbomoso)
-  readonly DELIVERY_FEE = 1000;
-
-  // Computed properties
+  // Removed fixed delivery fee for Ogbomoso, now communicated dynamically.
+  readonly deliveryFee = computed(() => 0);
+  readonly total = computed(() => this.subtotal());
+  readonly generatedPaymentReference = signal<string | null>(null);
   readonly isEmpty = computed(() => this.cartItems().length === 0);
-  private readonly _withinOgbomoso = signal(false);
-  readonly withinOgbomoso = () => this._withinOgbomoso();
-  readonly deliveryFee = computed(() =>
-    this.withinOgbomoso() ? 0 : this.DELIVERY_FEE,
-  );
-  readonly total = computed(() => this.subtotal() + this.deliveryFee());
 
   // Formatted values
   readonly formattedSubtotal = computed(
@@ -141,12 +136,6 @@ export class CheckoutComponent implements OnInit {
       this.router.navigate(['/store/cart']);
       return;
     }
-
-    // Sync withinOgbomoso control to signal so computed updates reliably
-    const ctrl = this.checkoutForm.get('withinOgbomoso');
-    ctrl?.valueChanges.subscribe((val) => this._withinOgbomoso.set(!!val));
-    // Initialize signal with initial control value
-    this._withinOgbomoso.set(!!ctrl?.value);
 
     // Load config for payment details
     this.configService.getConfig().subscribe({
@@ -211,6 +200,21 @@ export class CheckoutComponent implements OnInit {
         this.saveOrderResult.set(result);
         this.isSavingOrder.set(false);
         this.generateReceipt(result);
+        
+        // Notify Store Owner on Telegram
+        const formValue = this.checkoutForm.value;
+        this.telegramService.sendOrderSavedNotification({
+          orderCode: result.orderCode,
+          buyerName: formValue.buyerName || 'Customer',
+          phone: formValue.phone,
+          email: formValue.email,
+          whatsapp: formValue.whatsapp,
+          locationLabel: formValue.locationLabel,
+          items: this.cartItems(),
+          subtotal: this.subtotal().toString(),
+          savedAt: new Date().toISOString()
+        }).subscribe();
+
         // Clear cart after successful save
         if (isPlatformBrowser(this.platformId)) {
           try {
@@ -276,7 +280,7 @@ export class CheckoutComponent implements OnInit {
         deliveryLocation: formValue.locationLabel || 'Not specified',
         items: this.cartItems(),
         subtotal: this.subtotal(),
-        deliveryFee: this.DELIVERY_FEE,
+        deliveryFee: 0,
         total: this.total(),
         date: new Date(),
       };
@@ -376,6 +380,11 @@ export class CheckoutComponent implements OnInit {
     }
     // Persist profile before declaring payment
     this.persistProfile();
+    
+    // Generate unique reference for the modal
+    const ref = 'REF-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    this.generatedPaymentReference.set(ref);
+    
     this.declarePayment();
   }
 
@@ -451,7 +460,6 @@ export class CheckoutComponent implements OnInit {
         email: raw.email || '',
         whatsapp: raw.whatsapp || '',
         locationLabel: raw.locationLabel || '',
-        withinOgbomoso: !!raw.withinOgbomoso,
         savedAt: new Date().toISOString(),
       };
       localStorage.setItem('grs_customer_profile', JSON.stringify(profile));
@@ -482,7 +490,6 @@ export class CheckoutComponent implements OnInit {
             email: profile.email || '',
             whatsapp: profile.whatsapp || '',
             locationLabel: profile.locationLabel || '',
-            withinOgbomoso: !!profile.withinOgbomoso,
           },
           { emitEvent: true },
         );

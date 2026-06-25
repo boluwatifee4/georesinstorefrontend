@@ -6,8 +6,9 @@ import {
   computed,
   DestroyRef,
   signal,
+  PLATFORM_ID,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -22,9 +23,20 @@ import { CategoriesStore } from '../../state/categories.store';
 import { CartStore } from '../../state/cart.store';
 import { GoogleDriveUtilService } from '../../../../core/services/google-drive-util.service';
 import { Product } from '../../../../types/api.types';
-import { NgOptimizedImage } from '@angular/common';
 import { SeoService } from '../../../../core/services/seo.service';
-import { TikTokEmbedComponent } from '../../../../shared/components/tiktok-embed.component';
+
+
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideSparkles,
+  lucideFlame,
+  lucideShoppingBag,
+  lucideTruck,
+  lucideShieldCheck,
+  lucideZap,
+  lucideHeartHandshake,
+} from '@ng-icons/lucide';
+
 
 @Component({
   selector: 'app-store-home',
@@ -32,8 +44,18 @@ import { TikTokEmbedComponent } from '../../../../shared/components/tiktok-embed
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    NgOptimizedImage,
-    TikTokEmbedComponent,
+    NgIcon,
+  ],
+  providers: [
+    provideIcons({
+      lucideSparkles,
+      lucideFlame,
+      lucideShoppingBag,
+      lucideTruck,
+      lucideShieldCheck,
+      lucideZap,
+      lucideHeartHandshake,
+    }),
   ],
   templateUrl: './store-home.component.html',
   styleUrls: ['./store-home.component.css'],
@@ -47,6 +69,7 @@ export class StoreHomeComponent implements OnInit {
   private readonly cartStore = inject(CartStore);
   private readonly googleDriveUtil = inject(GoogleDriveUtilService);
   private readonly seo = inject(SeoService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly search = new FormControl('');
 
@@ -84,13 +107,40 @@ export class StoreHomeComponent implements OnInit {
   // Header scroll state (transparent -> solid)
   readonly scrolled = signal(false);
 
-  // TikTok hero background mosaic videos
-  readonly tiktokHeroVideos: string[] = [
-    'https://www.tiktok.com/@geo_crafts08/video/7555856725232880903',
-    'https://www.tiktok.com/@geo_crafts08/video/7555457313277070599',
-    'https://www.tiktok.com/@geo_crafts08/video/7554325402085346567',
-    'https://www.tiktok.com/@geo_crafts08/video/7553574142402940167',
-    'https://www.tiktok.com/@geo_crafts08/video/7558450552271555847',
+  // Slideshow images computed from loaded products
+  readonly newArrivalsImages = computed(() => {
+    return this.newProducts()
+      .map((p) => this.getImageUrl(p.primaryImageUrl || ''))
+      .filter(Boolean);
+  });
+
+  readonly bestSellersImages = computed(() => {
+    return this.featuredProducts()
+      .map((p) => this.getImageUrl(p.primaryImageUrl || ''))
+      .filter(Boolean);
+  });
+
+  readonly allProductsImages = computed(() => {
+    return this.products()
+      .map((p) => this.getImageUrl(p.primaryImageUrl || ''))
+      .filter(Boolean);
+  });
+
+  // Active slide indices for slideshow promo tiles
+  readonly newArrivalsIndex = signal(0);
+  readonly bestSellersIndex = signal(0);
+  readonly allProductsIndex = signal(0);
+
+  // Category gradient palette for visual variety
+  private readonly categoryGradients = [
+    'from-violet-500 to-purple-600',
+    'from-fuchsia-500 to-pink-600',
+    'from-blue-500 to-indigo-600',
+    'from-emerald-500 to-teal-600',
+    'from-amber-500 to-orange-600',
+    'from-rose-500 to-red-600',
+    'from-cyan-500 to-blue-600',
+    'from-lime-500 to-green-600',
   ];
 
   constructor() {
@@ -191,10 +241,38 @@ export class StoreHomeComponent implements OnInit {
       }
 
       // Load general products (could be paginated list) & featured list
-      this.productsStore.loadProducts();
-      this.productsStore.loadFeatured(8);
+      if (isPlatformBrowser(this.platformId)) {
+        this.productsStore.loadProducts();
+        this.productsStore.loadFeatured(8);
+        this.categoriesStore.loadCategories();
 
-      this.categoriesStore.loadCategories();
+        // Staggered promo tile slideshow transitions (every 1.5 seconds, update one card)
+        let ticks = 0;
+        const slideshowInterval = setInterval(() => {
+          ticks++;
+          
+          if (ticks % 3 === 0) {
+            const imgs = this.newArrivalsImages();
+            if (imgs.length > 1) {
+              this.newArrivalsIndex.update((idx) => (idx + 1) % imgs.length);
+            }
+          } else if (ticks % 3 === 1) {
+            const imgs = this.bestSellersImages();
+            if (imgs.length > 1) {
+              this.bestSellersIndex.update((idx) => (idx + 1) % imgs.length);
+            }
+          } else if (ticks % 3 === 2) {
+            const imgs = this.allProductsImages();
+            if (imgs.length > 1) {
+              this.allProductsIndex.update((idx) => (idx + 1) % imgs.length);
+            }
+          }
+        }, 1500);
+
+        this.destroyRef.onDestroy(() => {
+          clearInterval(slideshowInterval);
+        });
+      }
 
       // Initialize cart
       this.cartStore.initializeCart();
@@ -321,5 +399,28 @@ export class StoreHomeComponent implements OnInit {
         block: 'start',
       });
     }
+  }
+
+  onPromoTileClick(action: string): void {
+    switch (action) {
+      case 'new':
+        this.scrollToNewArrivals();
+        break;
+      case 'featured':
+        this.router.navigate(['/store/products'], {
+          queryParams: { featured: true },
+        });
+        break;
+      case 'products':
+        this.goToProducts();
+        break;
+      case 'track':
+        this.goToOrderLookup();
+        break;
+    }
+  }
+
+  getCategoryGradient(index: number): string {
+    return this.categoryGradients[index % this.categoryGradients.length];
   }
 }

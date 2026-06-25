@@ -587,7 +587,7 @@ export class StoreLayoutComponent implements OnInit {
         // 1. Defined Knowledge Base
         const kb: Record<string, string> = {
           shipping:
-            '🚚 Shipping:\nWe deliver nationwide! ₦1,000 outside Ogbomoso, FREE within Ogbomoso.',
+            '🚚 Shipping:\nWe deliver nationwide! Delivery fees are communicated after order placement.',
           payment:
             '💳 Payment:\nWe accept bank transfer. Please place your order first to receive account details.',
           return:
@@ -691,7 +691,5 @@ export class StoreLayoutComponent implements OnInit {
     });
   }
 
-  private isOgbomoso(location: string): boolean {
-    return location.toLowerCase().includes('ogbomoso');
-  }
+
 }

@@ -168,12 +168,7 @@
   }
 }
 
-/* Enhanced focus states for accessibility */
-input:focus,
-button:focus {
-  outline: 2px solid var(--color-brand-600);
-  outline-offset: 2px;
-}
+
 
 /* Custom scrollbar for item list */
 .item-list::-webkit-scrollbar {

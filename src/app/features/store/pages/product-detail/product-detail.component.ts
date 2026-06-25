@@ -644,4 +644,32 @@ export class ProductDetailComponent implements OnInit {
   continueShoppingInline(): void {
     this.showPostAddActions.set(false);
   }
+
+  async shareProduct(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const p = this.product();
+    if (!p) return;
+
+    const url = window.location.href;
+    const selected = this.selectedOptions();
+    const optionValues = Object.values(selected);
+
+    let text = `${p.title}\n`;
+    text += `Price: ₦${this.currentPrice().toLocaleString('en-NG')}\n`;
+
+    if (optionValues.length > 0) {
+      text += `\nOptions:\n`;
+      optionValues.forEach((opt) => {
+        text += `- ${opt.value}\n`;
+      });
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      this.showFeedback('success', 'Product details copied to clipboard!');
+    } catch (err) {
+      this.showFeedback('error', 'Failed to copy product details.');
+    }
+  }
 }

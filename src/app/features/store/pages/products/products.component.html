@@ -236,11 +236,11 @@
 
   <!-- Products Grid -->
   <div
-    *ngIf="!loadingProducts() && !productsError()"
+    *ngIf="!loadingProducts() && (!productsError() || products().length > 0)"
     class="max-w-7xl mx-auto px-4 py-6"
   >
     <!-- Empty State -->
-    <div *ngIf="filteredProducts().length === 0" class="text-center py-16">
+    <div *ngIf="!productsError() && filteredProducts().length === 0" class="text-center py-16">
       <div
         class="bg-surface border border-border rounded-xl p-8 max-w-md mx-auto"
       >

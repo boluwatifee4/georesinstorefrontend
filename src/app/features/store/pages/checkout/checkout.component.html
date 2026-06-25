@@ -258,12 +258,14 @@
                   </label>
                   <input
                     type="text"
+                    id="buyerName"
+                    name="buyerName"
                     formControlName="buyerName"
-                    [class]="
-                      'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
-                      (isFieldInvalid('buyerName')
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 dark:text-white bg-white dark:bg-slate-700 border-2 rounded-xl focus:ring-0 focus:border-violet-500 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    [ngClass]="
+                      isFieldInvalid('buyerName')
                         ? 'border-red-500 dark:border-red-400'
-                        : 'border-gray-300 dark:border-slate-600')
+                        : 'border-gray-300 dark:border-slate-600'
                     "
                     placeholder="Enter your full name"
                   />
@@ -283,12 +285,14 @@
                   </label>
                   <input
                     type="tel"
+                    id="phone"
+                    name="phone"
                     formControlName="phone"
-                    [class]="
-                      'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
-                      (isFieldInvalid('phone')
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 dark:text-white bg-white dark:bg-slate-700 border-2 rounded-xl focus:ring-0 focus:border-violet-500 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    [ngClass]="
+                      isFieldInvalid('phone')
                         ? 'border-red-500 dark:border-red-400'
-                        : 'border-gray-300 dark:border-slate-600')
+                        : 'border-gray-300 dark:border-slate-600'
                     "
                     placeholder="080 1234 5678"
                   />
@@ -308,12 +312,14 @@
                   </label>
                   <input
                     type="email"
+                    id="email"
+                    name="email"
                     formControlName="email"
-                    [class]="
-                      'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
-                      (isFieldInvalid('email')
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 dark:text-white bg-white dark:bg-slate-700 border-2 rounded-xl focus:ring-0 focus:border-violet-500 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    [ngClass]="
+                      isFieldInvalid('email')
                         ? 'border-red-500 dark:border-red-400'
-                        : 'border-gray-300 dark:border-slate-600')
+                        : 'border-gray-300 dark:border-slate-600'
                     "
                     placeholder="your@email.com"
                   />
@@ -333,12 +339,14 @@
                   </label>
                   <input
                     type="tel"
+                    id="whatsapp"
+                    name="whatsapp"
                     formControlName="whatsapp"
-                    [class]="
-                      'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
-                      (isFieldInvalid('whatsapp')
+                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 dark:text-white bg-white dark:bg-slate-700 border-2 rounded-xl focus:ring-0 focus:border-violet-500 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    [ngClass]="
+                      isFieldInvalid('whatsapp')
                         ? 'border-red-500 dark:border-red-400'
-                        : 'border-gray-300 dark:border-slate-600')
+                        : 'border-gray-300 dark:border-slate-600'
                     "
                     placeholder="080 1234 5678"
                   />
@@ -372,12 +380,14 @@
                 </label>
                 <input
                   type="text"
+                  id="locationLabel"
+                  name="locationLabel"
                   formControlName="locationLabel"
-                  [class]="
-                    'w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-700 border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 ' +
-                    (isFieldInvalid('locationLabel')
+                  class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 dark:text-white bg-white dark:bg-slate-700 border-2 rounded-xl focus:ring-0 focus:border-violet-500 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  [ngClass]="
+                    isFieldInvalid('locationLabel')
                       ? 'border-red-500 dark:border-red-400'
-                      : 'border-gray-300 dark:border-slate-600')
+                      : 'border-gray-300 dark:border-slate-600'
                   "
                   placeholder="Enter your city, state, or full address"
                 />
@@ -386,31 +396,6 @@
                   class="text-red-500 text-sm mt-1"
                 >
                   {{ getFieldError("locationLabel") }}
-                </div>
-
-                <!-- Within Ogbomoso Checkbox -->
-                <div
-                  class="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-200 dark:border-blue-700 rounded-xl"
-                >
-                  <label class="flex items-start gap-4 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      formControlName="withinOgbomoso"
-                      class="mt-1 w-5 h-5 text-blue-600 bg-white dark:bg-slate-700 border-2 border-blue-300 dark:border-blue-600 rounded focus:ring-blue-500 focus:ring-2 transition-all duration-200"
-                    />
-                    <div class="flex-1">
-                      <span
-                        class="text-sm font-semibold text-blue-800 dark:text-blue-200 group-hover:text-blue-900 dark:group-hover:text-blue-100 transition-colors"
-                      >
-                        Check this box if your delivery location is within
-                        Ogbomoso city
-                      </span>
-                      <p class="text-xs text-blue-600 dark:text-blue-300 mt-1">
-                        ✓ Check this to get local delivery rates for Ogbomoso
-                        city locations
-                      </p>
-                    </div>
-                  </label>
                 </div>
 
                 <div
@@ -432,18 +417,12 @@
                     </svg>
                     <div class="text-sm text-blue-700 dark:text-blue-300">
                       <p class="font-medium mb-1">Delivery Information</p>
-                      <p *ngIf="!checkoutForm.get('withinOgbomoso')?.value">
+                      <p>
                         We prepare your order and move it from our store to the
-                        designated park for a flat fee of ₦1,000. When the items
+                        designated park. A delivery fee for this will be communicated to you. When the items
                         arrive at the park, the onward delivery (park to your
                         final destination) is negotiated directly between you
                         and the driver.
-                      </p>
-                      <p *ngIf="checkoutForm.get('withinOgbomoso')?.value">
-                        Delivery fees within Ogbomoso vary depending on your
-                        location, typically ranging between ₦500 and ₦1,000. The
-                        rider will contact you directly to confirm the exact
-                        fee.
                       </p>
                     </div>
                   </div>
@@ -521,25 +500,9 @@
               }}</span>
             </div>
 
-            <div
-              *ngIf="!withinOgbomoso()"
-              class="flex justify-between items-center"
-            >
-              <span class="text-gray-600 dark:text-gray-400"
-                >Delivery (to park)</span
-              >
-              <span class="font-semibold text-gray-900 dark:text-white">{{
-                formattedDeliveryFee()
-              }}</span>
-            </div>
-            <div
-              *ngIf="withinOgbomoso()"
-              class="flex justify-between items-center"
-            >
+            <div class="flex justify-between items-center">
               <span class="text-gray-600 dark:text-gray-400">Delivery</span>
-              <span class="font-semibold text-gray-900 dark:text-white"
-                >Excluded</span
-              >
+              <span class="font-semibold text-gray-900 dark:text-white">To be communicated</span>
             </div>
 
             <hr class="border-gray-200 dark:border-slate-600" />
@@ -608,20 +571,12 @@
                     Delivery Information
                   </p>
                   <ul class="text-xs space-y-1 mb-2 sm:mb-3">
-                    <li *ngIf="!withinOgbomoso()">
-                      • ₦1,000 covers moving your items from our store to the
-                      park
+                    <li>
+                      • A delivery fee from our store to the park will be communicated to you.
                     </li>
-                    <li *ngIf="!withinOgbomoso()">
+                    <li>
                       • You negotiate the park-to-final-location cost directly
-                      with the rider
-                    </li>
-                    <li *ngIf="withinOgbomoso()">
-                      • Delivery within Ogbomoso doesn't include park transfer
-                      fee
-                    </li>
-                    <li *ngIf="withinOgbomoso()">
-                      • You may still negotiate a final hand‑off cost
+                      with the rider.
                     </li>
                     <li>
                       After confirmation, we'll contact you with coordination
@@ -747,6 +702,7 @@
     [email]="checkoutForm.get('email')?.value || undefined"
     [whatsapp]="checkoutForm.get('whatsapp')?.value || undefined"
     [locationLabel]="checkoutForm.get('locationLabel')?.value"
+    [paymentReference]="generatedPaymentReference()"
     (onClose)="onPaymentModalClose()"
     (onPaymentConfirmed)="onPaymentConfirmed($event)"
   ></app-payment-modal>
