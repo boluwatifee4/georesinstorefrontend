@@ -242,7 +242,7 @@ export class StoreHomeComponent implements OnInit {
 
       // Load general products (could be paginated list) & featured list
       if (isPlatformBrowser(this.platformId)) {
-        this.productsStore.loadProducts();
+        this.productsStore.loadProducts({ page: 1, limit: 20, q: undefined, category: undefined });
         this.productsStore.loadFeatured(8);
         this.categoriesStore.loadCategories();
 

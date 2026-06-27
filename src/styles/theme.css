@@ -156,9 +156,7 @@ body {
   .glass,
   .card, 
   .bg-surface,
-  header,
-  /* Removed nav.fixed to prevent full-width glass on bottom nav container */
-  aside {
+  header {
     background: var(--glass-bg) !important;
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -222,3 +220,5 @@ body {
     color: var(--color-muted);
   }
 }
+
+

@@ -95,6 +95,10 @@ export class ProductsComponent implements OnInit, AfterViewInit {
     return this.filterForm.get('search') as FormControl;
   }
 
+  get categoryControl(): FormControl {
+    return this.filterForm.get('category') as FormControl;
+  }
+
   get sortByControl(): FormControl {
     return this.filterForm.get('sortBy') as FormControl;
   }
@@ -106,7 +110,7 @@ export class ProductsComponent implements OnInit, AfterViewInit {
 
     if (!products) return [];
 
-    return products.filter((product) => {
+    let result = products.filter((product) => {
       // Search filter
       if (
         filters.search &&
@@ -128,21 +132,32 @@ export class ProductsComponent implements OnInit, AfterViewInit {
         return false;
       }
 
-      // Price range filter
-      const effectiveMin = product.minPrice ?? product.basePrice ?? 0;
-      const effectiveMax =
-        product.maxPrice ?? product.basePrice ?? effectiveMin;
-
-      if (filters.minPrice && effectiveMin < filters.minPrice) {
-        return false;
-      }
-
-      if (filters.maxPrice && effectiveMax > filters.maxPrice) {
-        return false;
-      }
-
       return true;
     });
+
+    // Client-side sorting
+    if (filters.sortBy) {
+      result = [...result].sort((a, b) => {
+        const aPrice = a.basePrice ?? a.minPrice ?? 0;
+        const bPrice = b.basePrice ?? b.minPrice ?? 0;
+
+        switch (filters.sortBy) {
+          case 'price-low':
+            return aPrice - bPrice;
+          case 'price-high':
+            return bPrice - aPrice;
+          case 'name':
+            return a.title.localeCompare(b.title);
+          case 'oldest':
+            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          case 'newest':
+          default:
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }
+      });
+    }
+
+    return result;
   });
 
   readonly totalProducts = computed(() => this.filteredProducts().length);
@@ -152,8 +167,6 @@ export class ProductsComponent implements OnInit, AfterViewInit {
       search: [''],
       category: [''],
       isActive: [null],
-      minPrice: [null],
-      maxPrice: [null],
       sortBy: ['newest'], // newest, oldest, price-low, price-high, name
     });
 
@@ -243,7 +256,9 @@ export class ProductsComponent implements OnInit, AfterViewInit {
     this.handleQueryParams();
     if (isPlatformBrowser(this.platformId)) {
       this.firstLoadCalled.set(true);
-      this.loadInitialData();
+      if (this.categoriesStore.categories().length === 0) {
+        this.categoriesStore.loadCategories();
+      }
     }
   }
 
@@ -297,15 +312,7 @@ export class ProductsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private loadInitialData(): void {
-    try {
-      // Load products and categories
-      this.productsStore.loadProducts({ page: 1, limit: 20 });
-      this.categoriesStore.loadCategories();
-    } catch (error) {
-      console.error('ProductsComponent loadInitialData failed:', error);
-    }
-  }
+  // Initial data is now smartly loaded within handleQueryParams and ngOnInit to avoid double-fetching
 
   private setupFilterHandling(): void {
     this.filterForm.valueChanges
@@ -328,17 +335,19 @@ export class ProductsComponent implements OnInit, AfterViewInit {
         const current = this.filterForm.value;
         const next: any = {};
         let changed = false;
-        if (params['q'] !== undefined && current.search !== params['q']) {
-          next.search = params['q'];
+
+        const targetSearch = params['q'] || '';
+        if (current.search !== targetSearch) {
+          next.search = targetSearch;
           changed = true;
         }
-        if (
-          params['category'] !== undefined &&
-          current.category !== params['category']
-        ) {
-          next.category = params['category'];
+
+        const targetCategory = params['category'] || '';
+        if (current.category !== targetCategory) {
+          next.category = targetCategory;
           changed = true;
         }
+
         if (params['isActive'] !== undefined) {
           const boolVal = params['isActive'] === 'true';
           if (current.isActive !== boolVal) {
@@ -346,20 +355,30 @@ export class ProductsComponent implements OnInit, AfterViewInit {
             changed = true;
           }
         }
+
         if (changed) {
           this.filterForm.patchValue(next, { emitEvent: false }); // avoid bouncing back into applyFilters
         }
 
-        // If category (or search) present in URL, load products directly with those filters to avoid fetching full list first
-        const filtersInUrl: any = {};
-        if (params['category']) filtersInUrl.category = params['category'];
-        if (params['q']) filtersInUrl.q = params['q'];
-        if (Object.keys(filtersInUrl).length && isPlatformBrowser(this.platformId)) {
-          this.productsStore.loadProducts({
-            page: 1,
-            limit: 20,
-            ...filtersInUrl,
-          });
+        // Smart pre-fetch reuse: Calculate target filters from URL and compare with store
+        // We explicitly pass undefined for absent filters to overwrite any previous search/category filters in the store state merge.
+        const apiFilters: any = {
+          page: 1,
+          limit: 20,
+          q: params['q'] || undefined,
+          category: params['category'] || undefined
+        };
+        
+        if (isPlatformBrowser(this.platformId)) {
+          const currentStoreFilters = this.productsStore.filters();
+          const hasProducts = this.productsStore.hasProducts();
+          
+          // Only fetch if filters differ from what's in the store OR if we have no products
+          const filtersDiffer = currentStoreFilters.q !== apiFilters.q || currentStoreFilters.category !== apiFilters.category;
+          
+          if (!hasProducts || filtersDiffer) {
+            this.productsStore.loadProducts(apiFilters);
+          }
         }
       });
   }
@@ -369,8 +388,9 @@ export class ProductsComponent implements OnInit, AfterViewInit {
     const filters = this.filterForm.value;
     const queryParams: any = {};
 
-    if (filters.search) queryParams.q = filters.search;
-    if (filters.category) queryParams.category = filters.category;
+    // Explicitly pass null for empty filters to clear them from URL query params
+    queryParams.q = filters.search?.trim() || null;
+    queryParams.category = filters.category || null;
     if (filters.isActive !== null) queryParams.isActive = filters.isActive;
 
     this.router.navigate([], {
@@ -442,19 +462,40 @@ export class ProductsComponent implements OnInit, AfterViewInit {
   }
 
   // UI Methods
-  toggleFilters(): void {
-    this.showFilters.update((show) => !show);
-  }
+  readonly selectedCategoryName = computed(() => {
+    const slug = this.filterForm.get('category')?.value;
+    if (!slug) return '';
+    const cat = this.categories().find((c: any) => c.slug === slug);
+    return cat ? cat.name : slug;
+  });
+
+  readonly hasActiveFilters = computed(() => {
+    const filters = this.filterForm.value;
+    return !!(
+      filters.search?.trim() ||
+      filters.category
+    );
+  });
 
   clearFilters(): void {
     this.filterForm.reset({
       search: '',
       category: '',
       isActive: null,
-      minPrice: null,
-      maxPrice: null,
       sortBy: 'newest',
     });
+  }
+
+  clearSearch(): void {
+    this.filterForm.patchValue({ search: '' });
+  }
+
+  clearCategory(): void {
+    this.filterForm.patchValue({ category: '' });
+  }
+
+  toggleFilters(): void {
+    this.showFilters.update((show) => !show);
   }
 
   sortProducts(sortBy: string): void {

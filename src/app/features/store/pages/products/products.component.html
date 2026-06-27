@@ -1,21 +1,21 @@
 <div class="min-h-screen bg-bg">
-  <!-- Search & Filter Header -->
+  <!-- Search & Category Header -->
   <div
     class="sticky top-0 z-20 bg-surface/95 backdrop-blur-xl border-b border-border shadow-sm"
   >
     <div
-      class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 overflow-visible"
+      class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6"
     >
       <!-- Search Bar -->
-      <div class="relative mb-4">
+      <div class="relative mb-3">
         <input
           [formControl]="searchControl"
           type="search"
-          placeholder="Search premium resin products..."
-          class="w-full pl-12 pr-4 py-3 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all duration-300 text-text placeholder:text-muted"
+          placeholder="What are you looking for?"
+          class="w-full pl-11 pr-12 py-3.5 bg-bg border border-border rounded-2xl text-base focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all duration-300 text-text placeholder:text-muted"
         />
         <svg
-          class="absolute left-4 top-3.5 h-5 w-5 text-muted"
+          class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -27,134 +27,66 @@
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
           ></path>
         </svg>
+        <!-- Clear search button -->
+        <button
+          *ngIf="searchControl.value"
+          type="button"
+          (click)="clearSearch()"
+          class="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 border border-gray-200/60 rounded-full transition-all duration-200 cursor-pointer z-10"
+          title="Clear search"
+        >
+          <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
-      <!-- Filter Controls -->
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <!-- Filter Toggle -->
-          <button
-            type="button"
-            (click)="toggleFilters()"
-            class="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors duration-300 text-sm font-medium"
+      <!-- Category Select + Sort + Results Count -->
+      <div class="flex items-center gap-3">
+        <!-- Custom Category Select -->
+        <div class="relative flex-1 min-w-0">
+          <select
+            [formControl]="categoryControl"
+            class="w-full appearance-none pl-4 pr-10 py-2.5 bg-bg border border-border rounded-xl text-sm text-text font-medium focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all duration-300 cursor-pointer"
           >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"
-              />
+            <option value="">All Categories</option>
+            <option *ngFor="let category of categories(); trackBy: trackById" [value]="category.slug">
+              {{ category.name }}
+            </option>
+          </select>
+          <!-- Custom dropdown arrow -->
+          <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
-            Filters
-          </button>
+          </div>
+        </div>
 
-          <!-- Sort Dropdown -->
+        <!-- Sort Select -->
+        <div class="relative shrink-0">
           <select
             [formControl]="sortByControl"
-            class="px-3 py-2 bg-bg border border-border rounded-lg text-sm text-text focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
+            class="appearance-none pl-4 pr-9 py-2.5 bg-bg border border-border rounded-xl text-sm text-text font-medium focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all duration-300 cursor-pointer"
           >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="name">Name A-Z</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="price-low">Price ↑</option>
+            <option value="price-high">Price ↓</option>
+            <option value="name">A-Z</option>
           </select>
+          <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
 
         <!-- Results Count -->
-        <div class="text-sm text-muted">
+        <div class="hidden sm:block text-sm text-muted whitespace-nowrap">
           {{ totalProducts() }}
           {{ totalProducts() === 1 ? "product" : "products" }}
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Expandable Filters Panel -->
-  <div *ngIf="showFilters()" class="bg-surface border-b border-border">
-    <div class="max-w-7xl mx-auto px-4 py-6">
-      <form [formGroup]="filterForm" class="space-y-6">
-        <!-- Categories Filter -->
-        <div>
-          <label class="block text-sm font-medium text-text mb-3"
-            >Category</label
-          >
-          <div
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2"
-          >
-            <button
-              type="button"
-              (click)="filterForm.patchValue({ category: '' })"
-              class="px-3 py-2 text-sm border border-border rounded-lg transition-all duration-300"
-              [ngClass]="{
-                'bg-brand-600 text-white border-brand-600':
-                  !filterForm.get('category')?.value,
-                'bg-bg text-text hover:border-brand-600':
-                  filterForm.get('category')?.value,
-              }"
-            >
-              All
-            </button>
-            <button
-              *ngFor="let category of categories(); trackBy: trackById"
-              type="button"
-              (click)="filterForm.patchValue({ category: category.slug })"
-              class="px-3 py-2 text-sm border border-border rounded-lg transition-all duration-300 text-left"
-              [ngClass]="{
-                'bg-brand-600 text-white border-brand-600':
-                  filterForm.get('category')?.value === category.slug,
-                'bg-bg text-text hover:border-brand-600':
-                  filterForm.get('category')?.value !== category.slug,
-              }"
-            >
-              {{ category.name }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Price Range -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-text mb-2"
-              >Min Price (₦)</label
-            >
-            <input
-              type="number"
-              formControlName="minPrice"
-              placeholder="0"
-              class="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-text mb-2"
-              >Max Price (₦)</label
-            >
-            <input
-              type="number"
-              formControlName="maxPrice"
-              placeholder="100000"
-              class="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20"
-            />
-          </div>
-        </div>
-
-        <!-- Clear Filters -->
-        <div class="flex justify-end">
-          <button
-            type="button"
-            (click)="clearFilters()"
-            class="px-4 py-2 text-sm text-muted hover:text-text border border-border rounded-lg hover:border-brand-600 transition-all duration-300"
-          >
-            Clear Filters
-          </button>
-        </div>
-      </form>
     </div>
   </div>
 

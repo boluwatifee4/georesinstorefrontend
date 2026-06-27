@@ -79,3 +79,20 @@ a:focus-visible {
   outline: 2px solid var(--color-brand-600);
   outline-offset: 2px; /* simulate ring offset */
 }
+
+/* Mobile responsive override to disable glassmorphism and ensure solid background readability */
+@media (max-width: 1023px) {
+  aside.bg-surface {
+    background: #ffffff !important; /* Solid opaque background on mobile */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-right: 1px solid var(--color-border) !important;
+    box-shadow: 10px 0 20px rgba(0, 0, 0, 0.08) !important; /* soft shadow to the right */
+  }
+
+  /* Support for dark theme if active */
+  :host-context(.dark) aside.bg-surface {
+    background: #171123 !important;
+  }
+}
+
