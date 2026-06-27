@@ -9,6 +9,10 @@ import {
   PLATFORM_ID,
   Inject,
   effect,
+  AfterViewInit,
+  ViewChildren,
+  QueryList,
+  ElementRef,
 } from '@angular/core';
 import {
   CommonModule,
@@ -47,7 +51,7 @@ import { toast } from 'ngx-sonner';
   styleUrls: ['./products.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductsComponent implements OnInit {
+export class ProductsComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -58,6 +62,9 @@ export class ProductsComponent implements OnInit {
   private readonly seo = inject(SeoService);
   private readonly notificationsApi = inject(PublicNotificationsService);
 
+  @ViewChildren('productCard') productCards!: QueryList<ElementRef>;
+  private scrollObserver: IntersectionObserver | null = null;
+
   // State
   readonly products = this.productsStore.products;
   readonly categories = this.categoriesStore.categories;
@@ -65,6 +72,12 @@ export class ProductsComponent implements OnInit {
   readonly loadingCategories = this.categoriesStore.loading;
   readonly productsError = this.productsStore.error;
   readonly showFilters = signal(false);
+  readonly firstLoadCalled = signal(false);
+  readonly initialLoadDone = computed(() => {
+    if (!this.firstLoadCalled()) return false;
+    if (this.loadingProducts()) return false;
+    return true;
+  });
   // Pagination from store
   readonly hasMoreData = this.productsStore.hasMore;
   readonly loadingMore = signal(false);
@@ -217,13 +230,70 @@ export class ProductsComponent implements OnInit {
 
       this.seo.setBreadcrumbStructuredData(breadcrumbs);
     });
+
+    this.destroyRef.onDestroy(() => {
+      if (this.scrollObserver) {
+        this.scrollObserver.disconnect();
+      }
+    });
   }
 
   ngOnInit(): void {
     this.setupFilterHandling();
     this.handleQueryParams();
     if (isPlatformBrowser(this.platformId)) {
+      this.firstLoadCalled.set(true);
       this.loadInitialData();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.productCards.changes
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.updateSentinelObserver();
+        });
+      // Initial setup
+      this.updateSentinelObserver();
+    }
+  }
+
+  private updateSentinelObserver(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (this.scrollObserver) {
+      this.scrollObserver.disconnect();
+    }
+
+    if (!this.hasMoreData() || this.loadingProducts() || this.loadingMore()) {
+      return;
+    }
+
+    const cardsArray = this.productCards.toArray();
+    const len = cardsArray.length;
+    if (len === 0) return;
+
+    // Calculate sentinel index: 60% of loaded products (beyond the middle)
+    const sentinelIndex = Math.floor(len * 0.6);
+    const sentinelCard = cardsArray[sentinelIndex];
+
+    if (sentinelCard) {
+      this.scrollObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            if (this.scrollObserver) {
+              this.scrollObserver.disconnect();
+            }
+            this.loadMoreProducts();
+          }
+        },
+        {
+          root: null,
+          threshold: 0.1,
+        }
+      );
+      this.scrollObserver.observe(sentinelCard.nativeElement);
     }
   }
 
@@ -320,10 +390,9 @@ export class ProductsComponent implements OnInit {
 
     this.loadingMore.set(true);
 
-    // Store current scroll position to prevent jumping
-    const currentScrollY = isPlatformBrowser(this.platformId)
-      ? window.scrollY
-      : 0;
+    if (this.scrollObserver) {
+      this.scrollObserver.disconnect();
+    }
 
     // Load products with current filters using the quiet method
     const currentFilters = this.filterForm.value;
@@ -341,25 +410,13 @@ export class ProductsComponent implements OnInit {
     if (subscription) {
       subscription.add(() => {
         this.loadingMore.set(false);
-
-        // Restore scroll position to prevent jumping
-        if (isPlatformBrowser(this.platformId)) {
-          setTimeout(() => {
-            window.scrollTo(0, currentScrollY);
-          }, 50);
-        }
+        this.updateSentinelObserver();
       });
     } else {
       // Fallback timeout
       setTimeout(() => {
         this.loadingMore.set(false);
-
-        // Restore scroll position to prevent jumping
-        if (isPlatformBrowser(this.platformId)) {
-          setTimeout(() => {
-            window.scrollTo(0, currentScrollY);
-          }, 50);
-        }
+        this.updateSentinelObserver();
       }, 2000);
     }
   }
@@ -373,27 +430,13 @@ export class ProductsComponent implements OnInit {
       event.stopImmediatePropagation();
     }
 
-    // Avoid the button stealing focus and changing scroll position
+    // Avoid the button stealing focus
     const target = event?.currentTarget as HTMLElement | undefined;
     if (target) {
       target.blur();
     }
 
     if (this.loadingMore() || !this.hasMoreData()) return;
-
-    // Store current scroll position before loading
-    if (isPlatformBrowser(this.platformId)) {
-      const currentScrollY = window.scrollY;
-      // Smooth scroll adjustment to account for new content
-      setTimeout(() => {
-        if (window.scrollY !== currentScrollY) {
-          window.scrollTo({
-            top: currentScrollY,
-            behavior: 'auto',
-          });
-        }
-      }, 100);
-    }
 
     this.loadMoreProducts();
   }

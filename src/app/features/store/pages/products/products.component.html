@@ -236,7 +236,7 @@
 
   <!-- Products Grid -->
   <div
-    *ngIf="!loadingProducts() && (!productsError() || products().length > 0)"
+    *ngIf="initialLoadDone() && (!productsError() || products().length > 0)"
     class="max-w-7xl mx-auto px-4 py-6"
   >
     <!-- Empty State -->
@@ -282,6 +282,7 @@
     >
       <div
         *ngFor="let product of filteredProducts(); trackBy: trackById"
+        #productCard
         class="group relative cursor-pointer glass backdrop-blur-xl rounded-xl overflow-visible md:hover:shadow-xl md:hover:border-brand-600/30 transition-all duration-500 md:hover:-translate-y-1 active:scale-[0.98] touch-manipulation flex flex-col h-full"
         (click)="viewProduct(product)"
       >
@@ -472,20 +473,28 @@
 
     <!-- Load More Button / End of Results -->
     <div class="text-center py-8" *ngIf="filteredProducts().length > 0">
-      <button
-        *ngIf="hasMoreData(); else endOfResults"
-        type="button"
-        (mousedown)="$event.preventDefault()"
-        (click)="onLoadMore($event)"
-        class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl hover:border-brand-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-        [disabled]="loadingMore()"
-      >
+      <ng-container *ngIf="hasMoreData(); else endOfResults">
+        <!-- Background loading indicator -->
         <div
           *ngIf="loadingMore()"
-          class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"
-        ></div>
-        <span>{{ loadingMore() ? "Loading..." : "Load More Products" }}</span>
-      </button>
+          class="inline-flex items-center gap-3 px-6 py-3 text-muted text-sm font-medium"
+        >
+          <div
+            class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"
+          ></div>
+          <span>Loading more products...</span>
+        </div>
+        <!-- Fallback manual button when not currently loading -->
+        <button
+          *ngIf="!loadingMore()"
+          type="button"
+          (mousedown)="$event.preventDefault()"
+          (click)="onLoadMore($event)"
+          class="inline-flex items-center gap-3 px-6 py-3 bg-surface border border-border rounded-xl hover:border-brand-600 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+        >
+          <span>Load More Products</span>
+        </button>
+      </ng-container>
       <ng-template #endOfResults>
         <div class="text-center space-y-6">
           <div
