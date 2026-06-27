@@ -42,3 +42,7 @@ testem.log
 Thumbs.db
 
 .env
+
+# Build-time generated routes and cache
+/routes.txt
+/prerender-products.json

@@ -19,6 +19,7 @@ import { ADMIN_API_BASE_URL, BASE_API_URL } from './config/tokens/api.tokens';
 import { adminAuthInterceptor } from './core/interceptors/admin-auth.interceptor';
 import { errorTrackerInterceptor } from './core/interceptors/error-tracker.interceptor';
 import { noCacheInterceptor } from './core/interceptors/no-cache.interceptor';
+import { serverCacheInterceptor } from './core/interceptors/server-cache.interceptor';
 import { ScrollService } from './core/services/scroll.service';
 import { environment } from '../environments/environment';
 import { ICON_PROVIDERS } from './shared/icon';
@@ -37,6 +38,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(
       withInterceptors([
+        serverCacheInterceptor,
         adminAuthInterceptor,
         noCacheInterceptor,
         errorTrackerInterceptor,

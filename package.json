@@ -4,8 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build ",
-    "build:prod": "ng build --configuration production",
+    "build": "node prerender-routes-generator.js && ng build",
+    "build:prod": "node prerender-routes-generator.js && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:grs-frontend": "node dist/grs-frontend/server/server.mjs"
