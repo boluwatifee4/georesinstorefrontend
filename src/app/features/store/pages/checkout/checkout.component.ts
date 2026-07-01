@@ -64,6 +64,7 @@ export class CheckoutComponent implements OnInit {
     email: ['', [Validators.email]],
     whatsapp: ['', [Validators.pattern(/^[\+]?[0-9\-\(\)\s]+$/)]],
     locationLabel: ['', [Validators.required]],
+    withinIbadan: [false],
     acknowledgeReturnsPolicy: [false, [Validators.requiredTrue]],
   });
 
@@ -110,9 +111,12 @@ export class CheckoutComponent implements OnInit {
   readonly showPaymentModal = signal(false);
   readonly config = signal<ConfigResponse | null>(null);
 
-  // Removed fixed delivery fee for Ogbomoso, now communicated dynamically.
-  readonly deliveryFee = computed(() => 0);
-  readonly total = computed(() => this.subtotal());
+  private readonly _withinIbadan = signal(false);
+  readonly withinIbadan = () => this._withinIbadan();
+
+  // Fixed delivery fee to the park
+  readonly deliveryFee = computed(() => this.withinIbadan() ? 0 : 1000);
+  readonly total = computed(() => this.subtotal() + this.deliveryFee());
   readonly generatedPaymentReference = signal<string | null>(null);
   readonly isEmpty = computed(() => this.cartItems().length === 0);
 
@@ -145,6 +149,11 @@ export class CheckoutComponent implements OnInit {
         toast.error('Load Config failed');
       },
     });
+
+    // Sync withinIbadan control to signal so computed updates reliably
+    const ctrl = this.checkoutForm.get('withinIbadan');
+    ctrl?.valueChanges.subscribe((val) => this._withinIbadan.set(!!val));
+    this._withinIbadan.set(!!ctrl?.value);
 
     // Attempt to prefill previously saved customer profile
     this.loadSavedProfile();
@@ -280,7 +289,7 @@ export class CheckoutComponent implements OnInit {
         deliveryLocation: formValue.locationLabel || 'Not specified',
         items: this.cartItems(),
         subtotal: this.subtotal(),
-        deliveryFee: 0,
+        deliveryFee: this.deliveryFee(),
         total: this.total(),
         date: new Date(),
       };
@@ -460,6 +469,7 @@ export class CheckoutComponent implements OnInit {
         email: raw.email || '',
         whatsapp: raw.whatsapp || '',
         locationLabel: raw.locationLabel || '',
+        withinIbadan: !!raw.withinIbadan,
         savedAt: new Date().toISOString(),
       };
       localStorage.setItem('grs_customer_profile', JSON.stringify(profile));
@@ -490,6 +500,7 @@ export class CheckoutComponent implements OnInit {
             email: profile.email || '',
             whatsapp: profile.whatsapp || '',
             locationLabel: profile.locationLabel || '',
+            withinIbadan: !!profile.withinIbadan,
           },
           { emitEvent: true },
         );
